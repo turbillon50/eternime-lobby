@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+:root {
+  color-scheme: dark;
+  background: #000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: #000;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  background: #000;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+button {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.24);
+  color: #fff;
+}
+
+.eternime-ring {
+  width: clamp(13.5rem, 39vw, 34rem);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.82);
+  background:
+    radial-gradient(circle at 50% 48%, transparent 57%, rgba(255, 255, 255, 0.24) 58%, transparent 64%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2), transparent 58%);
+  box-shadow:
+    0 0 22px rgba(255, 255, 255, 0.9),
+    0 0 90px rgba(255, 255, 255, 0.35),
+    inset 0 0 28px rgba(255, 255, 255, 0.5),
+    inset 0 0 120px rgba(255, 255, 255, 0.08);
+}
+
+.primary-button,
+.quiet-button,
+.intent-option {
+  min-height: 3.25rem;
+  border-radius: 999px;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.primary-button {
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.92);
+  color: #050505;
+  padding: 0 2.1rem;
+  box-shadow: 0 0 34px rgba(255, 255, 255, 0.22);
+}
+
+.primary-button:hover,
+.quiet-button:hover,
+.intent-option:hover {
+  transform: translateY(-1px);
+}
+
+.primary-button:focus-visible,
+.quiet-button:focus-visible,
+.intent-option:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 3px;
+}
+
+.quiet-button {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(255, 255, 255, 0.82);
+  padding: 0 1.25rem;
+  backdrop-filter: blur(18px);
+}
+
+.quiet-button:hover,
+.intent-option:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.intent-option {
+  min-height: 4.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.035);
+  padding: 0.9rem 0.8rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.84rem;
+  line-height: 1.2;
+  backdrop-filter: blur(18px);
+}
+
+.intent-option-active {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.06);
+}
+
+.memory-fragment {
+  position: absolute;
+  aspect-ratio: 1.55;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.55rem;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.025)),
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.24), transparent 36%);
+  box-shadow: 0 0 28px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+@media (max-width: 700px) {
+  .memory-fragment {
+    opacity: 0.46 !important;
+    transform: scale(0.72);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
