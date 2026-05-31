@@ -15,8 +15,8 @@ export function WebGLOverlay({ intensity, lowPower }: { intensity: number; lowPo
         gl={{ alpha: true, antialias: false, powerPreference: "low-power" }}
       >
         <ambientLight intensity={0.8} />
-        <ParticleField count={lowPower ? 95 : 180} intensity={intensity} />
-        <NeuralLines lowPower={lowPower} />
+        <ParticleField count={lowPower ? 110 : 230} intensity={intensity} />
+        <NeuralLines intensity={intensity} lowPower={lowPower} />
       </Canvas>
     </div>
   );
@@ -43,14 +43,15 @@ function ParticleField({ count, intensity }: { count: number; intensity: number 
 
   useFrame(({ clock }) => {
     if (!points.current) return;
-    points.current.rotation.z = clock.elapsedTime * 0.022 * intensity;
-    points.current.rotation.x = pointer.y * 0.035;
-    points.current.rotation.y = pointer.x * 0.055;
+    points.current.rotation.z = clock.elapsedTime * 0.018 * intensity;
+    points.current.rotation.x = pointer.y * 0.055;
+    points.current.rotation.y = pointer.x * 0.075;
+    points.current.position.z = Math.sin(clock.elapsedTime * 0.7) * 0.04 * intensity;
   });
 
   return (
     <Points ref={points} positions={particles} stride={3} frustumCulled={false}>
-      <PointMaterial transparent color="#ffffff" size={0.018} sizeAttenuation depthWrite={false} opacity={0.62} />
+      <PointMaterial transparent color="#ffffff" size={0.02} sizeAttenuation depthWrite={false} opacity={0.7} />
     </Points>
   );
 }
@@ -60,9 +61,9 @@ function seededUnit(value: number) {
   return x - Math.floor(x);
 }
 
-function NeuralLines({ lowPower }: { lowPower: boolean }) {
+function NeuralLines({ intensity, lowPower }: { intensity: number; lowPower: boolean }) {
   const lines = useMemo(() => {
-    const total = lowPower ? 10 : 18;
+    const total = lowPower ? 12 : 24;
     return Array.from({ length: total }, (_, index) => {
       const angle = (index / total) * Math.PI * 2;
       const radius = 1.65 + (index % 4) * 0.22;
@@ -74,9 +75,9 @@ function NeuralLines({ lowPower }: { lowPower: boolean }) {
   }, [lowPower]);
 
   return (
-    <Float speed={0.55} rotationIntensity={0.05} floatIntensity={0.25}>
+    <Float speed={0.48 + intensity * 0.05} rotationIntensity={0.08} floatIntensity={0.32}>
       {lines.map((line, index) => (
-        <Line key={index} points={line} color="#ffffff" transparent opacity={0.13} lineWidth={1} />
+        <Line key={index} points={line} color="#ffffff" transparent opacity={0.1 + intensity * 0.025} lineWidth={1} />
       ))}
     </Float>
   );

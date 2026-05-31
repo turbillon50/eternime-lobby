@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CinematicVideo } from "@/components/layers/cinematic-video";
 import { MemoryFragments } from "@/components/layers/memory-fragments";
 import { PrimaryButton, QuietButton } from "@/components/ui/buttons";
@@ -36,10 +36,12 @@ const steps = [
 ] as const;
 
 const preservationOptions = ["Mine", "My Family", "Someone I Love", "A Company", "A Legacy Project"];
+const sequenceLabels = ["Trace", "Signal", "Legacy", "Anchor"];
 
 export function EternimeLobby({ clerkEnabled }: { clerkEnabled: boolean }) {
   const [step, setStep] = useState<LobbyStep>(0);
   const [selectedIntent, setSelectedIntent] = useState(preservationOptions[0]);
+  const [pulseKey, setPulseKey] = useState(0);
 
   const phase = useMemo(() => {
     if (step === 4) return "dashboard";
@@ -47,19 +49,38 @@ export function EternimeLobby({ clerkEnabled }: { clerkEnabled: boolean }) {
     return "lobby";
   }, [step]);
 
+  const advance = useCallback(() => {
+    setPulseKey((current) => current + 1);
+    setStep((current) => Math.min(current + 1, 4) as LobbyStep);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        advance();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [advance]);
+
   return (
     <main className="relative min-h-svh overflow-hidden bg-black text-white">
       <CinematicVideo />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.13),rgba(0,0,0,0.18)_25%,#000_78%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.09),rgba(0,0,0,0.12)_25%,#000_84%)]" />
       <WebGLOverlay intensity={step + 1} lowPower={step >= 3} />
       <MemoryFragments active={step >= 2} />
+      <PortalPulse pulseKey={pulseKey} />
+      <GameHud step={step} />
 
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <motion.div
           className="eternime-ring"
           animate={{
-            scale: step === 0 ? 1 : step === 1 ? 1.07 : 1.14,
-            opacity: phase === "dashboard" ? 0.34 : 0.86,
+            scale: step === 0 ? 1 : step === 1 ? 1.09 : step === 2 ? 1.18 : 1.28,
+            opacity: phase === "dashboard" ? 0.28 : 0.9,
           }}
           transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
         />
@@ -71,7 +92,7 @@ export function EternimeLobby({ clerkEnabled }: { clerkEnabled: boolean }) {
             <LobbyPanel
               key={`lobby-${step}`}
               step={step}
-              onNext={() => setStep((current) => Math.min(current + 1, 3) as LobbyStep)}
+              onNext={advance}
             />
           )}
 
@@ -81,7 +102,7 @@ export function EternimeLobby({ clerkEnabled }: { clerkEnabled: boolean }) {
               selectedIntent={selectedIntent}
               clerkEnabled={clerkEnabled}
               onSelectIntent={setSelectedIntent}
-              onContinue={() => setStep(4)}
+              onContinue={advance}
             />
           )}
 
@@ -89,6 +110,51 @@ export function EternimeLobby({ clerkEnabled }: { clerkEnabled: boolean }) {
         </AnimatePresence>
       </section>
     </main>
+  );
+}
+
+function GameHud({ step }: { step: LobbyStep }) {
+  const progress = Math.min(step, 3);
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between px-5 py-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.38em] text-white/45">ETERNIME / LOBBY</p>
+          <p className="mt-2 font-mono text-[0.62rem] uppercase tracking-[0.22em] text-white/28">
+            Memory link {String(progress + 1).padStart(2, "0")}
+          </p>
+        </div>
+        <div className="hidden text-right sm:block">
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-white/42">Digital Legacy Intelligence</p>
+          <p className="mt-2 font-mono text-[0.62rem] uppercase tracking-[0.22em] text-white/28">Signal stable</p>
+        </div>
+      </div>
+
+      <div className="mx-auto grid w-full max-w-3xl grid-cols-4 gap-2">
+        {sequenceLabels.map((label, index) => (
+          <div className="sequence-node" key={label}>
+            <span className={index <= progress ? "sequence-bar sequence-bar-active" : "sequence-bar"} />
+            <span className={index <= progress ? "sequence-label sequence-label-active" : "sequence-label"}>{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PortalPulse({ pulseKey }: { pulseKey: number }) {
+  return (
+    <AnimatePresence>
+      <motion.div
+        key={pulseKey}
+        className="pointer-events-none absolute inset-0 z-[3] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.22),transparent_22%,rgba(255,255,255,0.04)_35%,transparent_58%)]"
+        initial={{ opacity: 0, scale: 0.88 }}
+        animate={{ opacity: [0, 1, 0], scale: [0.88, 1.18, 1.42] }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.92, ease: [0.22, 1, 0.36, 1] }}
+      />
+    </AnimatePresence>
   );
 }
 
@@ -107,6 +173,7 @@ function LobbyPanel({ step, onNext }: { step: 0 | 1 | 2; onNext: () => void }) {
       <h1 className="mt-8 max-w-4xl text-balance text-5xl font-light leading-[0.98] text-white sm:text-7xl lg:text-8xl">
         {content.title}
       </h1>
+      <div className="mt-8 h-px w-36 bg-gradient-to-r from-transparent via-white/50 to-transparent" />
       <PrimaryButton className="mt-12" onClick={onNext}>
         {content.action}
       </PrimaryButton>
