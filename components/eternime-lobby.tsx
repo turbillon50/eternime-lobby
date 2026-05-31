@@ -77,10 +77,10 @@ export function EternimeLobby({ clerkEnabled }: { clerkEnabled: boolean }) {
 
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <motion.div
-          className="eternime-ring"
+          className="eternime-video-halo"
           animate={{
-            scale: step === 0 ? 1 : step === 1 ? 1.09 : step === 2 ? 1.18 : 1.28,
-            opacity: phase === "dashboard" ? 0.28 : 0.9,
+            scale: step === 0 ? 1 : step === 1 ? 1.08 : step === 2 ? 1.16 : 1.24,
+            opacity: phase === "dashboard" ? 0.12 : 0.34,
           }}
           transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
         />

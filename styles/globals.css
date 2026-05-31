@@ -38,19 +38,17 @@ button {
   color: #fff;
 }
 
-.eternime-ring {
-  width: clamp(13.5rem, 39vw, 34rem);
+.eternime-video-halo {
+  width: clamp(14rem, 41vw, 35rem);
   aspect-ratio: 1;
   border-radius: 9999px;
-  border: 2px solid rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background:
-    radial-gradient(circle at 50% 48%, transparent 57%, rgba(255, 255, 255, 0.24) 58%, transparent 64%),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2), transparent 58%);
+    radial-gradient(circle at 50% 50%, transparent 52%, rgba(255, 255, 255, 0.1) 64%, transparent 72%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 60%);
   box-shadow:
-    0 0 22px rgba(255, 255, 255, 0.9),
-    0 0 90px rgba(255, 255, 255, 0.35),
-    inset 0 0 28px rgba(255, 255, 255, 0.5),
-    inset 0 0 120px rgba(255, 255, 255, 0.08);
+    0 0 70px rgba(255, 255, 255, 0.14),
+    inset 0 0 90px rgba(255, 255, 255, 0.05);
   animation: ring-breathe 5.8s ease-in-out infinite;
 }
 
