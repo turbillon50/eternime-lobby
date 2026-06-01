@@ -18,6 +18,8 @@ export type MemoryRecord = {
   sensitivity: MemorySensitivity;
   tags: string[];
   embedding: number[];
+  embeddingModel: string;
+  embeddingProvider: "local" | "openai";
   createdAt: string;
 };
 
