@@ -2,9 +2,9 @@
 
 ETERNIME - Digital Legacy Intelligence.
 
-This repository contains the first functional cinematic onboarding lobby for Eternime: a premium Next.js PWA with a full-screen video atmosphere, glowing ring, WebGL particle layer, interactive onboarding sequence, demo-safe auth entry, and first empty dashboard state.
+This repository contains the first functional cinematic onboarding lobby for Eternime: a premium Next.js PWA with a full-screen video atmosphere, glowing ring, WebGL particle layer, interactive onboarding sequence, demo-safe auth entry, and first dashboard state.
 
-The dashboard now includes the first foundation for Eternime's intelligence layer: a Master Agent blueprint, a Personal Memory Agent, and a demo semantic vector memory vault per individual. The current implementation runs locally in browser storage for the MVP, with the contracts prepared for a real vector database and persistent user storage.
+The dashboard now includes the first foundation for Eternime's intelligence layer: a Master Agent blueprint, a Personal Memory Agent, and a semantic vector memory vault per individual. The current implementation is production-safe: it calls OpenAI from server routes when `OPENAI_API_KEY` is present and falls back to local demo embeddings when keys are missing.
 
 ## Stack
 
@@ -14,7 +14,7 @@ The dashboard now includes the first foundation for Eternime's intelligence laye
 - Framer Motion
 - React Three Fiber / Three.js
 - Clerk-ready authentication UI
-- Semantic vector memory scaffolding
+- OpenAI-ready guide and embedding routes
 - Master Agent / Personal Memory Agent architecture
 - PWA manifest and installable app structure
 
@@ -24,7 +24,9 @@ Eternime starts with a safe RAG-style memory system instead of training custom m
 
 - `lib/eternime/master-agent.ts`: central principles, safety rules, and personal-agent contract.
 - `lib/eternime/personal-memory-agent.ts`: creates the user's guide state and identity profile.
-- `lib/eternime/vector-memory.ts`: demo embedding, semantic search, and memory record creation.
+- `lib/eternime/openai.ts`: server-only OpenAI connection for guide responses and embeddings.
+- `lib/eternime/vector-memory.ts`: local fallback embedding, semantic search, and memory record creation.
+- `app/api/eternime/*`: API routes for status, memory encoding, semantic search, and the personal guide.
 - `components/memory/memory-universe-console.tsx`: first UI for encoding memories and watching avatar readiness grow.
 
 Future production storage should replace browser localStorage with isolated per-user persistence:
@@ -49,16 +51,18 @@ Open `http://localhost:3000`.
 
 ## Environment
 
-Copy `.env.example` to `.env.local` and add Clerk keys when available:
+Copy `.env.example` to `.env.local` and add keys when available:
 
 ```bash
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 OPENAI_API_KEY=
+OPENAI_MODEL=gpt-5-mini
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 VECTOR_DATABASE_URL=
 ```
 
-If Clerk keys are missing, the lobby automatically shows demo mode auth instead of breaking.
+If Clerk keys are missing, the lobby automatically shows demo mode auth instead of breaking. If `OPENAI_API_KEY` is missing, Eternime keeps the same UI and uses local demo intelligence until the real key is added.
 
 ## Replacing The Cinematic Video
 
@@ -83,4 +87,4 @@ npm run start
 vercel --prod
 ```
 
-Vercel will detect the Next.js app automatically. Configure Clerk environment variables in Vercel Project Settings when real authentication is enabled.
+Vercel will detect the Next.js app automatically. Configure Clerk and OpenAI environment variables in Vercel Project Settings when real authentication and live intelligence are enabled.
