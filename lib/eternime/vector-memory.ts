@@ -27,8 +27,12 @@ export function createMemoryRecord(input: {
   text: string;
   emotionalWeight?: number;
   sensitivity?: MemorySensitivity;
+  embedding?: number[];
+  embeddingModel?: string;
+  embeddingProvider?: "local" | "openai";
 }): MemoryRecord {
   const tags = extractTags(input.text);
+  const embedding = input.embedding ?? embedSemanticText(input.text);
 
   return {
     id: createStableId(input.text),
@@ -39,14 +43,19 @@ export function createMemoryRecord(input: {
     emotionalWeight: input.emotionalWeight ?? inferEmotionalWeight(input.text),
     sensitivity: input.sensitivity ?? "private",
     tags,
-    embedding: embedSemanticText(input.text),
+    embedding,
+    embeddingModel: input.embeddingModel ?? "eternime-local-hash-v1",
+    embeddingProvider: input.embeddingProvider ?? "local",
     createdAt: new Date().toISOString(),
   };
 }
 
 export function searchSemanticMemories(query: string, memories: MemoryRecord[]) {
   const queryVector = embedSemanticText(query);
+  return searchMemoriesByVector(queryVector, memories);
+}
 
+export function searchMemoriesByVector(queryVector: number[], memories: MemoryRecord[]) {
   return memories
     .map((memory) => ({
       memory,
