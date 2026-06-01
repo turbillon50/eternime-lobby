@@ -18,6 +18,11 @@ const kinds: Array<{ label: string; value: MemoryKind }> = [
   { label: "Legacy", value: "legacy" },
 ];
 
+type SemanticResult = {
+  memory: MemoryRecord;
+  score: number;
+};
+
 export function MemoryUniverseConsole() {
   const [memories, setMemories] = useState<MemoryRecord[]>(() => {
     if (typeof window === "undefined") return [];
@@ -32,27 +37,133 @@ export function MemoryUniverseConsole() {
   const [kind, setKind] = useState<MemoryKind>("origin");
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("family love legacy");
+  const [isEncoding, setIsEncoding] = useState(false);
+  const [apiConnected, setApiConnected] = useState(false);
+  const [livePrompt, setLivePrompt] = useState<string | null>(null);
+  const [semanticResults, setSemanticResults] = useState<SemanticResult[]>([]);
 
   useEffect(() => {
     window.localStorage.setItem(storageKey, JSON.stringify(memories));
   }, [memories]);
 
   const agentState = useMemo(() => createPersonalAgentState(demoOwnerId, memories), [memories]);
-  const semanticResults = useMemo(() => searchSemanticMemories(query, memories), [query, memories]);
-  const nextPrompt = getNextGuidePrompt(agentState);
+  const fallbackSemanticResults = useMemo(() => searchSemanticMemories(query, memories), [query, memories]);
+  const displayedSemanticResults = semanticResults.length ? semanticResults : fallbackSemanticResults;
+  const nextPrompt = livePrompt || getNextGuidePrompt(agentState);
 
-  function addMemory() {
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadStatus() {
+      try {
+        const response = await fetch("/api/eternime/status");
+        const status = (await response.json()) as { connected?: boolean };
+        if (!cancelled) setApiConnected(Boolean(status.connected));
+      } catch {
+        if (!cancelled) setApiConnected(false);
+      }
+    }
+
+    void loadStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadGuide() {
+      try {
+        const response = await fetch("/api/eternime/guide", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ownerId: demoOwnerId, memories }),
+        });
+        const payload = (await response.json()) as { prompt?: string; connected?: boolean };
+
+        if (!cancelled) {
+          setLivePrompt(payload.prompt || null);
+          setApiConnected(Boolean(payload.connected));
+        }
+      } catch {
+        if (!cancelled) setLivePrompt(null);
+      }
+    }
+
+    void loadGuide();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memories]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSearch() {
+      try {
+        const response = await fetch("/api/eternime/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, memories }),
+        });
+        const payload = (await response.json()) as { results?: SemanticResult[]; connected?: boolean };
+
+        if (!cancelled) {
+          setSemanticResults(payload.results ?? []);
+          if (payload.connected) setApiConnected(true);
+        }
+      } catch {
+        if (!cancelled) setSemanticResults([]);
+      }
+    }
+
+    void loadSearch();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [query, memories]);
+
+  async function addMemory() {
     if (draft.trim().length < 8) return;
 
-    const memory = createMemoryRecord({
-      ownerId: demoOwnerId,
-      kind,
-      text: draft,
-    });
+    setIsEncoding(true);
 
-    setMemories((current) => [memory, ...current]);
-    setDraft("");
-    setQuery(memory.tags.slice(0, 3).join(" ") || memory.title);
+    try {
+      const response = await fetch("/api/eternime/memory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ownerId: demoOwnerId, kind, text: draft }),
+      });
+      const payload = (await response.json()) as { memory?: MemoryRecord; connected?: boolean };
+      const memory =
+        payload.memory ??
+        createMemoryRecord({
+          ownerId: demoOwnerId,
+          kind,
+          text: draft,
+        });
+
+      setApiConnected(Boolean(payload.connected));
+      setMemories((current) => [memory, ...current]);
+      setDraft("");
+      setQuery(memory.tags.slice(0, 3).join(" ") || memory.title);
+    } catch {
+      const memory = createMemoryRecord({
+        ownerId: demoOwnerId,
+        kind,
+        text: draft,
+      });
+
+      setMemories((current) => [memory, ...current]);
+      setDraft("");
+      setQuery(memory.tags.slice(0, 3).join(" ") || memory.title);
+    } finally {
+      setIsEncoding(false);
+    }
   }
 
   return (
@@ -64,7 +175,9 @@ export function MemoryUniverseConsole() {
     >
       <div className="memory-console-header">
         <div>
-          <p className="font-mono text-[0.62rem] uppercase tracking-[0.34em] text-white/38">Master Agent Online</p>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.34em] text-white/38">
+            {apiConnected ? "Master Agent Live" : "Master Agent Demo"}
+          </p>
           <h2 className="mt-3 text-2xl font-light text-white sm:text-3xl">Train My Eternime</h2>
         </div>
         <div className="memory-readiness">
@@ -99,7 +212,9 @@ export function MemoryUniverseConsole() {
           />
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-            <PrimaryButton onClick={addMemory}>Encode Memory</PrimaryButton>
+            <PrimaryButton disabled={isEncoding} onClick={addMemory}>
+              {isEncoding ? "Encoding..." : "Encode Memory"}
+            </PrimaryButton>
             <QuietButton onClick={() => setDraft(nextPrompt)}>Use Guide Prompt</QuietButton>
           </div>
         </section>
@@ -109,7 +224,16 @@ export function MemoryUniverseConsole() {
           <div className="mt-5 grid grid-cols-3 gap-2 text-left">
             <Metric label="memories" value={memories.length} />
             <Metric label="mode" value={agentState.guideMode.replace("-", " ")} />
-            <Metric label="vectors" value={memories.length ? `${memories.length} active` : "empty"} />
+            <Metric
+              label="vectors"
+              value={
+                memories.some((memory) => memory.embeddingProvider === "openai")
+                  ? "openai"
+                  : memories.length
+                    ? "local"
+                    : "empty"
+              }
+            />
           </div>
 
           <input
@@ -120,8 +244,8 @@ export function MemoryUniverseConsole() {
           />
 
           <div className="mt-4 space-y-3 text-left">
-            {semanticResults.length ? (
-              semanticResults.map(({ memory, score }) => (
+            {displayedSemanticResults.length ? (
+              displayedSemanticResults.map(({ memory, score }) => (
                 <article className="memory-result" key={memory.id}>
                   <div className="flex items-center justify-between gap-3">
                     <strong>{memory.title}</strong>
