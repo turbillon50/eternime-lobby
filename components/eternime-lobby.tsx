@@ -1,10 +1,12 @@
 "use client";
 
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CinematicVideo } from "@/components/layers/cinematic-video";
 import { MemoryFragments } from "@/components/layers/memory-fragments";
+import { MemoryUniverseConsole } from "@/components/memory/memory-universe-console";
 import { PrimaryButton, QuietButton } from "@/components/ui/buttons";
 
 const WebGLOverlay = dynamic(
@@ -226,19 +228,47 @@ function AuthPanel({
         </p>
       )}
 
-      <div className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row sm:justify-center">
-        <QuietButton onClick={onContinue}>Continue with Google</QuietButton>
-        <QuietButton onClick={onContinue}>Continue with Apple</QuietButton>
-        <QuietButton onClick={onContinue}>Continue with Email</QuietButton>
-      </div>
+      {clerkEnabled ? (
+        <ClerkAuthActions onContinue={onContinue} />
+      ) : (
+        <div className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row sm:justify-center">
+          <QuietButton onClick={onContinue}>Continue with Google</QuietButton>
+          <QuietButton onClick={onContinue}>Continue with Apple</QuietButton>
+          <QuietButton onClick={onContinue}>Continue with Email</QuietButton>
+        </div>
+      )}
     </motion.div>
+  );
+}
+
+function ClerkAuthActions({ onContinue }: { onContinue: () => void }) {
+  const { isSignedIn } = useUser();
+
+  return (
+    <div className="mx-auto mt-8 flex max-w-xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      {isSignedIn ? (
+        <>
+          <UserButton />
+          <QuietButton onClick={onContinue}>Enter Memory Universe</QuietButton>
+        </>
+      ) : (
+        <>
+          <SignUpButton mode="redirect">
+            <QuietButton>Create secure account</QuietButton>
+          </SignUpButton>
+          <SignInButton mode="redirect">
+            <QuietButton>Sign in</QuietButton>
+          </SignInButton>
+        </>
+      )}
+    </div>
   );
 }
 
 function DashboardPanel() {
   return (
     <motion.div
-      className="mx-auto flex w-full max-w-4xl flex-col items-center text-center"
+      className="mx-auto flex w-full max-w-6xl flex-col items-center text-center"
       initial={{ opacity: 0, y: 22, filter: "blur(14px)" }}
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       exit={{ opacity: 0 }}
@@ -247,7 +277,7 @@ function DashboardPanel() {
       <p className="font-mono text-[0.68rem] uppercase tracking-[0.46em] text-white/52">PRIVATE UNIVERSE</p>
       <h1 className="mt-7 text-balance text-5xl font-light leading-none sm:text-7xl">Your Memory Universe</h1>
       <p className="mt-6 max-w-xl text-lg leading-8 text-white/58">This space is waiting for its first memory.</p>
-      <PrimaryButton className="mt-10" onClick={() => undefined}>Upload First Memory</PrimaryButton>
+      <MemoryUniverseConsole />
     </motion.div>
   );
 }
