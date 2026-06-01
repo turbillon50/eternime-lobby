@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/globals.css";
+
+import { isClerkConfigured } from "@/lib/clerk";
 
 export const metadata: Metadata = {
   title: "Eternime | Digital Legacy Intelligence",
@@ -25,9 +28,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
+  const tree = (
     <html lang="en">
       <body>{children}</body>
     </html>
   );
+
+  // Only mount ClerkProvider when keys exist, so the lobby still renders in
+  // demo mode (no keys) without a runtime Clerk error.
+  return isClerkConfigured() ? <ClerkProvider>{tree}</ClerkProvider> : tree;
 }
