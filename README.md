@@ -1,8 +1,10 @@
 # Eternime Lobby
 
-ETERNIME — Digital Legacy Intelligence.
+ETERNIME - Digital Legacy Intelligence.
 
 This repository contains the first functional cinematic onboarding lobby for Eternime: a premium Next.js PWA with a full-screen video atmosphere, glowing ring, WebGL particle layer, interactive onboarding sequence, demo-safe auth entry, and first empty dashboard state.
+
+The dashboard now includes the first foundation for Eternime's intelligence layer: a Master Agent blueprint, a Personal Memory Agent, and a demo semantic vector memory vault per individual. The current implementation runs locally in browser storage for the MVP, with the contracts prepared for a real vector database and persistent user storage.
 
 ## Stack
 
@@ -12,7 +14,29 @@ This repository contains the first functional cinematic onboarding lobby for Ete
 - Framer Motion
 - React Three Fiber / Three.js
 - Clerk-ready authentication UI
+- Semantic vector memory scaffolding
+- Master Agent / Personal Memory Agent architecture
 - PWA manifest and installable app structure
+
+## Intelligence Architecture
+
+Eternime starts with a safe RAG-style memory system instead of training custom models on day one.
+
+- `lib/eternime/master-agent.ts`: central principles, safety rules, and personal-agent contract.
+- `lib/eternime/personal-memory-agent.ts`: creates the user's guide state and identity profile.
+- `lib/eternime/vector-memory.ts`: demo embedding, semantic search, and memory record creation.
+- `components/memory/memory-universe-console.tsx`: first UI for encoding memories and watching avatar readiness grow.
+
+Future production storage should replace browser localStorage with isolated per-user persistence:
+
+- raw memories
+- semantic memory fragments
+- vector embeddings
+- identity profile
+- relationships
+- timeline events
+- legacy permissions
+- avatar readiness stages
 
 ## Install
 
@@ -30,6 +54,8 @@ Copy `.env.example` to `.env.local` and add Clerk keys when available:
 ```bash
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
+OPENAI_API_KEY=
+VECTOR_DATABASE_URL=
 ```
 
 If Clerk keys are missing, the lobby automatically shows demo mode auth instead of breaking.
