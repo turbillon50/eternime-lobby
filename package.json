@@ -6,16 +6,25 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate:control": "drizzle-kit generate --config=drizzle.config.control.ts",
+    "db:generate:tenant": "drizzle-kit generate --config=drizzle.config.tenant.ts",
+    "db:build-tenant-init": "node scripts/build-tenant-init.mjs",
+    "db:migrate:control": "drizzle-kit migrate --config=drizzle.config.control.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "latest",
+    "@google/genai": "^2.7.0",
+    "@neondatabase/serverless": "^1.1.0",
     "@react-three/drei": "latest",
     "@react-three/fiber": "latest",
+    "drizzle-orm": "^0.45.2",
     "framer-motion": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "resend": "^6.12.4",
+    "svix": "^1.95.1",
     "three": "latest"
   },
   "devDependencies": {
@@ -24,6 +33,7 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "drizzle-kit": "^0.31.10",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "tailwindcss": "latest",
