@@ -38,3 +38,20 @@ export async function countBeneficiaries(userId: string): Promise<number> {
   const rows = await sql`SELECT count(*)::int AS n FROM eternime_beneficiaries WHERE user_id = ${userId}`;
   return (rows[0]?.n as number) ?? 0;
 }
+
+export async function updateBeneficiary(
+  id: string,
+  userId: string,
+  patch: { name?: string; email?: string | null; relationship?: string | null },
+): Promise<Beneficiary | null> {
+  const sql = getSql();
+  if (!sql) return null;
+  const rows = await sql`
+    UPDATE eternime_beneficiaries SET
+      name = COALESCE(${patch.name ?? null}, name),
+      email = CASE WHEN ${patch.email !== undefined} THEN ${patch.email ?? null} ELSE email END,
+      relationship = CASE WHEN ${patch.relationship !== undefined} THEN ${patch.relationship ?? null} ELSE relationship END
+    WHERE id = ${id} AND user_id = ${userId}
+    RETURNING *`;
+  return (rows[0] as Beneficiary) ?? null;
+}

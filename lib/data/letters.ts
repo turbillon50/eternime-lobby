@@ -62,3 +62,30 @@ export async function countLetters(userId: string): Promise<number> {
   const rows = await sql`SELECT count(*)::int AS n FROM eternime_letters WHERE user_id = ${userId}`;
   return (rows[0]?.n as number) ?? 0;
 }
+
+export async function updateLetter(
+  id: string,
+  userId: string,
+  patch: {
+    recipientName?: string;
+    recipientEmail?: string | null;
+    title?: string;
+    body?: string;
+    deliverOn?: string | null;
+    status?: LetterStatus;
+  },
+): Promise<Letter | null> {
+  const sql = getSql();
+  if (!sql) return null;
+  const rows = await sql`
+    UPDATE eternime_letters SET
+      recipient_name = COALESCE(${patch.recipientName ?? null}, recipient_name),
+      recipient_email = CASE WHEN ${patch.recipientEmail !== undefined} THEN ${patch.recipientEmail ?? null} ELSE recipient_email END,
+      title = COALESCE(${patch.title ?? null}, title),
+      body = COALESCE(${patch.body ?? null}, body),
+      deliver_on = CASE WHEN ${patch.deliverOn !== undefined} THEN ${patch.deliverOn ?? null} ELSE deliver_on END,
+      status = COALESCE(${patch.status ?? null}, status)
+    WHERE id = ${id} AND user_id = ${userId}
+    RETURNING *`;
+  return (rows[0] as Letter) ?? null;
+}
