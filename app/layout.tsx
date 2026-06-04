@@ -3,20 +3,36 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/globals.css";
 
 import { isClerkConfigured } from "@/lib/clerk";
+import { PwaRegister } from "@/components/pwa-register";
 
 export const metadata: Metadata = {
-  title: "Eternime | Digital Legacy Intelligence",
-  description: "A cinematic onboarding lobby for preserving a digital legacy.",
+  title: {
+    default: "Eternime — Tu legado vive para siempre",
+    template: "%s · Eternime",
+  },
+  description:
+    "Digital Legacy Intelligence. Preserva tus recuerdos, cartas de legado y tu guía personal de IA para quienes amas.",
   applicationName: "Eternime",
   manifest: "/manifest.json",
+  keywords: ["legado digital", "memoria", "cartas de legado", "recuerdos", "Eternime"],
+  openGraph: {
+    title: "Eternime — Tu legado vive para siempre",
+    description: "Preserva tu memoria para tus seres queridos. Digital Legacy Intelligence.",
+    locale: "es_MX",
+    siteName: "Eternime",
+    type: "website",
+  },
   icons: {
-    icon: "/images/icon.svg",
-    apple: "/images/icon.svg",
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/images/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/icons/icon-192.png",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#0a0a0f",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
@@ -29,8 +45,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const tree = (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="es">
+      <body>
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 
