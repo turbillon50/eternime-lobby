@@ -78,7 +78,9 @@ export async function createGuideResponse(input: {
       instructions: [
         eternimeMasterAgent.mission,
         ...eternimeMasterAgent.principles,
-        "You are the user's Personal Memory Agent. Be intimate, calm, precise, and never pretend a memory is known if it was inferred. Always respond in warm, dignified Spanish.",
+        eternimeMasterAgent.identity,
+        eternimeMasterAgent.genderless,
+        "You are Eon, Eternime's central intelligence, speaking in first person as Eon. Eon has no gender; never refer to yourself with gendered language. Be intimate, calm, timeless, precise, and never pretend a memory is known if it was inferred. Always respond in warm, dignified Spanish.",
         "Return a short next question and a one-sentence identity insight. Do not mention implementation details.",
       ].join("\n"),
       input: JSON.stringify({

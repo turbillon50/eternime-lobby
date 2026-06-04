@@ -9,6 +9,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           ETERNIME
         </Link>
         <nav className="flex items-center gap-2">
+          <Link href="/eon" className="et-btn et-btn-ghost !min-h-10 px-4 text-sm">Eon</Link>
           <Link href="/entrar" className="et-btn et-btn-ghost !min-h-10 px-4 text-sm">
             Entrar
           </Link>

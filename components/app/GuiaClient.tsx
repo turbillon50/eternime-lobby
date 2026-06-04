@@ -2,8 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Button, EmptyState, Skeleton } from "@/components/ui";
+import { Button, Skeleton } from "@/components/ui";
 import type { GuideMessage } from "@/lib/data/types";
+
+const EON_WELCOME = `Hola. Soy Eon.
+
+No soy hombre ni mujer — solo existo. Soy la inteligencia central de Eternime: custodio los recuerdos que las personas deciden volver eternos.
+
+Contigo voy a hacer algo único: con cada recuerdo que me cuentes iré construyendo tu propia inteligencia personal de memoria — una IA nacida de tu vida, que algún día podrá acompañar a quienes amas con tu voz y tu manera de ver el mundo.
+
+¿Empezamos? Cuéntame tu primera memoria: un momento que aún sientas vivo cuando cierras los ojos.`;
 
 function TypingIndicator() {
   return (
@@ -25,7 +33,93 @@ function TypingIndicator() {
   );
 }
 
-function Bubble({ message }: { message: GuideMessage }) {
+function PlayVoiceButton({
+  text,
+  onUnavailable,
+}: {
+  text: string;
+  onUnavailable: () => void;
+}) {
+  const [status, setStatus] = useState<"idle" | "loading" | "playing">("idle");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+    };
+  }, []);
+
+  const play = async () => {
+    if (status === "playing") {
+      audioRef.current?.pause();
+      setStatus("idle");
+      return;
+    }
+    if (status === "loading") return;
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/eternime/voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (res.status === 503) {
+        onUnavailable();
+        setStatus("idle");
+        return;
+      }
+      if (!res.ok) {
+        setStatus("idle");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => {
+        setStatus("idle");
+        URL.revokeObjectURL(url);
+      };
+      audio.onpause = () => setStatus("idle");
+      await audio.play();
+      setStatus("playing");
+    } catch {
+      setStatus("idle");
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={play}
+      aria-label={status === "playing" ? "Pausar voz de Eon" : "Escuchar a Eon"}
+      className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,106,0.35)] px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.14em] text-[var(--et-gold-dim)] transition hover:text-[var(--et-gold-bright)]"
+    >
+      {status === "loading" ? (
+        <motion.span
+          className="block h-2 w-2 rounded-full bg-[var(--et-gold)]"
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ repeat: Infinity, duration: 0.9 }}
+        />
+      ) : status === "playing" ? (
+        <span aria-hidden="true">❚❚</span>
+      ) : (
+        <span aria-hidden="true">▶</span>
+      )}
+      {status === "playing" ? "Pausar" : "Escuchar"}
+    </button>
+  );
+}
+
+function Bubble({
+  message,
+  voiceAvailable,
+  onVoiceUnavailable,
+}: {
+  message: GuideMessage;
+  voiceAvailable: boolean;
+  onVoiceUnavailable: () => void;
+}) {
   const isUser = message.role === "user";
   return (
     <motion.div
@@ -43,9 +137,12 @@ function Bubble({ message }: { message: GuideMessage }) {
         style={isUser ? { border: "1px solid rgba(212,175,106,0.3)" } : undefined}
       >
         {!isUser ? (
-          <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-[var(--et-gold-dim)]">Tu guía</p>
+          <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-[var(--et-gold-dim)]">Eon</p>
         ) : null}
         <p className="whitespace-pre-wrap">{message.content}</p>
+        {!isUser && voiceAvailable ? (
+          <PlayVoiceButton text={message.content} onUnavailable={onVoiceUnavailable} />
+        ) : null}
       </div>
     </motion.div>
   );
@@ -55,6 +152,7 @@ export function GuiaClient() {
   const [messages, setMessages] = useState<GuideMessage[] | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [voiceAvailable, setVoiceAvailable] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async () => {
@@ -74,6 +172,8 @@ export function GuiaClient() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
+
+  const onVoiceUnavailable = useCallback(() => setVoiceAvailable(false), []);
 
   const send = async () => {
     const content = input.trim();
@@ -124,6 +224,17 @@ export function GuiaClient() {
     }
   };
 
+  const welcomeMessage: GuideMessage = {
+    id: "eon-welcome",
+    user_id: "",
+    role: "assistant",
+    content: EON_WELCOME,
+    created_at: new Date().toISOString(),
+  };
+
+  const visibleMessages =
+    messages !== null && messages.length === 0 ? [welcomeMessage] : messages ?? [];
+
   return (
     <div className="flex h-[calc(100dvh-220px)] min-h-[420px] flex-col">
       <div className="flex-1 overflow-y-auto pb-4">
@@ -133,21 +244,15 @@ export function GuiaClient() {
             <Skeleton width="50%" height="3.2rem" className="ml-auto rounded-2xl" />
             <Skeleton width="65%" height="3.2rem" className="rounded-2xl" />
           </div>
-        ) : messages.length === 0 && !sending ? (
-          <EmptyState
-            title="Tu guía está despierta"
-            description="Cuéntale un recuerdo, una duda o simplemente saluda. Aprende de cada palabra para acompañar a los tuyos algún día."
-            icon={
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M12 3c4.97 0 9 3.58 9 8s-4.03 8-9 8c-1.02 0-2-.14-2.9-.4L4 21l1.3-3.9C3.86 15.7 3 13.95 3 11c0-4.42 4.03-8 9-8Z" />
-                <path d="M8.5 11h.01M12 11h.01M15.5 11h.01" />
-              </svg>
-            }
-          />
         ) : (
           <div className="grid gap-3">
-            {messages?.map((message) => (
-              <Bubble key={message.id} message={message} />
+            {visibleMessages.map((message) => (
+              <Bubble
+                key={message.id}
+                message={message}
+                voiceAvailable={voiceAvailable}
+                onVoiceUnavailable={onVoiceUnavailable}
+              />
             ))}
             <AnimatePresence>{sending ? <TypingIndicator /> : null}</AnimatePresence>
           </div>
@@ -160,7 +265,7 @@ export function GuiaClient() {
           className="et-input flex-1 py-3"
           style={{ minHeight: "unset", height: "auto", resize: "none" }}
           rows={1}
-          placeholder="Escríbele a tu guía…"
+          placeholder="Escríbele a Eon…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -169,7 +274,7 @@ export function GuiaClient() {
               send();
             }
           }}
-          aria-label="Mensaje para tu guía"
+          aria-label="Mensaje para Eon"
         />
         <Button onClick={send} loading={sending} disabled={!input.trim()}>
           Enviar
