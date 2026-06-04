@@ -9,7 +9,7 @@ export default function SignUpPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-[#0a0a0a] px-6 py-16">
       {isClerkConfigured() ? (
-        <SignUp forceRedirectUrl="/onboarding" signInUrl="/sign-in" />
+        <SignUp forceRedirectUrl="/onboarding/loading" signInUrl="/sign-in" />
       ) : (
         <div className="max-w-sm text-center">
           <p className="font-serif text-2xl text-[#e8d9a8]">Crear mi Eternime</p>

@@ -28,6 +28,11 @@ export default function OnboardingLoadingPage() {
     const slow = setTimeout(() => setShowBackground(true), 15000);
 
     let active = true;
+
+    // Kick off provisioning directly (fallback for when the Clerk webhook
+    // hasn't fired yet). Idempotent server-side, so it's safe to call here.
+    fetch("/api/onboarding/provision", { method: "POST" }).catch(() => {});
+
     const poll = async () => {
       try {
         const res = await fetch("/api/onboarding/status", { cache: "no-store" });

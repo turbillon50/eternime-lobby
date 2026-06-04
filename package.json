@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/migrate-control.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "db:generate:control": "drizzle-kit generate --config=drizzle.config.control.ts",
