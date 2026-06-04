@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { MemoryRecord } from "@/lib/eternime/types";
-import { createGuideResponse } from "@/lib/eternime/openai";
+import { createLlmGuideResponse as createGuideResponse } from "@/lib/eternime/llm";
 import { createPersonalAgentState, getNextGuidePrompt } from "@/lib/eternime/personal-memory-agent";
 
 export async function POST(request: Request) {
