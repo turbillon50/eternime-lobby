@@ -34,7 +34,9 @@ export type IdentityProfile = {
 };
 
 export type MasterAgentDirective = {
-  name: "Eternime Master Intelligence";
+  name: "Eon";
+  identity: string;
+  genderless: string;
   mission: string;
   principles: string[];
   forbiddenBehaviors: string[];
