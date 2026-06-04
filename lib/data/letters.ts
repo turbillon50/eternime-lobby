@@ -101,3 +101,29 @@ export async function nextScheduledLetter(userId: string): Promise<Letter | null
     ORDER BY deliver_on ASC LIMIT 1`;
   return (rows[0] as Letter) ?? null;
 }
+
+/** Carta vencida con el nombre del remitente (join a eternime_users). */
+export type DueLetter = Letter & { sender_name: string | null; sender_email: string | null };
+
+/** Cartas programadas cuya fecha de entrega ya llegó (deliver_on <= hoy). */
+export async function listDueLetters(): Promise<DueLetter[]> {
+  const sql = getSql();
+  if (!sql) return [];
+  const rows = await sql`
+    SELECT l.*, u.name AS sender_name, u.email AS sender_email
+    FROM eternime_letters l
+    LEFT JOIN eternime_users u ON u.id = l.user_id
+    WHERE l.status = 'scheduled' AND l.deliver_on IS NOT NULL AND l.deliver_on <= CURRENT_DATE
+    ORDER BY l.deliver_on ASC`;
+  return rows as DueLetter[];
+}
+
+/** Marca una carta como entregada (solo si seguía scheduled — idempotente). */
+export async function markLetterDelivered(id: string): Promise<boolean> {
+  const sql = getSql();
+  if (!sql) return false;
+  const rows = await sql`
+    UPDATE eternime_letters SET status = 'delivered'
+    WHERE id = ${id} AND status = 'scheduled' RETURNING id`;
+  return rows.length > 0;
+}
