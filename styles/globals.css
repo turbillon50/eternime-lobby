@@ -425,3 +425,161 @@ button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Eternime Design System — tokens (factory-eternime)
+   Dark premium + acentos dorado/ámbar etéreo
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --et-bg: #0a0a0f;
+  --et-bg-elevated: #12121a;
+  --et-bg-overlay: rgba(18, 18, 26, 0.82);
+  --et-gold: #d4af6a;
+  --et-gold-bright: #e8c87e;
+  --et-gold-dim: rgba(212, 175, 106, 0.55);
+  --et-border: rgba(212, 175, 106, 0.25);
+  --et-border-soft: rgba(212, 175, 106, 0.12);
+  --et-text: #f5f2ea;
+  --et-text-muted: rgba(245, 242, 234, 0.62);
+  --et-text-faint: rgba(245, 242, 234, 0.38);
+  --et-glow: 0 0 24px rgba(212, 175, 106, 0.22);
+  --et-glow-strong: 0 0 42px rgba(232, 200, 126, 0.32);
+  --et-danger: #e07a6a;
+  --et-success: #8fc8a0;
+  --et-radius: 0.9rem;
+  --et-radius-sm: 0.55rem;
+  --et-font-serif: "Georgia", "Times New Roman", ui-serif, serif;
+  --et-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.et-surface {
+  background: var(--et-bg);
+  color: var(--et-text);
+  font-family: var(--et-font-sans);
+}
+
+.et-serif {
+  font-family: var(--et-font-serif);
+  letter-spacing: 0.01em;
+}
+
+.et-glow-ring {
+  border: 1px solid var(--et-border);
+  box-shadow: var(--et-glow), inset 0 0 32px rgba(212, 175, 106, 0.05);
+}
+
+.et-card {
+  border: 1px solid var(--et-border-soft);
+  border-radius: var(--et-radius);
+  background: linear-gradient(180deg, rgba(212, 175, 106, 0.05), rgba(212, 175, 106, 0.012)), var(--et-bg-elevated);
+  transition: border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
+}
+
+.et-card:hover {
+  border-color: var(--et-border);
+  box-shadow: var(--et-glow);
+}
+
+.et-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid var(--et-border-soft);
+  border-radius: var(--et-radius-sm);
+  background: rgba(10, 10, 15, 0.7);
+  color: var(--et-text);
+  font: inherit;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.et-input::placeholder {
+  color: var(--et-text-faint);
+}
+
+.et-input:focus {
+  outline: none;
+  border-color: var(--et-gold-dim);
+  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.12);
+}
+
+.et-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1.6rem;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease, border-color 200ms ease, color 200ms ease, opacity 200ms ease;
+}
+
+.et-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.et-btn-primary {
+  border: 1px solid var(--et-gold);
+  background: linear-gradient(135deg, var(--et-gold), var(--et-gold-bright));
+  color: #16120a;
+  box-shadow: var(--et-glow);
+}
+
+.et-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--et-glow-strong);
+}
+
+.et-btn-secondary {
+  border: 1px solid var(--et-border);
+  background: rgba(212, 175, 106, 0.06);
+  color: var(--et-gold-bright);
+}
+
+.et-btn-secondary:hover:not(:disabled) {
+  border-color: var(--et-gold-dim);
+  background: rgba(212, 175, 106, 0.12);
+}
+
+.et-btn-ghost {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--et-text-muted);
+}
+
+.et-btn-ghost:hover:not(:disabled) {
+  color: var(--et-text);
+  background: rgba(245, 242, 234, 0.05);
+}
+
+.et-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--et-radius-sm);
+  background: rgba(212, 175, 106, 0.06);
+}
+
+.et-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 106, 0.1), transparent);
+  animation: et-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes et-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes et-pulse-glow {
+  0%, 100% { box-shadow: 0 0 24px rgba(212, 175, 106, 0.18); }
+  50% { box-shadow: 0 0 42px rgba(232, 200, 126, 0.32); }
+}
+
+.et-pulse {
+  animation: et-pulse-glow 4.5s ease-in-out infinite;
+}
