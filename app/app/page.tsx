@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { countMemories, listMemories } from "@/lib/data/memories";
-import { countLetters } from "@/lib/data/letters";
+import { countLetters, nextScheduledLetter } from "@/lib/data/letters";
 import { countBeneficiaries } from "@/lib/data/beneficiaries";
+import { findUserById } from "@/lib/data/users";
 import { FadeInOnScroll, HoverCard, NumberCounter, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Badge, Card, CardDescription, CardTitle, EmptyState } from "@/components/ui";
 import { EternityProgress } from "@/components/app/EternityProgress";
@@ -29,14 +30,23 @@ function eternityLevel(memories: number, letters: number, beneficiaries: number)
 export default async function AppHomePage() {
   const session = await getSession();
   const userId = session?.sub ?? "";
-  const [memories, letters, beneficiaries, recentMemories] = userId
+  const [memories, letters, beneficiaries, recentMemories, user, nextLetter] = userId
     ? await Promise.all([
         countMemories(userId),
         countLetters(userId),
         countBeneficiaries(userId),
         listMemories(userId),
+        findUserById(userId),
+        nextScheduledLetter(userId),
       ])
-    : [0, 0, 0, []];
+    : ([0, 0, 0, [], null, null] as const);
+
+  const legacyDays = user?.created_at
+    ? Math.max(1, Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000) + 1)
+    : 1;
+  const daysToDelivery = nextLetter?.deliver_on
+    ? Math.max(0, Math.ceil((new Date(nextLetter.deliver_on).getTime() - Date.now()) / 86400000))
+    : null;
 
   const lastThree = recentMemories.slice(0, 3);
   const level = eternityLevel(memories, letters, beneficiaries);
@@ -45,6 +55,7 @@ export default async function AppHomePage() {
     { label: "Recuerdos preservados", value: memories, href: "/app/recuerdos" },
     { label: "Cartas de legado", value: letters, href: "/app/cartas" },
     { label: "Beneficiarios", value: beneficiaries, href: "/app/beneficiarios" },
+    { label: "Días construyendo tu legado", value: legacyDays, href: "/app/perfil" },
   ];
 
   return (
@@ -59,7 +70,7 @@ export default async function AppHomePage() {
         </p>
       </FadeInOnScroll>
 
-      <StaggerContainer className="grid gap-4 sm:grid-cols-3">
+      <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <StaggerItem key={stat.label}>
             <Link href={stat.href} className="block h-full">
@@ -79,6 +90,28 @@ export default async function AppHomePage() {
           <EternityProgress percent={level.percent} label={level.label} />
         </Card>
       </FadeInOnScroll>
+
+      {nextLetter ? (
+        <FadeInOnScroll delay={0.12}>
+          <Card className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-[var(--et-gold)]">Próxima carta programada</p>
+              <CardTitle className="mt-1">{nextLetter.title}</CardTitle>
+              <CardDescription className="mt-1">
+                Para {nextLetter.recipient_name}
+                {daysToDelivery !== null
+                  ? daysToDelivery === 0
+                    ? " — se entrega hoy"
+                    : ` — se entrega en ${daysToDelivery} ${daysToDelivery === 1 ? "día" : "días"}`
+                  : ""}
+              </CardDescription>
+            </div>
+            <Link href="/app/cartas" className="et-btn et-btn-ghost shrink-0">
+              Ver cartas
+            </Link>
+          </Card>
+        </FadeInOnScroll>
+      ) : null}
 
       <FadeInOnScroll delay={0.15}>
         <div className="mb-4 flex items-center justify-between gap-3">

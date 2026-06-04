@@ -89,3 +89,15 @@ export async function updateLetter(
     RETURNING *`;
   return (rows[0] as Letter) ?? null;
 }
+
+/** Próxima carta programada (status scheduled con deliver_on más cercano en el futuro). */
+export async function nextScheduledLetter(userId: string): Promise<Letter | null> {
+  const sql = getSql();
+  if (!sql) return null;
+  const rows = await sql`
+    SELECT * FROM eternime_letters
+    WHERE user_id = ${userId} AND status = 'scheduled' AND deliver_on IS NOT NULL
+      AND deliver_on >= CURRENT_DATE
+    ORDER BY deliver_on ASC LIMIT 1`;
+  return (rows[0] as Letter) ?? null;
+}
