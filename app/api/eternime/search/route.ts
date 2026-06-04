@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { MemoryRecord } from "@/lib/eternime/types";
-import { createOpenAIEmbedding } from "@/lib/eternime/openai";
+import { createLlmEmbedding } from "@/lib/eternime/llm";
 import { searchMemoriesByVector, searchSemanticMemories } from "@/lib/eternime/vector-memory";
 
 export async function POST(request: Request) {
@@ -15,22 +15,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ results: [], connected: false });
   }
 
-  const canUseOpenAI =
-    memories.length > 0 && memories.every((memory) => memory.embeddingProvider === "openai");
-  let openAIEmbedding: Awaited<ReturnType<typeof createOpenAIEmbedding>> = null;
+  const canUseRemote =
+    memories.length > 0 && memories.every((memory) => memory.embeddingProvider !== "local");
+  let llmEmbedding: Awaited<ReturnType<typeof createLlmEmbedding>> = null;
 
   try {
-    openAIEmbedding = canUseOpenAI ? await createOpenAIEmbedding(query) : null;
+    llmEmbedding = canUseRemote ? await createLlmEmbedding(query) : null;
   } catch {
-    openAIEmbedding = null;
+    llmEmbedding = null;
   }
 
-  const results = openAIEmbedding
-    ? searchMemoriesByVector(openAIEmbedding.embedding, memories)
+  const results = llmEmbedding
+    ? searchMemoriesByVector(llmEmbedding.embedding, memories)
     : searchSemanticMemories(query, memories);
 
   return NextResponse.json({
     results,
-    connected: Boolean(openAIEmbedding),
+    connected: Boolean(llmEmbedding),
   });
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getOpenAIStatus } from "@/lib/eternime/openai";
+import { getLlmStatus } from "@/lib/eternime/llm";
 
 export async function GET() {
-  return NextResponse.json(getOpenAIStatus());
+  return NextResponse.json(getLlmStatus());
 }

@@ -29,7 +29,7 @@ export function createMemoryRecord(input: {
   sensitivity?: MemorySensitivity;
   embedding?: number[];
   embeddingModel?: string;
-  embeddingProvider?: "local" | "openai";
+  embeddingProvider?: "local" | "openai" | "gemini";
 }): MemoryRecord {
   const tags = extractTags(input.text);
   const embedding = input.embedding ?? embedSemanticText(input.text);

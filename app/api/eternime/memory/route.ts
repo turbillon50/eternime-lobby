@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { MemoryKind } from "@/lib/eternime/types";
-import { createOpenAIEmbedding } from "@/lib/eternime/openai";
+import { createLlmEmbedding } from "@/lib/eternime/llm";
 import { createMemoryRecord } from "@/lib/eternime/vector-memory";
 
 export async function POST(request: Request) {
@@ -14,25 +14,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing or invalid memory payload." }, { status: 400 });
   }
 
-  let openAIEmbedding: Awaited<ReturnType<typeof createOpenAIEmbedding>> = null;
+  let llmEmbedding: Awaited<ReturnType<typeof createLlmEmbedding>> = null;
 
   try {
-    openAIEmbedding = await createOpenAIEmbedding(body.text);
+    llmEmbedding = await createLlmEmbedding(body.text);
   } catch {
-    openAIEmbedding = null;
+    llmEmbedding = null;
   }
 
   const memory = createMemoryRecord({
     ownerId: body.ownerId,
     kind: body.kind,
     text: body.text,
-    embedding: openAIEmbedding?.embedding,
-    embeddingModel: openAIEmbedding?.model,
-    embeddingProvider: openAIEmbedding ? "openai" : "local",
+    embedding: llmEmbedding?.embedding,
+    embeddingModel: llmEmbedding?.model,
+    embeddingProvider: llmEmbedding?.provider ?? "local",
   });
 
   return NextResponse.json({
     memory,
-    connected: Boolean(openAIEmbedding),
+    connected: Boolean(llmEmbedding),
   });
 }

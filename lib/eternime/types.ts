@@ -19,7 +19,7 @@ export type MemoryRecord = {
   tags: string[];
   embedding: number[];
   embeddingModel: string;
-  embeddingProvider: "local" | "openai";
+  embeddingProvider: "local" | "openai" | "gemini";
   createdAt: string;
 };
 
