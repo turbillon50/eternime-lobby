@@ -57,3 +57,15 @@ export async function countUsers(): Promise<number> {
   const rows = await sql`SELECT count(*)::int AS n FROM eternime_users`;
   return (rows[0]?.n as number) ?? 0;
 }
+
+/** Borra la cuenta y todo su legado (recuerdos, cartas, beneficiarios, mensajes de guía). */
+export async function deleteUser(id: string): Promise<boolean> {
+  const sql = getSql();
+  if (!sql) return false;
+  await sql`DELETE FROM eternime_guide_messages WHERE user_id = ${id}`;
+  await sql`DELETE FROM eternime_beneficiaries WHERE user_id = ${id}`;
+  await sql`DELETE FROM eternime_letters WHERE user_id = ${id}`;
+  await sql`DELETE FROM eternime_memories WHERE user_id = ${id}`;
+  const rows = await sql`DELETE FROM eternime_users WHERE id = ${id} RETURNING id`;
+  return rows.length > 0;
+}
