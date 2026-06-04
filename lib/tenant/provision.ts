@@ -43,8 +43,16 @@ async function applyTenantSchema(unpooledUrl: string): Promise<void> {
   const sql = neon(unpooledUrl);
   const statements = loadTenantInitSql()
     .split("--> statement-breakpoint")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith("--"));
+    // Strip comment-only lines WITHIN each segment (e.g. the generated header
+    // that is bundled with `CREATE EXTENSION vector`) so we keep the real SQL.
+    .map((segment) =>
+      segment
+        .split("\n")
+        .filter((line) => !line.trim().startsWith("--"))
+        .join("\n")
+        .trim(),
+    )
+    .filter((s) => s.length > 0);
 
   for (const statement of statements) {
     // neon-http executes one statement per call; run sequentially to preserve
