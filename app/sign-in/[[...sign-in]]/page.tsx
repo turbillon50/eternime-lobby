@@ -9,7 +9,7 @@ export default function SignInPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-[#0a0a0a] px-6 py-16">
       {isClerkConfigured() ? (
-        <SignIn forceRedirectUrl="/onboarding" signUpUrl="/sign-up" />
+        <SignIn forceRedirectUrl="/home" signUpUrl="/sign-up" />
       ) : (
         <DemoNotice />
       )}
