@@ -26,8 +26,8 @@ export default async function HomePage() {
         </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2">
-          <Card href="/conversar" title="Conversar con mi IA" subtitle="Próximamente — Fase 2" />
-          <Card href="/memorias/nueva" title="Guardar un recuerdo" subtitle="Próximamente — Fase 2" />
+          <Card href="/conversar" title="Conversar con mi IA" subtitle="Habla con tu inteligencia personal" />
+          <Card href="/memorias" title="Mis recuerdos" subtitle="Tu bóveda de memorias" />
         </div>
       </div>
     </main>
