@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { cookies } from "next/headers";
 import "@/styles/globals.css";
 
 import { isClerkConfigured } from "@/lib/clerk";
 import { PwaRegister } from "@/components/pwa-register";
+import { GlobalControls } from "@/components/global-controls";
+import { I18nProvider } from "@/components/i18n";
 
 export const metadata: Metadata = {
-  title: {
-    default: "Eternime — Tu legado vive para siempre",
-    template: "%s · Eternime",
-  },
+  title: { default: "Eternime — Tu legado vive para siempre", template: "%s · Eternime" },
   description:
     "Digital Legacy Intelligence. Preserva tus recuerdos, cartas de legado y tu guía personal de IA para quienes amas.",
   applicationName: "Eternime",
@@ -33,27 +33,32 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0a0a0f",
-  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const NO_FLASH = `(function(){try{var m=document.cookie.match(/(?:^|; )eternime-theme=(dark|light)/);var t=m?m[1]:(localStorage.getItem('eternime-theme')||'dark');document.documentElement.dataset.theme=t;var lm=document.cookie.match(/(?:^|; )eternime-lang=(es|en)/);var l=lm?lm[1]:(localStorage.getItem('eternime-lang')||'es');document.documentElement.setAttribute('lang',l);}catch(e){}})();`;
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("eternime-lang")?.value === "en" ? "en" : "es";
+  const theme = cookieStore.get("eternime-theme")?.value === "light" ? "light" : "dark";
+
   const tree = (
-    <html lang="es">
+    <html lang={lang} data-theme={theme} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: NO_FLASH }} />
+      </head>
       <body>
-        <PwaRegister />
-        {children}
+        <I18nProvider lang={lang}>
+          <PwaRegister />
+          {children}
+          <GlobalControls />
+        </I18nProvider>
       </body>
     </html>
   );
 
-  // Only mount ClerkProvider when keys exist, so the lobby still renders in
-  // demo mode (no keys) without a runtime Clerk error.
   return isClerkConfigured() ? <ClerkProvider>{tree}</ClerkProvider> : tree;
 }
