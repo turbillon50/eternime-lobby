@@ -18,16 +18,17 @@
     "@neondatabase/serverless": "^1.1.0",
     "@react-three/drei": "latest",
     "@react-three/fiber": "latest",
+    "@vercel/blob": "^2.4.1",
+    "bcryptjs": "^3.0.2",
     "drizzle-orm": "^0.45.2",
     "framer-motion": "latest",
+    "jose": "^6.0.11",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
     "resend": "^6.12.4",
     "svix": "^1.95.1",
-    "three": "latest",
-    "bcryptjs": "^3.0.2",
-    "jose": "^6.0.11"
+    "three": "latest"
   },
   "devDependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
