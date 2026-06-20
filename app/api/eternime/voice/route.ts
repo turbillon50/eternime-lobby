@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser, AuthError } from "@/lib/auth";
+import { findUserById } from "@/lib/data/users";
 
 export const runtime = "nodejs";
 
@@ -9,7 +10,7 @@ const DEFAULT_VOICE_ID = "SAz9YHcvj6GT2YYXdXww";
 /** POST { text } → audio/mpeg con la voz de Eon (ElevenLabs TTS). */
 export async function POST(request: Request) {
   try {
-    await requireUser();
+    const session = await requireUser();
 
     const apiKey = process.env.ELEVENLABS_API_KEY || process.env.XI_API_KEY || "";
     if (!apiKey) {
@@ -22,7 +23,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Texto vacío" }, { status: 400 });
     }
 
-    const voiceId = process.env.EON_VOICE_ID || DEFAULT_VOICE_ID;
+    const user = await findUserById(session.sub);
+    const userVoice = (user?.prefs as Record<string, unknown> | null)?.eon_voice_id as string | undefined;
+    const voiceId = userVoice || process.env.EON_VOICE_ID || DEFAULT_VOICE_ID;
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {

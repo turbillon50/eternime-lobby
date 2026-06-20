@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "email, password y name son obligatorios" }, { status: 400 });
     }
 
-    const result = await registerUser({ email: body.email, password: body.password, name: body.name });
+    const result = await registerUser({ email: body.email, password: body.password, name: body.name, inviteCode: body.inviteCode });
     if ("error" in result) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }

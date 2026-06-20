@@ -1,11 +1,18 @@
 import { getSql } from "@/lib/db";
 import type { Memory, MemoryKind } from "./types";
 
+/** Literal de array Postgres seguro para text[]. */
+function pgTextArray(items: string[]): string {
+  if (!items.length) return "{}";
+  return "{" + items.map((s) => '"' + String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"').join(",") + "}";
+}
+
 export async function listMemories(userId: string): Promise<Memory[]> {
   const sql = getSql();
   if (!sql) return [];
   const rows = await sql`
-    SELECT * FROM eternime_memories WHERE user_id = ${userId} ORDER BY created_at DESC`;
+    SELECT id, user_id, title, content, kind, media_url, media_urls, emotional_tone, created_at
+    FROM eternime_memories WHERE user_id = ${userId} ORDER BY created_at DESC`;
   return rows as Memory[];
 }
 
@@ -13,7 +20,8 @@ export async function getMemory(id: string, userId: string): Promise<Memory | nu
   const sql = getSql();
   if (!sql) return null;
   const rows = await sql`
-    SELECT * FROM eternime_memories WHERE id = ${id} AND user_id = ${userId} LIMIT 1`;
+    SELECT id, user_id, title, content, kind, media_url, media_urls, emotional_tone, created_at
+    FROM eternime_memories WHERE id = ${id} AND user_id = ${userId} LIMIT 1`;
   return (rows[0] as Memory) ?? null;
 }
 
@@ -23,23 +31,26 @@ export async function createMemory(input: {
   content?: string | null;
   kind: MemoryKind;
   mediaUrl?: string | null;
+  mediaUrls?: string[] | null;
+  aiContext?: string | null;
   emotionalTone?: string | null;
 }): Promise<Memory | null> {
   const sql = getSql();
   if (!sql) return null;
+  const media = input.mediaUrls ?? [];
   const rows = await sql`
-    INSERT INTO eternime_memories (user_id, title, content, kind, media_url, emotional_tone)
+    INSERT INTO eternime_memories (user_id, title, content, kind, media_url, media_urls, ai_context, emotional_tone)
     VALUES (${input.userId}, ${input.title}, ${input.content ?? null}, ${input.kind},
-            ${input.mediaUrl ?? null}, ${input.emotionalTone ?? null})
-    RETURNING *`;
+            ${input.mediaUrl ?? (media[0] ?? null)}, ${pgTextArray(media)}::text[],
+            ${input.aiContext ?? null}, ${input.emotionalTone ?? null})
+    RETURNING id, user_id, title, content, kind, media_url, media_urls, emotional_tone, created_at`;
   return (rows[0] as Memory) ?? null;
 }
 
 export async function deleteMemory(id: string, userId: string): Promise<boolean> {
   const sql = getSql();
   if (!sql) return false;
-  const rows = await sql`
-    DELETE FROM eternime_memories WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
+  const rows = await sql`DELETE FROM eternime_memories WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
   return rows.length > 0;
 }
 
@@ -71,6 +82,6 @@ export async function updateMemory(
       media_url = CASE WHEN ${patch.mediaUrl !== undefined} THEN ${patch.mediaUrl ?? null} ELSE media_url END,
       emotional_tone = CASE WHEN ${patch.emotionalTone !== undefined} THEN ${patch.emotionalTone ?? null} ELSE emotional_tone END
     WHERE id = ${id} AND user_id = ${userId}
-    RETURNING *`;
+    RETURNING id, user_id, title, content, kind, media_url, media_urls, emotional_tone, created_at`;
   return (rows[0] as Memory) ?? null;
 }
