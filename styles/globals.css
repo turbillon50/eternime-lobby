@@ -583,3 +583,77 @@ button {
 .et-pulse {
   animation: et-pulse-glow 4.5s ease-in-out infinite;
 }
+
+/* ───────────────────────────────────────────────────────────
+   Tema CLARO (día) — se activa con html[data-theme="light"].
+   Conserva el acento dorado; oscuro sigue siendo el default.
+   ─────────────────────────────────────────────────────────── */
+html[data-theme="light"] {
+  --et-bg: #f5f1e8;
+  --et-bg-elevated: #fffdf8;
+  --et-bg-overlay: rgba(255, 253, 248, 0.86);
+  --et-gold: #9a7635;
+  --et-gold-bright: #7c5d24;
+  --et-gold-dim: rgba(154, 118, 53, 0.6);
+  --et-border: rgba(154, 118, 53, 0.32);
+  --et-border-soft: rgba(154, 118, 53, 0.16);
+  --et-text: #1d1b14;
+  --et-text-muted: rgba(29, 27, 20, 0.66);
+  --et-text-faint: rgba(29, 27, 20, 0.45);
+  --et-glow: 0 1px 2px rgba(154, 118, 53, 0.12);
+  --et-glow-strong: 0 8px 28px rgba(154, 118, 53, 0.2);
+  color-scheme: light;
+}
+html[data-theme="light"] body {
+  background: var(--et-bg);
+  color: var(--et-text);
+}
+html[data-theme="light"] .et-card {
+  background: linear-gradient(180deg, rgba(154, 118, 53, 0.05), rgba(154, 118, 53, 0.015)), var(--et-bg-elevated);
+}
+html[data-theme="light"] .et-btn-primary {
+  color: #fffdf8;
+}
+
+/* Control flotante global (tema + idioma) */
+.et-fab {
+  position: fixed;
+  right: max(0.9rem, env(safe-area-inset-right));
+  bottom: max(0.9rem, env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--et-border);
+  background: var(--et-bg-overlay);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--et-glow-strong);
+}
+.et-fab button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  color: var(--et-text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+.et-fab button:hover { color: var(--et-text); background: rgba(212, 175, 106, 0.12); }
+.et-fab button[data-active="true"] { color: var(--et-gold-bright); background: rgba(212, 175, 106, 0.16); }
+.et-fab .et-fab-sep { width: 1px; height: 1.3rem; background: var(--et-border-soft); }
+
+/* Light-mode fixes para inputs/areas que tenían fondo oscuro fijo */
+html[data-theme="light"] .et-input {
+  background: #fffdf8;
+  color: var(--et-text);
+  border-color: var(--et-border);
+}
+html[data-theme="light"] .et-input::placeholder { color: var(--et-text-faint); }
+html[data-theme="light"] .et-input:focus { border-color: var(--et-gold); }
+html[data-theme="light"] .et-btn-ghost:hover:not(:disabled) { background: rgba(154, 118, 53, 0.08); }
