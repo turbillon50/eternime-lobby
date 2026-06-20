@@ -23,6 +23,7 @@ export const APP_NAV: NavItem[] = [
   { href: "/app/recuerdos", label: "nav.memories", icon: <Icon d="M12 21s-7-4.4-9.5-9C.8 8.6 2.7 5 6.5 5c2.2 0 4 1.2 5.5 3 1.5-1.8 3.3-3 5.5-3 3.8 0 5.7 3.6 4 7-2.5 4.6-9.5 9-9.5 9Z" /> },
   { href: "/app/cartas", label: "nav.letters", icon: <Icon d="M4 6h16v12H4zM4 7l8 6 8-6" /> },
   { href: "/app/guia", label: "nav.guide", icon: <Icon d="M12 3a7 7 0 0 1 7 7c0 2.4-1.2 4-2.5 5.4-.8.8-1.5 2-1.5 3.1V20h-6v-1.5c0-1.1-.7-2.3-1.5-3.1C6.2 14 5 12.4 5 10a7 7 0 0 1 7-7ZM10 22h4" /> },
+  { href: "/app/hablar", label: "nav.talk", icon: <Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3" /> },
   { href: "/app/beneficiarios", label: "nav.beneficiaries", icon: <Icon d="M16 11a4 4 0 1 0-8 0M12 7a4 4 0 1 0 0-8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /> },
   { href: "/app/perfil", label: "nav.profile", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0" /> },
 ];
