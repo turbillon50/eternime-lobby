@@ -5,6 +5,16 @@ export type EternimeUser = {
   email: string;
   name: string;
   avatar_url: string | null;
+  cover_url: string | null;
+  tagline: string | null;
+  bio: string | null;
+  birthdate: string | null;
+  birthplace: string | null;
+  location: string | null;
+  phone: string | null;
+  occupation: string | null;
+  socials: Record<string, string> | null;
+  prefs: Record<string, unknown> | null;
   locale: string;
   role: "user" | "admin";
   created_at: string;
@@ -20,6 +30,21 @@ export type Memory = {
   kind: MemoryKind;
   media_url: string | null;
   emotional_tone: string | null;
+  created_at: string;
+};
+
+export type FileKind = "image" | "document" | "audio" | "video" | "other";
+
+export type EternimeFile = {
+  id: string;
+  user_id: string;
+  kind: FileKind;
+  url: string;
+  pathname: string | null;
+  name: string | null;
+  mime: string | null;
+  size: number | null;
+  caption: string | null;
   created_at: string;
 };
 
