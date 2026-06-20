@@ -29,6 +29,7 @@ export type Memory = {
   content: string | null;
   kind: MemoryKind;
   media_url: string | null;
+  media_urls: string[] | null;
   emotional_tone: string | null;
   created_at: string;
 };

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FadeInOnScroll } from "@/components/motion";
 import { useT } from "@/components/i18n";
+import { VoiceClone } from "@/components/app/VoiceClone";
 import {
   Badge, Button, Card, CardDescription, CardTitle, EmptyState, Input, Modal, SkeletonCard, Textarea,
 } from "@/components/ui";
@@ -315,6 +316,8 @@ export function PerfilClient() {
           )}
         </Card>
       </FadeInOnScroll>
+
+      <VoiceClone />
 
       <FadeInOnScroll delay={0.16}>
         <Card>

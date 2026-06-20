@@ -9,7 +9,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
-import { findUserByEmail, findUserById, createUser } from "@/lib/data/users";
+import { findUserByEmail, findUserById, createUser, countUsers } from "@/lib/data/users";
 import type { EternimeUser } from "@/lib/data/types";
 
 export const SESSION_COOKIE = "eternime_session";
@@ -117,7 +117,26 @@ export async function registerUser(input: {
   email: string;
   password: string;
   name: string;
+  inviteCode?: string;
 }): Promise<{ user: EternimeUser; token: string } | { error: string; status: number }> {
+  // Registro PRIVADO por defecto. Se reabre con REGISTRATION_OPEN=true o un
+  // codigo de invitacion (REGISTRATION_INVITE_CODE). El primer usuario (DB vacia)
+  // siempre puede registrarse para el bootstrap inicial.
+  const open = process.env.REGISTRATION_OPEN === "true";
+  const inviteOk = Boolean(
+    process.env.REGISTRATION_INVITE_CODE &&
+      input.inviteCode &&
+      input.inviteCode === process.env.REGISTRATION_INVITE_CODE,
+  );
+  if (!open && !inviteOk) {
+    const total = await countUsers();
+    if (total > 0) {
+      return {
+        error: "Eternime esta en acceso privado por ahora. El registro abierto llegara pronto.",
+        status: 403,
+      };
+    }
+  }
   const email = input.email.trim().toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return { error: "Correo inválido", status: 400 };

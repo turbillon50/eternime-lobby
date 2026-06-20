@@ -106,3 +106,27 @@ export async function complete(input: {
   });
   return result.text ?? "";
 }
+
+/** Describe una imagen (visión) para enriquecer el contexto del recuerdo. */
+export async function describeImage(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const mime = res.headers.get("content-type") || "image/jpeg";
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length > 8 * 1024 * 1024) return null; // evita imágenes enormes
+    const ai = genai();
+    const result = await ai.models.generateContent({
+      model: GEMINI_MODELS.chat,
+      contents: [
+        { role: "user", parts: [
+          { inlineData: { mimeType: mime, data: buf.toString("base64") } },
+          { text: "Describe esta foto en 1-2 frases en español, para preservarla como recuerdo: qué se ve, ambiente y posible significado emocional. Sin inventar nombres." },
+        ] },
+      ],
+    });
+    return (result.text ?? "").trim() || null;
+  } catch {
+    return null;
+  }
+}
