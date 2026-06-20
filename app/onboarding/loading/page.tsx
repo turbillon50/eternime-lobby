@@ -80,7 +80,7 @@ export default function OnboardingLoadingPage() {
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            onClick={() => router.replace("/home")}
+            onClick={() => router.replace("/app")}
             className="mt-10 text-sm text-[#e8d9a8]/80 underline-offset-4 hover:underline"
           >
             Continuar en segundo plano — te avisamos por correo cuando esté lista
