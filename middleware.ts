@@ -1,24 +1,17 @@
 /**
- * Middleware Eternime — dos capas de protección:
+ * Middleware Eternime — auth propia (JWT en cookie `eternime_session`,
+ * verificada con jose en edge runtime): protege `/app/*` y `/admin/*`.
+ * Admin exige role='admin'. Punto único de sesión.
  *
- * 1. Auth propia (JWT en cookie `eternime_session`, verificada con jose en
- *    edge runtime): protege `/app/*` y `/admin/*`. Admin exige role='admin'.
- *    Punto único de sesión → migrar a Clerk después solo toca este archivo
- *    y lib/auth.ts.
- *
- * 2. Clerk (legado): cuando hay keys configuradas, sigue protegiendo las
- *    rutas históricas (/home, /onboarding, …) para no romper flujos previos.
- *    El webhook `/api/webhooks/clerk` se autentica solo vía Svix.
+ * NOTA: el gate legado de Clerk sobre /home, /onboarding, /conversar, etc.
+ * se retiró porque la app migró por completo a la sesión JWT propia. Mantener
+ * el gate de Clerk dejaba esas rutas en _not-found para usuarios JWT (404).
+ * ClerkProvider sigue montado en el layout solo para el webhook/legado.
  */
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 const SESSION_COOKIE = "eternime_session";
-
-const clerkConfigured = Boolean(
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
-);
 
 function jwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET || "eternime-dev-secret-cámbiame-en-producción";
@@ -37,17 +30,17 @@ async function verifyEternimeSession(req: NextRequest): Promise<{ role: string }
   }
 }
 
-/** Capa 1: JWT propio para /app/* y /admin/*. Devuelve una respuesta o null (continuar). */
-async function eternimeGuard(req: NextRequest): Promise<NextResponse | null> {
+export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isApp = pathname === "/app" || pathname.startsWith("/app/");
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
-  if (!isApp && !isAdmin) return null;
+  if (!isApp && !isAdmin) return NextResponse.next();
 
   const session = await verifyEternimeSession(req);
   if (!session) {
     const url = req.nextUrl.clone();
     url.pathname = "/entrar";
+    url.search = "";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
@@ -57,43 +50,12 @@ async function eternimeGuard(req: NextRequest): Promise<NextResponse | null> {
     url.search = "";
     return NextResponse.redirect(url);
   }
-  return null;
+  return NextResponse.next();
 }
-
-// Capa 2: rutas legadas protegidas por Clerk cuando está configurado.
-const isClerkProtectedRoute = createRouteMatcher([
-  "/home(.*)",
-  "/onboarding(.*)",
-  "/conversar(.*)",
-  "/memorias(.*)",
-  "/timeline(.*)",
-  "/relaciones(.*)",
-  "/documentos(.*)",
-  "/voz(.*)",
-  "/reflexiones(.*)",
-  "/mi-boveda(.*)",
-]);
-
-const withClerk = clerkMiddleware(async (auth, req) => {
-  const guarded = await eternimeGuard(req as NextRequest);
-  if (guarded) return guarded;
-  if (isClerkProtectedRoute(req)) {
-    await auth.protect();
-  }
-});
-
-async function withoutClerk(req: NextRequest) {
-  const guarded = await eternimeGuard(req);
-  return guarded ?? NextResponse.next();
-}
-
-export default clerkConfigured ? withClerk : withoutClerk;
 
 export const config = {
   matcher: [
-    // Skip Next internals and static files unless referenced in search params.
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|mp4)).*)",
-    // Always run for API/TRPC routes.
     "/(api|trpc)(.*)",
   ],
 };
