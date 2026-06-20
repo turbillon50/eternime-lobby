@@ -43,7 +43,7 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<void>
           No hay prisa. Tu IA aprenderá a tu ritmo, durante toda tu vida.
         </p>
         <p style="margin-top:32px;">
-          <a href="${APP_URL}/home"
+          <a href="${APP_URL}/app"
              style="display:inline-block;background:#e8d9a8;color:#0a0a0a;text-decoration:none;
                     padding:14px 28px;border-radius:999px;font-size:15px;">
             Entrar a mi Eternime

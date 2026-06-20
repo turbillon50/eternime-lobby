@@ -30,7 +30,7 @@ export default function OnboardingPage() {
     } catch {
       // Non-fatal: the user can revisit captures later from the dashboard.
     } finally {
-      router.replace("/home");
+      router.replace("/app");
     }
   };
 
