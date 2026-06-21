@@ -6,6 +6,7 @@ import "@/styles/globals.css";
 import { isClerkConfigured } from "@/lib/clerk";
 import { PwaRegister } from "@/components/pwa-register";
 import { GlobalControls } from "@/components/global-controls";
+import { Splash } from "@/components/splash";
 import { I18nProvider } from "@/components/i18n";
 
 export const metadata: Metadata = {
@@ -24,10 +25,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
       { url: "/images/icon.svg", type: "image/svg+xml" },
     ],
-    apple: "/icons/icon-192.png",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
   },
 };
 
@@ -52,6 +56,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body>
         <I18nProvider lang={lang}>
+          <Splash />
           <PwaRegister />
           {children}
           <GlobalControls />
