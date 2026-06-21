@@ -37,6 +37,7 @@ function FileIcon({ kind }: { kind: StoredFile["kind"] }) {
 export function PerfilClient() {
   const t = useT();
   const [user, setUser] = useState<ProfileUser | null | undefined>(undefined);
+  const [welcomeMode, setWelcomeMode] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [savedOk, setSavedOk] = useState(false);
@@ -86,6 +87,7 @@ export function PerfilClient() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { try { if (new URLSearchParams(window.location.search).get("welcome") === "1") setWelcomeMode(true); } catch {} }, []);
 
   const setField = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -170,6 +172,22 @@ export function PerfilClient() {
       <input ref={avatarInput} type="file" accept="image/*" hidden onChange={onAvatar} />
       <input ref={coverInput} type="file" accept="image/*" hidden onChange={onCover} />
       <input ref={filesInput} type="file" multiple hidden onChange={onFiles} />
+
+      {welcomeMode ? (
+        <FadeInOnScroll>
+          <Card className="border-[rgba(255,255,255,0.18)] text-center">
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.34em] text-[var(--et-text-faint)]">Tu legado empieza aquí</p>
+            <CardTitle className="mt-2 !text-2xl">Bienvenido a Eternime</CardTitle>
+            <CardDescription className="mx-auto mt-2 max-w-md">
+              Empieza por darle rostro a tu legado: sube tu foto de perfil y una portada. Luego, todo lo que guardes vivirá aquí.
+            </CardDescription>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <Button onClick={() => avatarInput.current?.click()}>Subir mi foto</Button>
+              <Button variant="ghost" onClick={() => setWelcomeMode(false)}>Más tarde</Button>
+            </div>
+          </Card>
+        </FadeInOnScroll>
+      ) : null}
 
       <FadeInOnScroll>
         <Card padded={false} className="overflow-hidden">

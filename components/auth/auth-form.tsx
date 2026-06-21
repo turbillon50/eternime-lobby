@@ -53,7 +53,7 @@ function AuthFormInner({ mode }: { mode: Mode }) {
         setError(data.error ?? "Algo salió mal. Intenta de nuevo.");
         return;
       }
-      router.push(params.get("next") ?? "/app");
+      router.push(mode === "register" ? "/app/perfil?welcome=1" : (params.get("next") ?? "/app"));
       router.refresh();
     } catch {
       setError("No pudimos conectar. Revisa tu red e intenta de nuevo.");
