@@ -693,3 +693,8 @@ html[data-theme="light"] .et-btn-ghost:hover:not(:disabled) { background: rgba(1
 @media (max-width: 1023px) {
   .et-fab { bottom: calc(4.8rem + env(safe-area-inset-bottom)); }
 }
+
+/* La barra inferior es SOLO móvil — gana al display:flex propio en desktop */
+@media (min-width: 1024px) {
+  .et-bottom-nav { display: none !important; }
+}
