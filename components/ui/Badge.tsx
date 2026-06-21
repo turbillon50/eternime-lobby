@@ -3,7 +3,7 @@ import type { PropsWithChildren } from "react";
 type Tone = "gold" | "muted" | "success" | "danger";
 
 const toneStyle: Record<Tone, string> = {
-  gold: "border-[var(--et-border)] bg-[rgba(212,175,106,0.1)] text-[var(--et-gold-bright)]",
+  gold: "border-[var(--et-border)] bg-[rgba(255,255,255,0.1)] text-[var(--et-gold-bright)]",
   muted: "border-[rgba(245,242,234,0.14)] bg-[rgba(245,242,234,0.05)] text-[var(--et-text-muted)]",
   success: "border-[rgba(143,200,160,0.3)] bg-[rgba(143,200,160,0.1)] text-[var(--et-success)]",
   danger: "border-[rgba(224,122,106,0.3)] bg-[rgba(224,122,106,0.1)] text-[var(--et-danger)]",

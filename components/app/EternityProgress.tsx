@@ -32,7 +32,7 @@ export function EternityProgress({ percent, label }: EternityProgressProps) {
           className="h-full rounded-full"
           style={{
             background: "linear-gradient(90deg, var(--et-gold-dim), var(--et-gold), var(--et-gold-bright))",
-            boxShadow: "0 0 14px rgba(212,175,106,0.45)",
+            boxShadow: "0 0 14px rgba(255,255,255,0.45)",
           }}
           initial={{ width: 0 }}
           whileInView={{ width: `${clamped}%` }}

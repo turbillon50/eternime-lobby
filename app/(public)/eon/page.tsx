@@ -54,8 +54,8 @@ export default function EonPage() {
         <div className="mx-auto flex justify-center">
           <div
             aria-hidden="true"
-            className="et-glow-ring flex h-36 w-36 items-center justify-center rounded-full border border-[rgba(212,175,106,0.4)] sm:h-44 sm:w-44"
-            style={{ boxShadow: "0 0 60px rgba(212,175,106,0.25), inset 0 0 40px rgba(212,175,106,0.12)" }}
+            className="et-glow-ring flex h-36 w-36 items-center justify-center rounded-full border border-[rgba(255,255,255,0.4)] sm:h-44 sm:w-44"
+            style={{ boxShadow: "0 0 60px rgba(255,255,255,0.25), inset 0 0 40px rgba(255,255,255,0.12)" }}
           >
             <span className="et-serif text-xl tracking-[0.35em] text-[var(--et-gold-bright)]">EON</span>
           </div>

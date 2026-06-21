@@ -20,20 +20,20 @@ function Icon({ d }: { d: string }) {
 
 export const APP_NAV: NavItem[] = [
   { href: "/app", label: "nav.home", icon: <Icon d="M3 11.5 12 4l9 7.5M5 10v10h14V10" /> },
-  { href: "/app/recuerdos", label: "nav.memories", icon: <Icon d="M12 21s-7-4.4-9.5-9C.8 8.6 2.7 5 6.5 5c2.2 0 4 1.2 5.5 3 1.5-1.8 3.3-3 5.5-3 3.8 0 5.7 3.6 4 7-2.5 4.6-9.5 9-9.5 9Z" /> },
+  { href: "/app/recuerdos", label: "nav.vault", icon: <Icon d="M12 21s-7-4.4-9.5-9C.8 8.6 2.7 5 6.5 5c2.2 0 4 1.2 5.5 3 1.5-1.8 3.3-3 5.5-3 3.8 0 5.7 3.6 4 7-2.5 4.6-9.5 9-9.5 9Z" /> },
   { href: "/app/cartas", label: "nav.letters", icon: <Icon d="M4 6h16v12H4zM4 7l8 6 8-6" /> },
   { href: "/app/guia", label: "nav.guide", icon: <Icon d="M12 3a7 7 0 0 1 7 7c0 2.4-1.2 4-2.5 5.4-.8.8-1.5 2-1.5 3.1V20h-6v-1.5c0-1.1-.7-2.3-1.5-3.1C6.2 14 5 12.4 5 10a7 7 0 0 1 7-7ZM10 22h4" /> },
   { href: "/app/hablar", label: "nav.talk", icon: <Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3" /> },
-  { href: "/app/beneficiarios", label: "nav.beneficiaries", icon: <Icon d="M16 11a4 4 0 1 0-8 0M12 7a4 4 0 1 0 0-8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /> },
+  { href: "/app/beneficiarios", label: "nav.heirs", icon: <Icon d="M16 11a4 4 0 1 0-8 0M12 7a4 4 0 1 0 0-8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /> },
   { href: "/app/perfil", label: "nav.profile", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0" /> },
 ];
 
 // 5 destinos primarios para la barra inferior móvil (Hablar al centro, prominente).
 const BOTTOM_NAV: { href: string; label: string; icon: ReactNode; center?: boolean }[] = [
   { href: "/app", label: "nav.home", icon: <Icon d="M3 11.5 12 4l9 7.5M5 10v10h14V10" /> },
-  { href: "/app/recuerdos", label: "nav.memories", icon: <Icon d="M12 21s-7-4.4-9.5-9C.8 8.6 2.7 5 6.5 5c2.2 0 4 1.2 5.5 3 1.5-1.8 3.3-3 5.5-3 3.8 0 5.7 3.6 4 7-2.5 4.6-9.5 9-9.5 9Z" /> },
+  { href: "/app/recuerdos", label: "nav.vault", icon: <Icon d="M4 5h16v14H4zM4 9h16M9 5v4M9 13h6" /> },
   { href: "/app/hablar", label: "nav.talk", icon: <Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3" />, center: true },
-  { href: "/app/guia", label: "nav.guide", icon: <Icon d="M12 3a7 7 0 0 1 7 7c0 2.4-1.2 4-2.5 5.4-.8.8-1.5 2-1.5 3.1V20h-6v-1.5c0-1.1-.7-2.3-1.5-3.1C6.2 14 5 12.4 5 10a7 7 0 0 1 7-7ZM10 22h4" /> },
+  { href: "/app/beneficiarios", label: "nav.heirs", icon: <Icon d="M16 11a4 4 0 1 0-8 0M12 7a4 4 0 1 0 0-8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /> },
   { href: "/app/perfil", label: "nav.profile", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0" /> },
 ];
 
@@ -44,7 +44,7 @@ function SidebarProfile({ user }: { user: ShellUser | null }) {
   const active = pathname.startsWith("/app/perfil");
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : "·";
   return (
-    <Link href="/app/perfil" className={`group flex items-center gap-3 rounded-[var(--et-radius)] border p-2.5 transition ${active ? "border-[var(--et-border)] bg-[rgba(212,175,106,0.08)] shadow-[var(--et-glow)]" : "border-[var(--et-border-soft)] bg-[rgba(212,175,106,0.03)] hover:border-[var(--et-border)] hover:bg-[rgba(212,175,106,0.06)]"}`}>
+    <Link href="/app/perfil" className={`group flex items-center gap-3 rounded-[var(--et-radius)] border p-2.5 transition ${active ? "border-[var(--et-border)] bg-[rgba(255,255,255,0.08)] shadow-[var(--et-glow)]" : "border-[var(--et-border-soft)] bg-[rgba(255,255,255,0.03)] hover:border-[var(--et-border)] hover:bg-[rgba(255,255,255,0.06)]"}`}>
       <span className="et-glow-ring flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--et-bg-elevated)] text-base font-medium text-[var(--et-gold-bright)]"
         style={user?.avatar_url ? { backgroundImage: `url(${user.avatar_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
         {!user?.avatar_url ? initial : null}
@@ -67,9 +67,9 @@ function SideNav({ items }: { items: NavItem[] }) {
         const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href);
         return (
           <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}
-            className={`group relative flex items-center gap-3 rounded-[var(--et-radius-sm)] py-2.5 pl-3.5 pr-3 text-sm transition ${active ? "bg-gradient-to-r from-[rgba(212,175,106,0.16)] to-transparent text-[var(--et-gold-bright)]" : "text-[var(--et-text-muted)] hover:bg-[rgba(245,242,234,0.04)] hover:text-[var(--et-text)]"}`}>
+            className={`group relative flex items-center gap-3 rounded-[var(--et-radius-sm)] py-2.5 pl-3.5 pr-3 text-sm transition ${active ? "bg-gradient-to-r from-[rgba(255,255,255,0.16)] to-transparent text-[var(--et-gold-bright)]" : "text-[var(--et-text-muted)] hover:bg-[rgba(245,242,234,0.04)] hover:text-[var(--et-text)]"}`}>
             {active ? <motion.span layoutId="nav-active-bar" className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-[var(--et-gold)] shadow-[var(--et-glow)]" transition={{ type: "spring", stiffness: 380, damping: 32 }} /> : null}
-            <span className={`flex h-8 w-8 items-center justify-center rounded-[var(--et-radius-sm)] transition ${active ? "bg-[rgba(212,175,106,0.14)] text-[var(--et-gold)]" : "text-[var(--et-text-faint)] group-hover:text-[var(--et-text-muted)]"}`}>{item.icon}</span>
+            <span className={`flex h-8 w-8 items-center justify-center rounded-[var(--et-radius-sm)] transition ${active ? "bg-[rgba(255,255,255,0.14)] text-[var(--et-gold)]" : "text-[var(--et-text-faint)] group-hover:text-[var(--et-text-muted)]"}`}>{item.icon}</span>
             <span className="truncate">{t(item.label as DictKey)}</span>
           </Link>
         );

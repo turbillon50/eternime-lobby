@@ -93,7 +93,7 @@ function PlayVoiceButton({
       type="button"
       onClick={play}
       aria-label={status === "playing" ? "Pausar voz de Eon" : "Escuchar a Eon"}
-      className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,106,0.35)] px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.14em] text-[var(--et-gold-dim)] transition hover:text-[var(--et-gold-bright)]"
+      className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[rgba(255,255,255,0.35)] px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.14em] text-[var(--et-gold-dim)] transition hover:text-[var(--et-gold-bright)]"
     >
       {status === "loading" ? (
         <motion.span
@@ -131,10 +131,10 @@ function Bubble({
       <div
         className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
           isUser
-            ? "rounded-br-sm bg-[rgba(212,175,106,0.14)] text-[var(--et-text)]"
+            ? "rounded-br-sm bg-[rgba(255,255,255,0.14)] text-[var(--et-text)]"
             : "rounded-bl-sm border border-[var(--et-border-soft)] bg-[var(--et-bg-elevated)] text-[var(--et-text)]"
         }`}
-        style={isUser ? { border: "1px solid rgba(212,175,106,0.3)" } : undefined}
+        style={isUser ? { border: "1px solid rgba(255,255,255,0.3)" } : undefined}
       >
         {!isUser ? (
           <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-[var(--et-gold-dim)]">Eon</p>

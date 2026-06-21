@@ -4,6 +4,8 @@ export const dict = {
   es: {
     "nav.home": "Inicio",
     "nav.memories": "Mis recuerdos",
+    "nav.vault": "Bóveda",
+    "nav.heirs": "Herederos",
     "nav.letters": "Cartas de legado",
     "nav.guide": "Mi guía",
     "nav.talk": "Hablar con Eon",
@@ -54,6 +56,8 @@ export const dict = {
   en: {
     "nav.home": "Home",
     "nav.memories": "My memories",
+    "nav.vault": "Vault",
+    "nav.heirs": "Heirs",
     "nav.letters": "Legacy letters",
     "nav.guide": "My guide",
     "nav.talk": "Talk to Eon",

@@ -93,7 +93,7 @@ export function HablarConEon() {
           className="relative z-10 flex h-40 w-40 items-center justify-center rounded-full border text-[var(--et-gold-bright)]"
           style={{
             borderColor: "var(--et-gold)",
-            background: "radial-gradient(circle at 50% 40%, rgba(212,175,106,0.22), rgba(18,18,26,0.9) 70%)",
+            background: "radial-gradient(circle at 50% 40%, rgba(255,255,255,0.22), rgba(18,18,26,0.9) 70%)",
             boxShadow: speaking ? "var(--et-glow-strong)" : "var(--et-glow)",
           }}
           animate={speaking ? { scale: [1, 1.05, 1] } : { scale: 1 }}

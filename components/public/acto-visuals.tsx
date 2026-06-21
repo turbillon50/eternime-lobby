@@ -107,7 +107,7 @@ export function VisualTrasciende() {
 }
 
 const CSS = [
-  ".et-acto-visual { width: 100%; max-width: 320px; aspect-ratio: 1; margin-inline: auto; border-radius: var(--et-radius); border: 1px solid var(--et-border-soft); background: radial-gradient(circle at 50% 50%, rgba(212,175,106,0.06), transparent 70%), var(--et-bg-elevated); box-shadow: var(--et-glow); }",
+  ".et-acto-visual { width: 100%; max-width: 320px; aspect-ratio: 1; margin-inline: auto; border-radius: var(--et-radius); border: 1px solid var(--et-border-soft); background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), transparent 70%), var(--et-bg-elevated); box-shadow: var(--et-glow); }",
   "@keyframes et-ripple { 0% { r: 30; opacity: 0.8; } 100% { r: 95; opacity: 0; } }",
   ".et-anim-ripple { animation: et-ripple 4s ease-out infinite; }",
   "@keyframes et-breathe { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }",
