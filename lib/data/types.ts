@@ -69,6 +69,10 @@ export type Beneficiary = {
   name: string;
   email: string | null;
   relationship: string | null;
+  is_primary: boolean;
+  delivery_condition: string | null;
+  invited_at: string | null;
+  photo_url: string | null;
   created_at: string;
 };
 

@@ -11,7 +11,7 @@ export function LegalDoc({ raw }: { raw: string }) {
         {blocks.map((block, i) => {
           if (i === 0) {
             return (
-              <p key={i} className="mb-8 rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)] bg-[rgba(212,175,106,0.05)] px-4 py-3 text-xs uppercase tracking-[0.14em] text-[var(--et-gold-dim)]">
+              <p key={i} className="mb-8 rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)] bg-[rgba(255,255,255,0.05)] px-4 py-3 text-xs uppercase tracking-[0.14em] text-[var(--et-gold-dim)]">
                 {block}
               </p>
             );

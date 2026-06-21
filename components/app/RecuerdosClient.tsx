@@ -42,7 +42,7 @@ function NarrateButton({ memory }: { memory: Memory }) {
   };
   return (
     <button type="button" onClick={play} aria-label={`Narrar ${memory.title}`} title="Narrar con la voz de Eon"
-      className="rounded-full p-1.5 text-[var(--et-text-faint)] transition hover:bg-[rgba(212,175,106,0.1)] hover:text-[var(--et-gold-bright)]">
+      className="rounded-full p-1.5 text-[var(--et-text-faint)] transition hover:bg-[rgba(255,255,255,0.1)] hover:text-[var(--et-gold-bright)]">
       {state === "loading" ? (<span className="block h-[15px] w-[15px] animate-spin rounded-full border-2 border-current border-t-transparent" />)
         : state === "playing" ? (<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>)
         : (<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /></svg>)}
@@ -234,7 +234,7 @@ export function RecuerdosClient() {
             <div className="flex flex-wrap gap-2">
               {KINDS.map((k) => (
                 <button key={k.value} type="button" onClick={() => setForm((f) => ({ ...f, kind: k.value }))} className="rounded-full border px-3 py-1.5 text-xs uppercase tracking-[0.1em] transition"
-                  style={form.kind === k.value ? { borderColor: "var(--et-gold)", color: "var(--et-gold-bright)", background: "rgba(212,175,106,0.1)" } : { borderColor: "var(--et-border-soft)", color: "var(--et-text-muted)" }}>
+                  style={form.kind === k.value ? { borderColor: "var(--et-gold)", color: "var(--et-gold-bright)", background: "rgba(255,255,255,0.1)" } : { borderColor: "var(--et-border-soft)", color: "var(--et-text-muted)" }}>
                   {k.icon} {k.label}
                 </button>
               ))}
@@ -245,7 +245,7 @@ export function RecuerdosClient() {
             <div className="flex flex-wrap gap-2">
               {TONES.map((tone) => (
                 <button key={tone} type="button" onClick={() => setForm((f) => ({ ...f, emotionalTone: f.emotionalTone === tone ? "" : tone }))} className="rounded-full border px-3 py-1 text-xs transition"
-                  style={form.emotionalTone === tone ? { borderColor: "var(--et-gold)", color: "var(--et-gold-bright)", background: "rgba(212,175,106,0.1)" } : { borderColor: "var(--et-border-soft)", color: "var(--et-text-muted)" }}>
+                  style={form.emotionalTone === tone ? { borderColor: "var(--et-gold)", color: "var(--et-gold-bright)", background: "rgba(255,255,255,0.1)" } : { borderColor: "var(--et-border-soft)", color: "var(--et-text-muted)" }}>
                   {tone}
                 </button>
               ))}

@@ -18,7 +18,7 @@ export function SignupsChart({ data }: { data: SignupPoint[] }) {
                 style={{
                   background:
                     d.count > 0
-                      ? "linear-gradient(180deg, var(--et-gold) 0%, rgba(212,175,106,0.35) 100%)"
+                      ? "linear-gradient(180deg, var(--et-gold) 0%, rgba(255,255,255,0.35) 100%)"
                       : "rgba(245,242,234,0.08)",
                   minHeight: 3,
                 }}

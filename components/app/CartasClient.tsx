@@ -295,9 +295,9 @@ export function CartasClient() {
           <div
             className="rounded-[var(--et-radius)] border p-6 sm:p-8"
             style={{
-              borderColor: "rgba(212,175,106,0.35)",
-              background: "linear-gradient(160deg, rgba(212,175,106,0.08), rgba(10,10,15,0.6) 55%)",
-              boxShadow: "inset 0 0 40px rgba(212,175,106,0.06)",
+              borderColor: "rgba(255,255,255,0.35)",
+              background: "linear-gradient(160deg, rgba(255,255,255,0.08), rgba(10,10,15,0.6) 55%)",
+              boxShadow: "inset 0 0 40px rgba(255,255,255,0.06)",
             }}
           >
             <p className="text-xs uppercase tracking-[0.2em] text-[var(--et-gold-dim)]">
@@ -310,7 +310,7 @@ export function CartasClient() {
                 {preview.body}
               </p>
             </div>
-            <div className="mt-6 flex items-center justify-between border-t border-[rgba(212,175,106,0.2)] pt-4">
+            <div className="mt-6 flex items-center justify-between border-t border-[rgba(255,255,255,0.2)] pt-4">
               <Badge tone={STATUS_TONE[preview.status]}>{STATUS_LABEL[preview.status]}</Badge>
               <span className="et-serif text-sm italic text-[var(--et-gold-dim)]">Eternime</span>
             </div>

@@ -11,8 +11,8 @@ export default function GuiaPage() {
         <div className="flex items-center gap-3">
           <span
             aria-hidden="true"
-            className="et-glow-ring flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(212,175,106,0.45)]"
-            style={{ boxShadow: "0 0 18px rgba(212,175,106,0.3), inset 0 0 12px rgba(212,175,106,0.15)" }}
+            className="et-glow-ring flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.45)]"
+            style={{ boxShadow: "0 0 18px rgba(255,255,255,0.3), inset 0 0 12px rgba(255,255,255,0.15)" }}
           >
             <span className="et-serif text-[0.55rem] tracking-[0.25em] text-[var(--et-gold-bright)]">EON</span>
           </span>

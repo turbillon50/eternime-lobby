@@ -179,7 +179,7 @@ export function PerfilClient() {
               style={{
                 backgroundImage: user?.cover_url
                   ? `linear-gradient(180deg, rgba(10,10,15,0.15), rgba(10,10,15,0.85)), url(${user.cover_url})`
-                  : "radial-gradient(120% 140% at 50% 0%, rgba(212,175,106,0.18), transparent 60%), linear-gradient(180deg, #14140f, #0a0a0f)",
+                  : "radial-gradient(120% 140% at 50% 0%, rgba(255,255,255,0.18), transparent 60%), linear-gradient(180deg, #14140f, #0a0a0f)",
               }}
             />
             <button
@@ -300,7 +300,7 @@ export function PerfilClient() {
                   <p className="mb-2 text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("profile.docs")}</p>
                   <div className="grid gap-2">
                     {others.map((f) => (
-                      <div key={f.id} className="flex items-center gap-3 rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)] bg-[rgba(212,175,106,0.03)] px-3 py-2.5">
+                      <div key={f.id} className="flex items-center gap-3 rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)] bg-[rgba(255,255,255,0.03)] px-3 py-2.5">
                         <span className="text-[var(--et-gold)]"><FileIcon kind={f.kind} /></span>
                         <a href={f.url} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 truncate text-sm text-[var(--et-text)] hover:text-[var(--et-gold-bright)]">{f.name ?? f.url}</a>
                         <span className="shrink-0 text-xs text-[var(--et-text-faint)]">{fmtSize(f.size)}</span>

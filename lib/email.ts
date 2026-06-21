@@ -42,22 +42,22 @@ function letterHtml(input: SendLetterEmailInput): string {
     <tr><td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
         <tr><td align="center" style="padding-bottom:28px;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;letter-spacing:6px;color:#d4af6a;text-transform:uppercase;">Eternime</div>
-          <div style="height:1px;width:80px;background:#d4af6a;margin:14px auto 0;opacity:0.6;"></div>
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;letter-spacing:6px;color:#e9eef4;text-transform:uppercase;">Eternime</div>
+          <div style="height:1px;width:80px;background:#e9eef4;margin:14px auto 0;opacity:0.6;"></div>
         </td></tr>
         <tr><td align="center" style="padding-bottom:24px;">
           <div style="font-family:Georgia,serif;font-size:15px;color:#9a93a8;">Querido(a) ${escapeHtml(input.recipientName)},</div>
           <div style="font-family:Georgia,serif;font-size:14px;color:#6f6880;margin-top:6px;">una carta te ha sido confiada y hoy es su día.</div>
         </td></tr>
-        <tr><td style="background:#f7f3ea;border-radius:8px;padding:36px 32px;box-shadow:0 0 40px rgba(212,175,106,0.15);">
-          <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:24px;color:#2a2433;margin:0 0 20px 0;font-weight:normal;border-bottom:1px solid #d4af6a;padding-bottom:14px;">${escapeHtml(input.title)}</h1>
+        <tr><td style="background:#f7f3ea;border-radius:8px;padding:36px 32px;box-shadow:0 0 40px rgba(255,255,255,0.15);">
+          <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:24px;color:#2a2433;margin:0 0 20px 0;font-weight:normal;border-bottom:1px solid #e9eef4;padding-bottom:14px;">${escapeHtml(input.title)}</h1>
           <div style="font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#3a3344;">${bodyHtml}</div>
           <div style="margin-top:28px;font-family:Georgia,serif;font-style:italic;color:#6f6880;font-size:15px;">— ${escapeHtml(input.senderName)}</div>
         </td></tr>
         <tr><td align="center" style="padding-top:28px;">
           <div style="font-family:Georgia,serif;font-size:12px;color:#6f6880;line-height:1.6;">
             Esta carta fue confiada a Eternime por ${escapeHtml(input.senderName)} para ser entregada hoy.<br/>
-            <a href="https://eternime.org" style="color:#d4af6a;text-decoration:none;">eternime.org</a>
+            <a href="https://eternime.org" style="color:#e9eef4;text-decoration:none;">eternime.org</a>
           </div>
         </td></tr>
       </table>
