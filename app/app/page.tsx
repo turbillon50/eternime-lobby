@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
+import { translate } from "@/lib/i18n";
+import { getServerLang } from "@/lib/i18n-server";
 import { countMemories, listMemories } from "@/lib/data/memories";
 import { countLetters, nextScheduledLetter } from "@/lib/data/letters";
 import { countBeneficiaries } from "@/lib/data/beneficiaries";
@@ -29,6 +31,8 @@ function eternityLevel(memories: number, letters: number, beneficiaries: number)
 
 export default async function AppHomePage() {
   const session = await getSession();
+  const lang = await getServerLang();
+  const T = (k: string) => translate(lang, k as never);
   const userId = session?.sub ?? "";
   const [memories, letters, beneficiaries, recentMemories, user, nextLetter] = userId
     ? await Promise.all([
@@ -52,21 +56,21 @@ export default async function AppHomePage() {
   const level = eternityLevel(memories, letters, beneficiaries);
 
   const stats = [
-    { label: "Recuerdos preservados", value: memories, href: "/app/recuerdos" },
-    { label: "Cartas de legado", value: letters, href: "/app/cartas" },
-    { label: "Beneficiarios", value: beneficiaries, href: "/app/beneficiarios" },
-    { label: "Días construyendo tu legado", value: legacyDays, href: "/app/perfil" },
+    { label: T("dash.memories"), value: memories, href: "/app/recuerdos" },
+    { label: T("dash.letters"), value: letters, href: "/app/cartas" },
+    { label: T("dash.heirs"), value: beneficiaries, href: "/app/beneficiarios" },
+    { label: T("dash.days"), value: legacyDays, href: "/app/perfil" },
   ];
 
   return (
     <div className="grid gap-8">
       <FadeInOnScroll>
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--et-text-faint)]">Tu legado</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-[var(--et-text-faint)]">{T("dash.eyebrow")}</p>
         <h1 className="et-serif mt-1 text-3xl text-[var(--et-text)]">
-          Hola{session?.name ? `, ${session.name.split(" ")[0]}` : ""}
+          {T("dash.greeting")}{session?.name ? `, ${session.name.split(" ")[0]}` : ""}
         </h1>
         <p className="mt-2 max-w-xl text-sm text-[var(--et-text-muted)]">
-          Cada recuerdo que guardas hoy es una conversación que tendrás mañana con quienes amas.
+          {T("dash.sub")}
         </p>
       </FadeInOnScroll>
 
@@ -115,23 +119,23 @@ export default async function AppHomePage() {
 
       <FadeInOnScroll delay={0.15}>
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="et-serif text-xl text-[var(--et-text)]">Tus últimos recuerdos</h2>
+          <h2 className="et-serif text-xl text-[var(--et-text)]">{T("dash.recent")}</h2>
           {lastThree.length > 0 ? (
             <Link
               href="/app/recuerdos"
               className="text-xs uppercase tracking-[0.14em] text-[var(--et-gold)] transition hover:text-[var(--et-gold-bright)]"
             >
-              Ver todos
+              {T("dash.seeAll")}
             </Link>
           ) : null}
         </div>
         {lastThree.length === 0 ? (
           <EmptyState
-            title="Tu primer recuerdo te espera"
+            title={T("vault.emptyTitle")}
             description="Empieza hoy: un momento, una voz, una historia. Tu guía aprenderá de cada palabra."
             action={
               <Link href="/app/recuerdos" className="et-btn et-btn-primary">
-                Preservar un recuerdo hoy
+                {T("dash.preserveNow")}
               </Link>
             }
           />
@@ -163,13 +167,13 @@ export default async function AppHomePage() {
         <FadeInOnScroll delay={0.2}>
           <Card className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
-              <CardTitle>Preservar un recuerdo hoy</CardTitle>
+              <CardTitle>{T("dash.preserveTitle")}</CardTitle>
               <CardDescription className="mt-1">
-                Un minuto tuyo de hoy puede ser un tesoro para alguien dentro de veinte años.
+                {T("dash.preserveSub")}
               </CardDescription>
             </div>
             <Link href="/app/recuerdos" className="et-btn et-btn-primary shrink-0">
-              Preservar ahora
+              {T("dash.preserveNow")}
             </Link>
           </Card>
         </FadeInOnScroll>

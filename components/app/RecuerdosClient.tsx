@@ -7,6 +7,7 @@ import {
   Badge, Button, Card, CardDescription, CardTitle, EmptyState, Input, Modal, SkeletonCard, Textarea,
 } from "@/components/ui";
 import type { Memory, MemoryKind } from "@/lib/data/types";
+import { useT } from "@/components/i18n";
 
 const KINDS: { value: MemoryKind; label: string; icon: string }[] = [
   { value: "texto", label: "Texto", icon: "✦" },
@@ -51,6 +52,7 @@ function NarrateButton({ memory }: { memory: Memory }) {
 }
 
 export function RecuerdosClient() {
+  const t = useT();
   const [memories, setMemories] = useState<Memory[] | null>(null);
   const [tab, setTab] = useState<Tab>("todos");
   const [modalOpen, setModalOpen] = useState(false);
@@ -146,16 +148,16 @@ export function RecuerdosClient() {
             </button>
           ))}
         </div>
-        <Button onClick={openCreate}>Preservar recuerdo</Button>
+        <Button onClick={openCreate}>{t("vault.new")}</Button>
       </div>
 
       {memories === null ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          title={tab === "todos" ? "Tu primer recuerdo te espera" : "Nada por aquí todavía"}
-          description={tab === "todos" ? "Cada momento que guardes hoy será una conversación que alguien tendrá contigo mañana." : "Aún no has preservado recuerdos de este tipo."}
-          action={<Button onClick={openCreate}>Preservar un recuerdo</Button>} />
+          title={tab === "todos" ? t("vault.emptyTitle") : t("vault.emptyTitle")}
+          description={t("vault.emptyDesc")}
+          action={<Button onClick={openCreate}>{t("vault.emptyAction")}</Button>} />
       ) : (
         <StaggerContainer key={tab} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence>
@@ -201,16 +203,16 @@ export function RecuerdosClient() {
         </StaggerContainer>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Editar recuerdo" : "Preservar un recuerdo"}>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? t("vault.editTitle") : t("vault.newTitle")}>
         <div className="grid gap-4">
-          <Input label="Título" placeholder="El verano en casa de la abuela" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
-          <Textarea label="El recuerdo" placeholder="Escríbelo como lo recuerdas, con tus palabras…" rows={4} value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} />
+          <Input label={t("vault.mTitle")} placeholder="El verano en casa de la abuela" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
+          <Textarea label={t("vault.mContent")} placeholder={t("vault.mContentPh")} rows={4} value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} />
 
           {/* Fotos */}
           <div className="grid gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">Fotos</span>
-              <Button variant="ghost" onClick={() => photoInput.current?.click()} loading={uploadingPhotos} className="!min-h-9 px-3 text-xs">Añadir fotos</Button>
+              <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("vault.photos")}</span>
+              <Button variant="ghost" onClick={() => photoInput.current?.click()} loading={uploadingPhotos} className="!min-h-9 px-3 text-xs">{t("vault.addPhotos")}</Button>
             </div>
             {form.photoUrls.length ? (
               <div className="grid grid-cols-4 gap-2">
@@ -225,12 +227,12 @@ export function RecuerdosClient() {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-[var(--et-text-faint)]">Sube una o varias fotos. Eon las verá y aprenderá de ellas.</p>
+              <p className="text-xs text-[var(--et-text-faint)]">{t("vault.photosHint")}</p>
             )}
           </div>
 
           <div className="grid gap-1.5">
-            <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">Tipo</span>
+            <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("vault.type")}</span>
             <div className="flex flex-wrap gap-2">
               {KINDS.map((k) => (
                 <button key={k.value} type="button" onClick={() => setForm((f) => ({ ...f, kind: k.value }))} className="rounded-full border px-3 py-1.5 text-xs uppercase tracking-[0.1em] transition"
@@ -241,7 +243,7 @@ export function RecuerdosClient() {
             </div>
           </div>
           <div className="grid gap-1.5">
-            <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">Tono emocional</span>
+            <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("vault.tone")}</span>
             <div className="flex flex-wrap gap-2">
               {TONES.map((tone) => (
                 <button key={tone} type="button" onClick={() => setForm((f) => ({ ...f, emotionalTone: f.emotionalTone === tone ? "" : tone }))} className="rounded-full border px-3 py-1 text-xs transition"
@@ -253,18 +255,18 @@ export function RecuerdosClient() {
           </div>
           {error ? <p className="text-sm text-[var(--et-danger)]">{error}</p> : null}
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancelar</Button>
-            <Button onClick={save} loading={saving}>{editing ? "Guardar cambios" : "Preservar"}</Button>
+            <Button variant="ghost" onClick={() => setModalOpen(false)}>{t("common.cancel")}</Button>
+            <Button onClick={save} loading={saving}>{editing ? t("vault.saveEdit") : t("vault.save")}</Button>
           </div>
         </div>
       </Modal>
 
-      <Modal open={Boolean(confirmDelete)} onClose={() => setConfirmDelete(null)} title="¿Eliminar este recuerdo?">
+      <Modal open={Boolean(confirmDelete)} onClose={() => setConfirmDelete(null)} title={t("vault.delTitle")}>
         <div className="grid gap-4">
           <p className="text-sm text-[var(--et-text-muted)]">«{confirmDelete?.title}» desaparecerá de tu legado para siempre. Esta acción no se puede deshacer.</p>
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setConfirmDelete(null)}>Conservar</Button>
-            <Button onClick={remove} loading={deleting} className="!border-[rgba(224,122,106,0.4)] !bg-[rgba(224,122,106,0.12)] !text-[var(--et-danger)]" variant="secondary">Eliminar</Button>
+            <Button variant="ghost" onClick={() => setConfirmDelete(null)}>{t("vault.delKeep")}</Button>
+            <Button onClick={remove} loading={deleting} className="!border-[rgba(224,122,106,0.4)] !bg-[rgba(224,122,106,0.12)] !text-[var(--et-danger)]" variant="secondary">{t("common.delete")}</Button>
           </div>
         </div>
       </Modal>
