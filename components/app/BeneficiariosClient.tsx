@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { StaggerContainer, StaggerItem } from "@/components/motion";
 import { Badge, Button, Card, CardDescription, CardTitle, EmptyState, Input, Modal, SkeletonCard } from "@/components/ui";
 import type { Beneficiary, Memory } from "@/lib/data/types";
+import { useT } from "@/components/i18n";
 
 const RELATIONSHIPS = ["esposa", "esposo", "hija", "hijo", "madre", "padre", "hermana", "hermano", "amiga", "amigo"];
 const CONDITIONS = ["Al confirmar mi fallecimiento", "En una fecha especial", "De inmediato"];
@@ -12,6 +13,7 @@ type FormState = { name: string; email: string; relationship: string; isPrimary:
 const emptyForm: FormState = { name: "", email: "", relationship: "", isPrimary: false, deliveryCondition: CONDITIONS[0] };
 
 export function BeneficiariosClient() {
+  const t = useT();
   const [people, setPeople] = useState<Beneficiary[] | null>(null);
   const [memories, setMemories] = useState<Memory[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -100,15 +102,15 @@ export function BeneficiariosClient() {
   return (
     <div className="grid gap-6">
       <div className="flex items-center justify-end">
-        <Button onClick={openCreate}>Añadir heredero</Button>
+        <Button onClick={openCreate}>{t("heirs.add")}</Button>
       </div>
 
       {people === null ? (
         <div className="grid gap-4 sm:grid-cols-2"><SkeletonCard /><SkeletonCard /></div>
       ) : people.length === 0 ? (
-        <EmptyState title="Aún no has nombrado herederos"
-          description="Las personas que nombres aquí recibirán tu legado: recuerdos, cartas y tu memoria, cuando llegue el momento."
-          action={<Button onClick={openCreate}>Nombrar a alguien</Button>} />
+        <EmptyState title={t("heirs.emptyTitle")}
+          description={t("heirs.emptyDesc")}
+          action={<Button onClick={openCreate}>{t("heirs.emptyAction")}</Button>} />
       ) : (
         <StaggerContainer className="grid gap-4 sm:grid-cols-2">
           {people.map((b) => {
@@ -122,7 +124,7 @@ export function BeneficiariosClient() {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <CardTitle>{b.name}</CardTitle>
-                        {b.is_primary ? <Badge>Principal</Badge> : null}
+                        {b.is_primary ? <Badge>{t("heirs.primary")}</Badge> : null}
                       </div>
                       <CardDescription className="mt-0.5">
                         {b.relationship ? <span className="capitalize">{b.relationship}</span> : "Heredero(a)"}{b.email ? ` · ${b.email}` : ""}
@@ -135,9 +137,9 @@ export function BeneficiariosClient() {
                     {invited[b.id] ? <span className="rounded-full border border-[rgba(143,200,160,0.3)] px-2.5 py-1 text-[var(--et-success)]">Invitado ✓</span> : null}
                   </div>
                   <div className="mt-auto flex flex-wrap gap-2 pt-1">
-                    <Button variant="ghost" className="!min-h-9 px-3 text-xs" onClick={() => openAssign(b)}>Asignar recuerdos</Button>
+                    <Button variant="ghost" className="!min-h-9 px-3 text-xs" onClick={() => openAssign(b)}>{t("heirs.assign")}</Button>
                     <Button variant="ghost" className="!min-h-9 px-3 text-xs" onClick={() => invite(b)} loading={inviting === b.id} disabled={!b.email}>
-                      {invited[b.id] ? "Reenviar invitación" : "Invitar"}
+                      {invited[b.id] ? t("heirs.reinvite") : t("heirs.invite")}
                     </Button>
                     <button type="button" onClick={() => openEdit(b)} aria-label="Editar" className="ml-auto rounded-full p-1.5 text-[var(--et-text-faint)] transition hover:text-[var(--et-text)]">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
@@ -155,12 +157,12 @@ export function BeneficiariosClient() {
       {error ? <p className="text-sm text-[var(--et-danger)]">{error}</p> : null}
 
       {/* Crear / editar */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Editar heredero" : "Nombrar heredero"}>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? t("heirs.editTitle") : t("heirs.newTitle")}>
         <div className="grid gap-4">
-          <Input label="Nombre" placeholder="Sofía" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-          <Input label="Correo" type="email" placeholder="sofia@correo.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+          <Input label={t("heirs.name")} placeholder="Sofía" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+          <Input label={t("heirs.email")} type="email" placeholder="sofia@correo.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
           <div className="grid gap-1.5">
-            <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">Relación</span>
+            <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("heirs.relation")}</span>
             <div className="flex flex-wrap gap-2">
               {RELATIONSHIPS.map((r) => (
                 <button key={r} type="button" onClick={() => setForm((f) => ({ ...f, relationship: f.relationship === r ? "" : r }))} className="rounded-full border px-3 py-1 text-xs capitalize transition"
@@ -169,7 +171,7 @@ export function BeneficiariosClient() {
             </div>
           </div>
           <div className="grid gap-1.5">
-            <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">Condición de entrega</span>
+            <span className="text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("heirs.condition")}</span>
             <div className="flex flex-wrap gap-2">
               {CONDITIONS.map((c) => (
                 <button key={c} type="button" onClick={() => setForm((f) => ({ ...f, deliveryCondition: c }))} className="rounded-full border px-3 py-1.5 text-xs transition"
@@ -179,21 +181,21 @@ export function BeneficiariosClient() {
           </div>
           <label className="flex items-center gap-3 text-sm text-[var(--et-text-muted)]">
             <input type="checkbox" checked={form.isPrimary} onChange={(e) => setForm((f) => ({ ...f, isPrimary: e.target.checked }))} className="h-4 w-4 accent-white" />
-            Heredero(a) principal
+            {t("heirs.isPrimary")}
           </label>
           {error ? <p className="text-sm text-[var(--et-danger)]">{error}</p> : null}
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancelar</Button>
-            <Button onClick={save} loading={saving}>{editing ? "Guardar" : "Nombrar"}</Button>
+            <Button variant="ghost" onClick={() => setModalOpen(false)}>{t("common.cancel")}</Button>
+            <Button onClick={save} loading={saving}>{editing ? t("heirs.saveEdit") : t("heirs.save")}</Button>
           </div>
         </div>
       </Modal>
 
       {/* Asignar recuerdos */}
-      <Modal open={Boolean(assignFor)} onClose={() => setAssignFor(null)} title={`Recuerdos para ${assignFor?.name ?? ""}`}>
+      <Modal open={Boolean(assignFor)} onClose={() => setAssignFor(null)} title={`${t("heirs.memOf")} ${assignFor?.name ?? ""}`}>
         <div className="grid gap-3">
           {memories.length === 0 ? (
-            <p className="text-sm text-[var(--et-text-muted)]">Aún no tienes recuerdos en tu bóveda para asignar.</p>
+            <p className="text-sm text-[var(--et-text-muted)]">{t("heirs.noMem")}</p>
           ) : (
             <div className="grid max-h-72 gap-2 overflow-y-auto pr-1">
               {memories.map((m) => (
@@ -206,19 +208,19 @@ export function BeneficiariosClient() {
             </div>
           )}
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setAssignFor(null)}>Cancelar</Button>
-            <Button onClick={saveAssign} loading={assignSaving} disabled={memories.length === 0}>Guardar asignación</Button>
+            <Button variant="ghost" onClick={() => setAssignFor(null)}>{t("common.cancel")}</Button>
+            <Button onClick={saveAssign} loading={assignSaving} disabled={memories.length === 0}>{t("heirs.saveAssign")}</Button>
           </div>
         </div>
       </Modal>
 
       {/* Eliminar */}
-      <Modal open={Boolean(confirmDelete)} onClose={() => setConfirmDelete(null)} title="¿Quitar a este heredero?">
+      <Modal open={Boolean(confirmDelete)} onClose={() => setConfirmDelete(null)} title={t("heirs.delTitle")}>
         <div className="grid gap-4">
           <p className="text-sm text-[var(--et-text-muted)]">«{confirmDelete?.name}» dejará de ser heredero(a) de tu legado.</p>
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setConfirmDelete(null)}>Conservar</Button>
-            <Button onClick={remove} variant="secondary" className="!border-[rgba(224,122,106,0.4)] !bg-[rgba(224,122,106,0.12)] !text-[var(--et-danger)]">Quitar</Button>
+            <Button variant="ghost" onClick={() => setConfirmDelete(null)}>{t("vault.delKeep")}</Button>
+            <Button onClick={remove} variant="secondary" className="!border-[rgba(224,122,106,0.4)] !bg-[rgba(224,122,106,0.12)] !text-[var(--et-danger)]">{t("heirs.remove")}</Button>
           </div>
         </div>
       </Modal>
