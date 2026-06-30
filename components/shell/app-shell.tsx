@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState, type PropsWithChildren, type ReactNode } from "react";
 import { motion } from "framer-motion";
+import { useClerk } from "@clerk/nextjs";
 import { PageTransition } from "@/components/motion";
 import { useT } from "@/components/i18n";
 import type { DictKey } from "@/lib/i18n";
@@ -79,10 +80,10 @@ function SideNav({ items }: { items: NavItem[] }) {
 }
 
 function LogoutButton() {
-  const router = useRouter();
+  const { signOut } = useClerk();
   const t = useT();
   return (
-    <button type="button" onClick={async () => { await fetch("/api/auth/logout", { method: "POST" }); router.push("/"); router.refresh(); }}
+    <button type="button" onClick={() => signOut({ redirectUrl: "/" })}
       className="flex w-full items-center gap-3 rounded-[var(--et-radius-sm)] px-3.5 py-2.5 text-sm text-[var(--et-text-faint)] transition hover:bg-[rgba(224,122,106,0.08)] hover:text-[var(--et-danger)]">
       <span className="flex h-8 w-8 items-center justify-center"><Icon d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></span>
       {t("nav.logout")}

@@ -29,6 +29,59 @@ export async function findUserById(id: string): Promise<EternimeUser | null> {
   return (rows[0] as EternimeUser) ?? null;
 }
 
+/** Busca por el id de Clerk (auth.userId). Punto de entrada de la sesion real. */
+export async function findUserByClerkId(clerkId: string): Promise<EternimeUser | null> {
+  const sql = getSql();
+  if (!sql) return null;
+  const rows = await sql`
+    SELECT id, email, name, avatar_url, cover_url, tagline, bio,
+      to_char(birthdate, 'YYYY-MM-DD') AS birthdate, birthplace, location, phone,
+      occupation, socials, prefs, locale, role, personality_summary, created_at
+    FROM eternime_users WHERE clerk_id = ${clerkId} LIMIT 1`;
+  return (rows[0] as EternimeUser) ?? null;
+}
+
+/**
+ * Crea o actualiza la fila local a partir de los datos de Clerk. Idempotente:
+ * si ya existe un eternime_users con ese clerk_id, solo actualiza email/nombre
+ * (Clerk es la fuente de verdad de identidad; lo demas — bio, recuerdos,
+ * cartas, etc. — vive y se edita solo en Eternime).
+ *
+ * El PRIMER usuario que se sincroniza (tabla vacia) se vuelve admin
+ * automaticamente, igual que el bootstrap del sistema de auth anterior.
+ */
+export async function upsertUserFromClerk(input: {
+  clerkId: string;
+  email: string;
+  name: string;
+}): Promise<EternimeUser | null> {
+  const sql = getSql();
+  if (!sql) return null;
+
+  const existing = await findUserByClerkId(input.clerkId);
+  if (existing) {
+    const rows = await sql`
+      UPDATE eternime_users SET email = ${input.email.toLowerCase()}, name = COALESCE(NULLIF(${input.name}, ''), name)
+      WHERE clerk_id = ${input.clerkId}
+      RETURNING id, email, name, avatar_url, cover_url, tagline, bio,
+        to_char(birthdate, 'YYYY-MM-DD') AS birthdate, birthplace, location, phone,
+        occupation, socials, prefs, locale, role, personality_summary, created_at`;
+    return (rows[0] as EternimeUser) ?? null;
+  }
+
+  const total = await countUsers();
+  const role = total === 0 ? "admin" : "user";
+
+  const rows = await sql`
+    INSERT INTO eternime_users (clerk_id, email, name, role)
+    VALUES (${input.clerkId}, ${input.email.toLowerCase()}, ${input.name || "Sin nombre"}, ${role})
+    ON CONFLICT (clerk_id) DO UPDATE SET email = EXCLUDED.email
+    RETURNING id, email, name, avatar_url, cover_url, tagline, bio,
+      to_char(birthdate, 'YYYY-MM-DD') AS birthdate, birthplace, location, phone,
+      occupation, socials, prefs, locale, role, personality_summary, created_at`;
+  return (rows[0] as EternimeUser) ?? null;
+}
+
 export async function updatePersonalitySummary(userId: string, summary: string): Promise<void> {
   const sql = getSql();
   if (!sql) return;

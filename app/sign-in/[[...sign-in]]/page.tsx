@@ -2,14 +2,15 @@ import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 
 import { isClerkConfigured } from "@/lib/clerk";
+import { eternimeClerkAppearance } from "@/lib/clerk-appearance";
 
 export const dynamic = "force-dynamic";
 
 export default function SignInPage() {
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-[#0a0a0a] px-6 py-16">
+    <main className="flex min-h-dvh items-center justify-center bg-[#08080c] px-6 py-16">
       {isClerkConfigured() ? (
-        <SignIn forceRedirectUrl="/app" signUpUrl="/sign-up" />
+        <SignIn appearance={eternimeClerkAppearance} forceRedirectUrl="/app" signUpUrl="/sign-up" />
       ) : (
         <DemoNotice />
       )}

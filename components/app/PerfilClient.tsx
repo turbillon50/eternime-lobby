@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useClerk } from "@clerk/nextjs";
 import { FadeInOnScroll } from "@/components/motion";
 import { useT } from "@/components/i18n";
 import { VoiceClone } from "@/components/app/VoiceClone";
@@ -145,9 +146,10 @@ export function PerfilClient() {
     try { await fetch(`/api/files/${id}`, { method: "DELETE" }); } catch { /* ignore */ }
   };
 
+  const { signOut } = useClerk();
   const logout = async () => {
     setLoggingOut(true);
-    try { await fetch("/api/auth/logout", { method: "POST" }); window.location.href = "/"; }
+    try { await signOut({ redirectUrl: "/" }); }
     catch { setLoggingOut(false); }
   };
   const deleteAccount = async () => {
