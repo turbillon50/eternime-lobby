@@ -4,6 +4,8 @@ import { updateBeneficiary, deleteBeneficiary } from "@/lib/data/beneficiaries";
 
 export const runtime = "nodejs";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await requireUser();
@@ -11,7 +13,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const body = (await request.json()) as Record<string, unknown>;
     const patch: Parameters<typeof updateBeneficiary>[2] = {};
     if (typeof body.name === "string") patch.name = body.name.trim();
-    if ("email" in body) patch.email = body.email ? String(body.email).trim() : null;
+    if ("email" in body) {
+      const email = body.email ? String(body.email).trim() : null;
+      if (email && !EMAIL_RE.test(email)) {
+        return NextResponse.json({ error: "El correo del heredero no tiene un formato válido" }, { status: 400 });
+      }
+      patch.email = email;
+    }
     if ("relationship" in body) patch.relationship = body.relationship ? String(body.relationship) : null;
     if ("isPrimary" in body) patch.isPrimary = Boolean(body.isPrimary);
     if ("deliveryCondition" in body) patch.deliveryCondition = body.deliveryCondition ? String(body.deliveryCondition) : null;

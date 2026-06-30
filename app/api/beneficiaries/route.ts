@@ -15,6 +15,8 @@ export async function GET() {
   }
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function POST(request: Request) {
   try {
     const session = await requireUser();
@@ -23,10 +25,14 @@ export async function POST(request: Request) {
       isPrimary?: boolean; deliveryCondition?: string | null;
     };
     const name = (body.name ?? "").trim();
+    const email = body.email?.trim() || null;
     if (!name) return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
+    if (email && !EMAIL_RE.test(email)) {
+      return NextResponse.json({ error: "El correo del heredero no tiene un formato válido" }, { status: 400 });
+    }
     const beneficiary = await createBeneficiary({
       userId: session.sub, name,
-      email: body.email?.trim() || null,
+      email,
       relationship: body.relationship?.trim() || null,
       isPrimary: Boolean(body.isPrimary),
       deliveryCondition: body.deliveryCondition?.trim() || null,
