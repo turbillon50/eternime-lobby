@@ -1,11 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { cookies } from "next/headers";
 import "@/styles/globals.css";
 
 import { isClerkConfigured } from "@/lib/clerk";
 import { PwaRegister } from "@/components/pwa-register";
-import { GlobalControls } from "@/components/global-controls";
 import { Splash } from "@/components/splash";
 import { AuroraBackground } from "@/components/aurora-background";
 import { I18nProvider } from "@/components/i18n";
@@ -37,31 +35,29 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0f",
+  themeColor: "#08080c",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
 };
 
-const NO_FLASH = `(function(){try{var m=document.cookie.match(/(?:^|; )eternime-theme=(dark|light)/);var t=m?m[1]:(localStorage.getItem('eternime-theme')||'dark');document.documentElement.dataset.theme=t;var lm=document.cookie.match(/(?:^|; )eternime-lang=(es|en)/);var l=lm?lm[1]:(localStorage.getItem('eternime-lang')||'es');document.documentElement.setAttribute('lang',l);}catch(e){}})();`;
-
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("eternime-lang")?.value === "en" ? "en" : "es";
-  const theme = cookieStore.get("eternime-theme")?.value === "light" ? "light" : "dark";
+  // Eternime vive solo en modo oscuro (identidad de marca: obsidian + halo).
+  // El toggle de tema/idioma se quito por decision directa de Luis — el modo
+  // claro rompia el contraste del hero (texto blanco pensado para fondo
+  // oscuro, ilegible sobre el fondo claro) y el idioma nunca estuvo traducido
+  // de verdad mas alla del header. Mas simple y mas solido: un solo tema,
+  // un solo idioma, bien hechos, en vez de un toggle a medias.
+  const lang = "es";
 
   const tree = (
-    <html lang={lang} data-theme={theme} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: NO_FLASH }} />
-      </head>
+    <html lang={lang} data-theme="dark" suppressHydrationWarning>
       <body>
         <I18nProvider lang={lang}>
           <AuroraBackground />
           <Splash />
           <PwaRegister />
           {children}
-          <GlobalControls />
         </I18nProvider>
       </body>
     </html>

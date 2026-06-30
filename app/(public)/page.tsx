@@ -55,6 +55,12 @@ export default function HomePage() {
     <>
       {/* Hero — usa el fondo aurora global (montado en layout.tsx), sin video */}
       <section className="relative isolate flex min-h-[78svh] flex-col items-center justify-center overflow-hidden px-5 py-16 text-center sm:px-8">
+        {/* Velo radial: garantiza contraste del texto sobre el aurora sin importar donde caigan los blobs */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "radial-gradient(ellipse 60% 55% at 50% 45%, rgba(8,8,12,0.6), transparent 70%)" }}
+        />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="eternime-video-halo" />
         </div>
