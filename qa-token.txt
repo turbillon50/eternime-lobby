@@ -1,1 +1,1 @@
-[JWT-REDACTADO-AUDITORIA]
+(removido por auditoria de seguridad — contenia un JWT de sesion real expuesto en repo publico. JWT_SECRET ya fue rotado en produccion, el token viejo quedo invalido.)
