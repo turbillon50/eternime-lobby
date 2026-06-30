@@ -1,8 +1,36 @@
 import { NextResponse } from "next/server";
 import { requireUser, AuthError } from "@/lib/auth";
 import { listGuideMessages, appendGuideMessage } from "@/lib/data/guide";
-import { listMemories } from "@/lib/data/memories";
-import { answerAsEon } from "@/lib/ai/eon";
+import { listMemories, createMemory, countConversationMemories } from "@/lib/data/memories";
+import { answerAsEon, refreshPersonalitySummary } from "@/lib/ai/eon";
+import { storeMemoryEmbedding } from "@/lib/ai/rag";
+
+const MIN_CAPTURABLE_LENGTH = 40;
+const PERSONALITY_REFRESH_EVERY = 5;
+
+async function captureConversationAsMemory(userId: string, userText: string): Promise<void> {
+  const text = userText.trim();
+  if (text.length < MIN_CAPTURABLE_LENGTH) return;
+  try {
+    const title = text.length > 60 ? text.slice(0, 57) + "…" : text;
+    const mem = await createMemory({
+      userId,
+      title,
+      content: text,
+      kind: "texto",
+      source: "conversacion",
+    });
+    if (mem) {
+      await storeMemoryEmbedding(mem.id, userId, text);
+      const n = await countConversationMemories(userId);
+      if (n > 0 && n % PERSONALITY_REFRESH_EVERY === 0) {
+        await refreshPersonalitySummary(userId);
+      }
+    }
+  } catch (e) {
+    console.error("[guide-messages] captureConversationAsMemory failed:", e instanceof Error ? e.message : e);
+  }
+}
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -58,6 +86,8 @@ export async function POST(request: Request) {
     }
 
     const assistantMessage = await appendGuideMessage({ userId: session.sub, role: "assistant", content: reply });
+
+    await captureConversationAsMemory(session.sub, content);
 
     return NextResponse.json({ userMessage, assistantMessage, reply, cited }, { status: 201 });
   } catch (e) {

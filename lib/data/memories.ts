@@ -34,17 +34,25 @@ export async function createMemory(input: {
   mediaUrls?: string[] | null;
   aiContext?: string | null;
   emotionalTone?: string | null;
+  source?: "manual" | "conversacion";
 }): Promise<Memory | null> {
   const sql = getSql();
   if (!sql) return null;
   const media = input.mediaUrls ?? [];
   const rows = await sql`
-    INSERT INTO eternime_memories (user_id, title, content, kind, media_url, media_urls, ai_context, emotional_tone)
+    INSERT INTO eternime_memories (user_id, title, content, kind, media_url, media_urls, ai_context, emotional_tone, source)
     VALUES (${input.userId}, ${input.title}, ${input.content ?? null}, ${input.kind},
             ${input.mediaUrl ?? (media[0] ?? null)}, ${pgTextArray(media)}::text[],
-            ${input.aiContext ?? null}, ${input.emotionalTone ?? null})
+            ${input.aiContext ?? null}, ${input.emotionalTone ?? null}, ${input.source ?? "manual"})
     RETURNING id, user_id, title, content, kind, media_url, media_urls, emotional_tone, created_at`;
   return (rows[0] as Memory) ?? null;
+}
+
+export async function countConversationMemories(userId: string): Promise<number> {
+  const sql = getSql();
+  if (!sql) return 0;
+  const rows = await sql`SELECT count(*)::int AS n FROM eternime_memories WHERE user_id = ${userId} AND source = 'conversacion'`;
+  return (rows[0]?.n as number) ?? 0;
 }
 
 export async function deleteMemory(id: string, userId: string): Promise<boolean> {
