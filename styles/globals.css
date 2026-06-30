@@ -667,6 +667,13 @@ html[data-theme="light"] .et-btn-primary {
 .et-fab button:active { transform: scale(0.96); }
 .et-fab button[data-active="true"] { color: var(--et-text); background: rgba(255, 255, 255, 0.1); }
 .et-fab .et-fab-sep { width: 1px; height: 1.1rem; margin: 0 0.1rem; background: var(--et-border-soft); opacity: 0.6; }
+.et-fab-theme {
+  width: auto !important;
+  gap: 0.4rem;
+  padding-left: 0.7rem !important;
+  padding-right: 0.85rem !important;
+}
+.et-fab-theme span { font-size: 0.66rem; font-weight: 500; letter-spacing: 0.04em; }
 
 /* Light-mode fixes para inputs/areas que tenían fondo oscuro fijo */
 html[data-theme="light"] .et-input {
