@@ -125,17 +125,23 @@ export async function registerUser(input: {
   inviteCode?: string;
 }): Promise<{ user: EternimeUser; token: string } | { error: string; status: number }> {
   // Registro PRIVADO por defecto. Se reabre con REGISTRATION_OPEN=true o un
-  // codigo de invitacion (REGISTRATION_INVITE_CODE). El primer usuario (DB vacia)
-  // siempre puede registrarse para el bootstrap inicial.
+  // codigo de invitacion (REGISTRATION_INVITE_CODE).
+  //
+  // Bootstrap del primer usuario: SOLO se permite sin codigo si la base esta
+  // vacia Y no hay REGISTRATION_INVITE_CODE configurado (instalacion nueva
+  // sin proteccion definida todavia). Si ya existe un codigo de invitacion
+  // configurado, se exige SIEMPRE, incluso para el usuario #1 — de lo
+  // contrario cualquiera que llegue primero a una base vacia se queda con
+  // la cuenta inicial sin haber sido invitado.
   const open = process.env.REGISTRATION_OPEN === "true";
+  const hasInviteSystem = Boolean(process.env.REGISTRATION_INVITE_CODE);
   const inviteOk = Boolean(
-    process.env.REGISTRATION_INVITE_CODE &&
-      input.inviteCode &&
-      input.inviteCode === process.env.REGISTRATION_INVITE_CODE,
+    hasInviteSystem && input.inviteCode && input.inviteCode === process.env.REGISTRATION_INVITE_CODE,
   );
   if (!open && !inviteOk) {
     const total = await countUsers();
-    if (total > 0) {
+    const bootstrapAllowed = total === 0 && !hasInviteSystem;
+    if (!bootstrapAllowed) {
       return {
         error: "Eternime esta en acceso privado por ahora. El registro abierto llegara pronto.",
         status: 403,
