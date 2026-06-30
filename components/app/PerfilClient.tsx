@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { FadeInOnScroll } from "@/components/motion";
 import { useT } from "@/components/i18n";
 import { VoiceClone } from "@/components/app/VoiceClone";
@@ -179,12 +180,19 @@ export function PerfilClient() {
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.34em] text-[var(--et-text-faint)]">Tu legado empieza aquí</p>
             <CardTitle className="mt-2 !text-2xl">Bienvenido a Eternime</CardTitle>
             <CardDescription className="mx-auto mt-2 max-w-md">
-              Empieza por darle rostro a tu legado: sube tu foto de perfil y una portada. Luego, todo lo que guardes vivirá aquí.
+              Lo que más importa ahora no es tu foto — es que Eon empiece a conocerte. Cada cosa que le cuentes queda con él para siempre.
             </CardDescription>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
-              <Button onClick={() => avatarInput.current?.click()}>Subir mi foto</Button>
-              <Button variant="ghost" onClick={() => setWelcomeMode(false)}>Más tarde</Button>
+              <Link href="/app/hablar" className="et-btn et-btn-primary px-6">Hablar con Eon</Link>
+              <Button variant="ghost" onClick={() => avatarInput.current?.click()}>Subir mi foto primero</Button>
             </div>
+            <button
+              type="button"
+              onClick={() => setWelcomeMode(false)}
+              className="mt-4 text-xs text-[var(--et-text-faint)] underline-offset-4 hover:underline"
+            >
+              Más tarde
+            </button>
           </Card>
         </FadeInOnScroll>
       ) : null}
