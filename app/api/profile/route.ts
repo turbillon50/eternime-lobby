@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireUser, AuthError, clearSessionCookie, signSession, setSessionCookie } from "@/lib/auth";
+import { auth, clerkClient } from "@clerk/nextjs/server";
+import { requireUser, AuthError } from "@/lib/auth";
 import { updateUserProfile, deleteUser, findUserById, type ProfilePatch } from "@/lib/data/users";
 
 export const runtime = "nodejs";
@@ -49,10 +50,9 @@ export async function PATCH(request: Request) {
     const user = await updateUserProfile(session.sub, patch);
     if (!user) return NextResponse.json({ error: "Base de datos no disponible" }, { status: 503 });
 
-    if (patch.name) {
-      const token = await signSession({ sub: user.id, email: user.email, name: user.name, role: user.role });
-      await setSessionCookie(token);
-    }
+    // Nota: con Clerk no hace falta refrescar ninguna cookie de sesion al
+    // cambiar el nombre — getSession() siempre lee el nombre fresco de
+    // eternime_users en cada request, no hay claim cacheado que actualizar.
     return NextResponse.json({ user });
   } catch (e) {
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
@@ -63,9 +63,24 @@ export async function PATCH(request: Request) {
 export async function DELETE() {
   try {
     const session = await requireUser();
+    const { userId: clerkId } = await auth();
+
     const ok = await deleteUser(session.sub);
     if (!ok) return NextResponse.json({ error: "No se pudo eliminar la cuenta" }, { status: 503 });
-    await clearSessionCookie();
+
+    // Borra tambien la identidad de Clerk para que "eliminar cuenta" sea
+    // real de verdad (no solo los datos locales) — si esto falla, los datos
+    // de Eternime ya quedaron borrados; se loguea el error pero no se le
+    // pide al usuario que reintente algo que ya logro su objetivo principal.
+    if (clerkId) {
+      try {
+        const client = await clerkClient();
+        await client.users.deleteUser(clerkId);
+      } catch (e) {
+        console.error("[profile DELETE] no se pudo borrar el usuario de Clerk:", e);
+      }
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });

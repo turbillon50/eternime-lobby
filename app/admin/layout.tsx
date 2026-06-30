@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { requireAdmin, AuthError } from "@/lib/auth";
 import { AppShell, type NavItem } from "@/components/shell/app-shell";
 
 function Icon({ d }: { d: string }) {
@@ -16,7 +18,16 @@ const adminNav: NavItem[] = [
   { href: "/admin/sistema", label: "Sistema", icon: <Icon d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm8.5 4c0 .5 0 .9-.1 1.3l2 1.5-2 3.4-2.3-.9a8.6 8.6 0 0 1-2.2 1.3l-.4 2.4h-4l-.4-2.4a8.6 8.6 0 0 1-2.2-1.3l-2.3.9-2-3.4 2-1.5a8.5 8.5 0 0 1 0-2.6l-2-1.5 2-3.4 2.3.9a8.6 8.6 0 0 1 2.2-1.3l.4-2.4h4l.4 2.4a8.6 8.6 0 0 1 2.2 1.3l2.3-.9 2 3.4-2 1.5c.1.4.1.9.1 1.4Z" /> },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // Defensa en profundidad: el middleware solo exige sesion activa para
+  // /admin/*, el rol admin se verifica aqui (Server Component, DB real).
+  try {
+    await requireAdmin();
+  } catch (e) {
+    if (e instanceof AuthError && e.status === 401) redirect("/sign-in?redirect_url=/admin");
+    redirect("/app");
+  }
+
   return (
     <AppShell nav={adminNav} brand="ETERNIME · ADMIN">
       {children}
