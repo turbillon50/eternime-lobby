@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FadeInOnScroll, StaggerContainer, StaggerItem } from "@/components/motion";
-import { CinematicVideo } from "@/components/layers/cinematic-video";
 import {
   ActoVisualStyles,
   VisualHistoria,
@@ -54,9 +53,8 @@ const visuales = [VisualHistoria, VisualGuia, VisualCartas, VisualTrasciende];
 export default function HomePage() {
   return (
     <>
-      {/* Hero cinematico */}
+      {/* Hero — usa el fondo aurora global (montado en layout.tsx), sin video */}
       <section className="relative isolate flex min-h-[78svh] flex-col items-center justify-center overflow-hidden px-5 py-16 text-center sm:px-8">
-        <CinematicVideo />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="eternime-video-halo" />
         </div>
