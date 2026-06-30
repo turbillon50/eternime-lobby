@@ -37,13 +37,17 @@ export async function createFile(input: {
   mime?: string | null;
   size?: number | null;
   caption?: string | null;
+  source?: "manual" | "social_import";
+  externalId?: string | null;
 }): Promise<EternimeFile | null> {
   const sql = getSql();
   if (!sql) return null;
   const rows = await sql`
-    INSERT INTO eternime_files (user_id, kind, url, pathname, name, mime, size, caption)
+    INSERT INTO eternime_files (user_id, kind, url, pathname, name, mime, size, caption, source, external_id)
     VALUES (${input.userId}, ${input.kind}, ${input.url}, ${input.pathname ?? null},
-            ${input.name ?? null}, ${input.mime ?? null}, ${input.size ?? null}, ${input.caption ?? null})
+            ${input.name ?? null}, ${input.mime ?? null}, ${input.size ?? null}, ${input.caption ?? null},
+            ${input.source ?? "manual"}, ${input.externalId ?? null})
+    ON CONFLICT (user_id, external_id) WHERE external_id IS NOT NULL DO NOTHING
     RETURNING *`;
   return (rows[0] as EternimeFile) ?? null;
 }

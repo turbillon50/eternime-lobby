@@ -47,7 +47,22 @@ export type EternimeFile = {
   mime: string | null;
   size: number | null;
   caption: string | null;
+  source: "manual" | "social_import";
+  external_id: string | null;
   created_at: string;
+};
+
+export type SocialProvider = "facebook" | "instagram";
+
+export type SocialConnection = {
+  id: string;
+  user_id: string;
+  provider: SocialProvider;
+  provider_user_id: string;
+  provider_user_name: string | null;
+  connected_at: string;
+  last_synced_at: string | null;
+  last_import_count: number | null;
 };
 
 export type LetterStatus = "draft" | "scheduled" | "delivered";

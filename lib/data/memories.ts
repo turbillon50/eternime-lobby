@@ -34,7 +34,7 @@ export async function createMemory(input: {
   mediaUrls?: string[] | null;
   aiContext?: string | null;
   emotionalTone?: string | null;
-  source?: "manual" | "conversacion";
+  source?: "manual" | "conversacion" | "social_import";
 }): Promise<Memory | null> {
   const sql = getSql();
   if (!sql) return null;
