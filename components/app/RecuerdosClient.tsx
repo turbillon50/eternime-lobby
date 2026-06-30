@@ -8,6 +8,7 @@ import {
   Badge, Button, Card, CardDescription, CardTitle, EmptyState, Input, Modal, SkeletonCard, Textarea,
 } from "@/components/ui";
 import { SocialImport } from "@/components/app/SocialImport";
+import { Boveda } from "@/components/app/Boveda";
 import type { Memory, MemoryKind } from "@/lib/data/types";
 import { useT } from "@/components/i18n";
 
@@ -163,6 +164,7 @@ export function RecuerdosClient() {
           {socialMsg}
         </div>
       ) : null}
+      <Boveda />
       <SocialImport />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-1 rounded-full border border-[var(--et-border-soft)] bg-[var(--et-bg-elevated)] p-1">

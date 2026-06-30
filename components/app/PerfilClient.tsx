@@ -7,7 +7,7 @@ import { FadeInOnScroll } from "@/components/motion";
 import { useT } from "@/components/i18n";
 import { VoiceClone } from "@/components/app/VoiceClone";
 import {
-  Badge, Button, Card, CardDescription, CardTitle, EmptyState, Input, Modal, SkeletonCard, Textarea,
+  Badge, Button, Card, CardDescription, CardTitle, Input, Modal, SkeletonCard, Textarea,
 } from "@/components/ui";
 
 type ProfileUser = {
@@ -16,26 +16,6 @@ type ProfileUser = {
   birthdate?: string | null; birthplace?: string | null; location?: string | null; phone?: string | null;
   occupation?: string | null; created_at?: string;
 };
-type StoredFile = {
-  id: string; kind: "image" | "document" | "audio" | "video" | "other"; url: string;
-  name?: string | null; mime?: string | null; size?: number | null; created_at?: string;
-};
-
-function fmtSize(n?: number | null) {
-  if (!n) return "";
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
-  return `${(n / 1024 / 1024).toFixed(1)} MB`;
-}
-
-function FileIcon({ kind }: { kind: StoredFile["kind"] }) {
-  const c = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.5 } as const;
-  if (kind === "audio") return (<svg {...c}><path d="M9 18V6l10-2v12" /><circle cx="6" cy="18" r="3" /><circle cx="16" cy="16" r="3" /></svg>);
-  if (kind === "video") return (<svg {...c}><rect x="3" y="5" width="14" height="14" rx="2" /><path d="m17 9 4-2v10l-4-2" /></svg>);
-  if (kind === "document") return (<svg {...c}><path d="M14 3v5h5" /><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /></svg>);
-  return (<svg {...c}><path d="M21 15l-5-5L5 21" /><circle cx="9" cy="9" r="2" /><rect x="3" y="3" width="18" height="18" rx="2" /></svg>);
-}
-
 export function PerfilClient() {
   const t = useT();
   const [user, setUser] = useState<ProfileUser | null | undefined>(undefined);
@@ -44,10 +24,8 @@ export function PerfilClient() {
   const [saving, setSaving] = useState(false);
   const [savedOk, setSavedOk] = useState(false);
   const [error, setError] = useState("");
-  const [files, setFiles] = useState<StoredFile[]>([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
-  const [uploadingFiles, setUploadingFiles] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteText, setDeleteText] = useState("");
@@ -55,7 +33,6 @@ export function PerfilClient() {
 
   const avatarInput = useRef<HTMLInputElement>(null);
   const coverInput = useRef<HTMLInputElement>(null);
-  const filesInput = useRef<HTMLInputElement>(null);
 
   const fields: Array<{ key: string; label: string; ph?: string; type?: string }> = [
     { key: "tagline", label: t("profile.tagline"), ph: t("profile.taglinePh") },
@@ -81,11 +58,6 @@ export function PerfilClient() {
       const data = await res.json();
       if (data.user) hydrate(data.user); else setUser(null);
     } catch { setUser(null); }
-    try {
-      const r = await fetch("/api/files");
-      const d = await r.json();
-      setFiles(d.files ?? []);
-    } catch { /* ignore */ }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -134,18 +106,6 @@ export function PerfilClient() {
     catch (err) { setError(err instanceof Error ? err.message : t("common.connError")); }
     finally { setUploadingCover(false); if (coverInput.current) coverInput.current.value = ""; }
   };
-  const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const list = Array.from(e.target.files ?? []); if (!list.length) return;
-    setUploadingFiles(true); setError("");
-    try { for (const file of list) { const data = await uploadOne(file, "file"); if (data.file) setFiles((cur) => [data.file, ...cur]); } }
-    catch (err) { setError(err instanceof Error ? err.message : t("common.connError")); }
-    finally { setUploadingFiles(false); if (filesInput.current) filesInput.current.value = ""; }
-  };
-  const removeFile = async (id: string) => {
-    setFiles((cur) => cur.filter((f) => f.id !== id));
-    try { await fetch(`/api/files/${id}`, { method: "DELETE" }); } catch { /* ignore */ }
-  };
-
   const { signOut } = useClerk();
   const logout = async () => {
     setLoggingOut(true);
@@ -166,15 +126,12 @@ export function PerfilClient() {
     return (<div className="grid gap-4"><SkeletonCard lines={2} /><SkeletonCard lines={4} /></div>);
   }
 
-  const images = files.filter((f) => f.kind === "image");
-  const others = files.filter((f) => f.kind !== "image");
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : "·";
 
   return (
     <div className="grid gap-6">
       <input ref={avatarInput} type="file" accept="image/*" hidden onChange={onAvatar} />
       <input ref={coverInput} type="file" accept="image/*" hidden onChange={onCover} />
-      <input ref={filesInput} type="file" multiple hidden onChange={onFiles} />
 
       {welcomeMode ? (
         <FadeInOnScroll>
@@ -283,65 +240,6 @@ export function PerfilClient() {
             {savedOk ? <span className="text-sm text-[var(--et-success)]">{t("profile.saved")}</span> : null}
             {error ? <span className="text-sm text-[var(--et-danger)]">{error}</span> : null}
           </div>
-        </Card>
-      </FadeInOnScroll>
-
-      <FadeInOnScroll delay={0.1}>
-        <Card>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <CardTitle>{t("profile.vault")}</CardTitle>
-              <CardDescription className="mt-1">{t("profile.vaultHint")}</CardDescription>
-            </div>
-            <Button variant="secondary" onClick={() => filesInput.current?.click()} loading={uploadingFiles}>
-              {t("profile.upload")}
-            </Button>
-          </div>
-
-          {files.length === 0 ? (
-            <div className="mt-5">
-              <EmptyState title={t("profile.emptyTitle")} description={t("profile.emptyDesc")}
-                action={<Button variant="ghost" onClick={() => filesInput.current?.click()}>{t("profile.choose")}</Button>} />
-            </div>
-          ) : (
-            <div className="mt-5 grid gap-6">
-              {images.length > 0 ? (
-                <div>
-                  <p className="mb-2 text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("profile.gallery")}</p>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                    {images.map((f) => (
-                      <div key={f.id} className="group relative aspect-square overflow-hidden rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)]">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={f.url} alt={f.name ?? ""} className="h-full w-full object-cover transition group-hover:scale-105" />
-                        <button type="button" onClick={() => removeFile(f.id)} aria-label="x"
-                          className="absolute right-1.5 top-1.5 rounded-full bg-[rgba(10,10,15,0.7)] p-1 text-[var(--et-danger)] opacity-0 transition group-hover:opacity-100">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {others.length > 0 ? (
-                <div>
-                  <p className="mb-2 text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("profile.docs")}</p>
-                  <div className="grid gap-2">
-                    {others.map((f) => (
-                      <div key={f.id} className="flex items-center gap-3 rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)] bg-[rgba(255,255,255,0.03)] px-3 py-2.5">
-                        <span className="text-[var(--et-gold)]"><FileIcon kind={f.kind} /></span>
-                        <a href={f.url} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 truncate text-sm text-[var(--et-text)] hover:text-[var(--et-gold-bright)]">{f.name ?? f.url}</a>
-                        <span className="shrink-0 text-xs text-[var(--et-text-faint)]">{fmtSize(f.size)}</span>
-                        <button type="button" onClick={() => removeFile(f.id)} aria-label="x" className="shrink-0 rounded-full p-1 text-[var(--et-text-faint)] transition hover:text-[var(--et-danger)]">
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" /></svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          )}
         </Card>
       </FadeInOnScroll>
 
