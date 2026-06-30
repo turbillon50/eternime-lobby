@@ -23,7 +23,12 @@ export type SessionPayload = {
 };
 
 function getSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET || "eternime-dev-secret-cámbiame-en-producción";
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error(
+      "JWT_SECRET no configurado. No se permite fallback a un secreto por defecto en produccion.",
+    );
+  }
   return new TextEncoder().encode(secret);
 }
 
