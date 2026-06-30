@@ -17,6 +17,7 @@ export type EternimeUser = {
   prefs: Record<string, unknown> | null;
   locale: string;
   role: "user" | "admin";
+  personality_summary: string | null;
   created_at: string;
 };
 

@@ -24,9 +24,15 @@ export async function findUserById(id: string): Promise<EternimeUser | null> {
   const rows = await sql`
     SELECT id, email, name, avatar_url, cover_url, tagline, bio,
       to_char(birthdate, 'YYYY-MM-DD') AS birthdate, birthplace, location, phone,
-      occupation, socials, prefs, locale, role, created_at
+      occupation, socials, prefs, locale, role, personality_summary, created_at
     FROM eternime_users WHERE id = ${id} LIMIT 1`;
   return (rows[0] as EternimeUser) ?? null;
+}
+
+export async function updatePersonalitySummary(userId: string, summary: string): Promise<void> {
+  const sql = getSql();
+  if (!sql) return;
+  await sql`UPDATE eternime_users SET personality_summary = ${summary}, personality_summary_updated_at = now() WHERE id = ${userId}`;
 }
 
 export async function createUser(input: {

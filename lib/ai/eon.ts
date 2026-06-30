@@ -25,6 +25,7 @@ function profileBlock(u: Awaited<ReturnType<typeof findUserById>>): string {
   if (u.birthplace) bits.push(`Lugar de origen: ${u.birthplace}`);
   if (u.location) bits.push(`Vive en: ${u.location}`);
   if (u.bio) bits.push(`Biografía: ${u.bio}`);
+  if (u.personality_summary) bits.push(`Lo que he aprendido de ella/él con el tiempo: ${u.personality_summary}`);
   return bits.join("\n");
 }
 
@@ -84,5 +85,35 @@ export async function answerAsEon(input: {
   } catch (e) {
     console.error("[eon] answer failed:", e instanceof Error ? e.message : e);
     return null;
+  }
+}
+
+
+export async function refreshPersonalitySummary(userId: string): Promise<void> {
+  try {
+    const { listMemories } = await import("@/lib/data/memories");
+    const { updatePersonalitySummary } = await import("@/lib/data/users");
+    const mems = await listMemories(userId);
+    if (mems.length < 3) return;
+
+    const recent = mems.slice(0, 30);
+    const corpus = recent
+      .map((m) => `- (${m.kind}${m.emotional_tone ? ", " + m.emotional_tone : ""}) ${m.title}${m.content ? ": " + m.content : ""}`)
+      .join("\n");
+
+    const prompt = [
+      "Estos son fragmentos de recuerdos y conversaciones que una persona ha compartido con su IA personal (Eon) a lo largo del tiempo.",
+      "Escribe un resumen breve (4-6 frases, en español, en tercera persona) de los patrones de personalidad, valores, forma de hablar y temas recurrentes de esta persona.",
+      "No inventes nada que no se desprenda razonablemente del material. No repitas los recuerdos textualmente, sintetiza el PATRON detras de ellos.",
+      "Este resumen se usara como contexto interno para que la IA responda de forma mas coherente con quien es esta persona, no se le muestra a nadie mas.",
+      "",
+      "=== FRAGMENTOS ===",
+      corpus,
+    ].join("\n");
+
+    const summary = (await complete({ prompt })).trim();
+    if (summary) await updatePersonalitySummary(userId, summary);
+  } catch (e) {
+    console.error("[eon] refreshPersonalitySummary failed:", e instanceof Error ? e.message : e);
   }
 }
