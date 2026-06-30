@@ -1,1 +1,1 @@
-eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InR1cmJpbGxvbjUwQGdtYWlsLmNvbSIsIm5hbWUiOiJMdWlzIiwicm9sZSI6InVzZXIiLCJzdWIiOiJmNDcwNDAwZS01ODAwLTQ1YzAtYTIzYy0yYmU2MmU2MzllNDMiLCJpYXQiOjE3ODIwNzY5NzYsImV4cCI6MTc4NDY2ODk3Nn0.d7tTvF_ObBB2lecmHvuew-LgMGgftif2k4ilSwY1s2s
+(removido por auditoria de seguridad — contenia un JWT de sesion real expuesto en repo publico. JWT_SECRET ya fue rotado en produccion, el token viejo quedo invalido.)
