@@ -33,6 +33,7 @@ function AuthFormInner({ mode }: { mode: Mode }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState(params.get("invite") ?? "");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const c = copy[mode];
@@ -46,7 +47,9 @@ function AuthFormInner({ mode }: { mode: Mode }) {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(mode === "login" ? { email, password } : { name, email, password }),
+        body: JSON.stringify(
+          mode === "login" ? { email, password } : { name, email, password, inviteCode: inviteCode.trim() || undefined },
+        ),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -80,6 +83,15 @@ function AuthFormInner({ mode }: { mode: Mode }) {
                 onChange={(e) => setName(e.target.value)}
                 autoComplete="name"
                 required
+              />
+            ) : null}
+            {mode === "register" ? (
+              <Input
+                label="Código de invitación"
+                placeholder="Si tienes uno, escríbelo aquí"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
+                autoComplete="off"
               />
             ) : null}
             <Input
