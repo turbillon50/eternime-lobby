@@ -1,13 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { StaggerContainer, StaggerItem } from "@/components/motion";
 import {
   Badge, Button, Card, CardDescription, CardTitle, EmptyState, Input, Modal, SkeletonCard, Textarea,
 } from "@/components/ui";
+import { SocialImport } from "@/components/app/SocialImport";
 import type { Memory, MemoryKind } from "@/lib/data/types";
 import { useT } from "@/components/i18n";
+
+const SOCIAL_FEEDBACK: Record<string, string> = {
+  facebook: "Facebook conectado.",
+  instagram: "Instagram conectado.",
+};
+const SOCIAL_ERROR_FEEDBACK: Record<string, string> = {
+  cancelado: "Cancelaste la conexion — no pasa nada, puedes intentar cuando quieras.",
+  estado_invalido: "La conexion expiro, intenta de nuevo.",
+  conexion_fallida: "No se pudo conectar, intenta de nuevo en un momento.",
+};
 
 const KINDS: { value: MemoryKind; label: string; icon: string }[] = [
   { value: "texto", label: "Texto", icon: "✦" },
@@ -53,6 +65,15 @@ function NarrateButton({ memory }: { memory: Memory }) {
 
 export function RecuerdosClient() {
   const t = useT();
+  const searchParams = useSearchParams();
+  const [socialMsg, setSocialMsg] = useState("");
+  useEffect(() => {
+    const connected = searchParams.get("social_connected");
+    const err = searchParams.get("social_error");
+    if (connected && SOCIAL_FEEDBACK[connected]) setSocialMsg(SOCIAL_FEEDBACK[connected]);
+    else if (err) setSocialMsg(SOCIAL_ERROR_FEEDBACK[err] ?? "Algo no salio bien con la conexion.");
+  }, [searchParams]);
+
   const [memories, setMemories] = useState<Memory[] | null>(null);
   const [tab, setTab] = useState<Tab>("todos");
   const [modalOpen, setModalOpen] = useState(false);
@@ -137,6 +158,12 @@ export function RecuerdosClient() {
   return (
     <div className="grid gap-6">
       <input ref={photoInput} type="file" accept="image/*" multiple hidden onChange={addPhotos} />
+      {socialMsg ? (
+        <div className="rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)] bg-[var(--et-bg-elevated)] px-4 py-2.5 text-sm text-[var(--et-text)]">
+          {socialMsg}
+        </div>
+      ) : null}
+      <SocialImport />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-1 rounded-full border border-[var(--et-border-soft)] bg-[var(--et-bg-elevated)] p-1">
           {tabs.map((t) => (
