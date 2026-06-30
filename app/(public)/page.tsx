@@ -55,7 +55,7 @@ export default function HomePage() {
   return (
     <>
       {/* Hero cinematico */}
-      <section className="relative isolate flex min-h-[88svh] flex-col items-center justify-center overflow-hidden px-5 py-16 text-center sm:px-8">
+      <section className="relative isolate flex min-h-[78svh] flex-col items-center justify-center overflow-hidden px-5 py-16 text-center sm:px-8">
         <CinematicVideo />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="eternime-video-halo" />
@@ -81,10 +81,25 @@ export default function HomePage() {
           </div>
           <p className="mt-6 text-xs text-white/35">¿Ya tienes cuenta? <Link href="/entrar" className="underline underline-offset-4 hover:text-white/60">Entrar</Link></p>
         </div>
+
+        <a
+          href="#que-es-eternime"
+          aria-label="Bajar para ver qué es Eternime"
+          className="group absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-white/45 transition hover:text-white/80"
+        >
+          <span className="font-mono text-[0.6rem] uppercase tracking-[0.28em]">Descubre más</span>
+          <svg
+            width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
+            strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+            className="animate-bounce"
+          >
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+        </a>
       </section>
 
       {/* Que es Eternime, en concreto */}
-      <section className="mx-auto w-full max-w-5xl px-5 pb-24 pt-4 sm:px-8">
+      <section id="que-es-eternime" className="mx-auto w-full max-w-5xl scroll-mt-20 px-5 pb-24 pt-16 sm:px-8">
         <ActoVisualStyles />
         <FadeInOnScroll>
           <p className="text-center text-xs uppercase tracking-[0.3em] text-[var(--et-gold)]">Qué es Eternime</p>
