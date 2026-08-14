@@ -16,13 +16,32 @@ export function HablarConEon() {
   const [caption, setCaption] = useState("");
   const [usingCloned, setUsingCloned] = useState(false);
   const sessionRef = useRef<Session | null>(null);
+  const turnsRef = useRef<Array<{ role: "user" | "assistant"; content: string }>>([]);
+
+  // Guarda la conversación para que Eon la recuerde (mensajes + recuerdo con embedding).
+  const flushTranscript = useCallback(() => {
+    const turns = turnsRef.current;
+    turnsRef.current = [];
+    if (!turns.length) return;
+    const body = JSON.stringify({ turns });
+    try {
+      if (navigator.sendBeacon?.("/api/voice/transcript", new Blob([body], { type: "application/json" }))) return;
+    } catch { /* fallback abajo */ }
+    void fetch("/api/voice/transcript", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    }).catch(() => {});
+  }, []);
 
   const stop = useCallback(async () => {
     try { await sessionRef.current?.endSession(); } catch { /* noop */ }
     sessionRef.current = null;
+    flushTranscript();
     setStatus("idle");
     setMode("listening");
-  }, []);
+  }, [flushTranscript]);
 
   useEffect(() => () => { void stop(); }, [stop]);
 
@@ -42,11 +61,16 @@ export function HablarConEon() {
         signedUrl: data.signedUrl,
         overrides: data.overrides,
         onConnect: () => setStatus("connected"),
-        onDisconnect: () => { setStatus("idle"); setMode("listening"); },
+        onDisconnect: () => { setStatus("idle"); setMode("listening"); flushTranscript(); },
         onError: (msg: unknown) => { setError(String(msg)); setStatus("error"); },
         onModeChange: (m: { mode: Mode }) => setMode(m.mode),
         onMessage: (m: { message: string; source: string }) => {
-          if (m?.message) setCaption(m.message);
+          if (!m?.message) return;
+          setCaption(m.message);
+          turnsRef.current.push({
+            role: m.source === "user" ? "user" : "assistant",
+            content: m.message,
+          });
         },
       });
       sessionRef.current = session as unknown as Session;
