@@ -6,6 +6,7 @@ import { useClerk } from "@clerk/nextjs";
 import { FadeInOnScroll } from "@/components/motion";
 import { useT } from "@/components/i18n";
 import { VoiceClone } from "@/components/app/VoiceClone";
+import { uploadFile } from "@/lib/upload-client";
 import {
   Badge, Button, Card, CardDescription, CardTitle, Input, Modal, SkeletonCard, Textarea,
 } from "@/components/ui";
@@ -56,7 +57,7 @@ export function PerfilClient() {
     try {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
-      if (data.user) hydrate(data.user); else setUser(null);
+      if (data.user) hydrate(data.user as ProfileUser); else setUser(null);
     } catch { setUser(null); }
   }, []);
 
@@ -84,25 +85,20 @@ export function PerfilClient() {
     finally { setSaving(false); }
   };
 
-  const uploadOne = async (file: File, purpose: "avatar" | "cover" | "file") => {
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch(`/api/upload?purpose=${purpose}`, { method: "POST", body: fd });
-    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error ?? t("common.connError")); }
-    return res.json();
-  };
+  // Client upload directo a Blob (evita el tope de 4.5MB de serverless).
+  const uploadOne = (file: File, purpose: "avatar" | "cover" | "file") => uploadFile(file, purpose);
 
   const onAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     setUploadingAvatar(true); setError("");
-    try { const data = await uploadOne(file, "avatar"); if (data.user) hydrate(data.user); }
+    try { const data = await uploadOne(file, "avatar"); if (data.user) hydrate(data.user as ProfileUser); }
     catch (err) { setError(err instanceof Error ? err.message : t("common.connError")); }
     finally { setUploadingAvatar(false); if (avatarInput.current) avatarInput.current.value = ""; }
   };
   const onCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     setUploadingCover(true); setError("");
-    try { const data = await uploadOne(file, "cover"); if (data.user) hydrate(data.user); }
+    try { const data = await uploadOne(file, "cover"); if (data.user) hydrate(data.user as ProfileUser); }
     catch (err) { setError(err instanceof Error ? err.message : t("common.connError")); }
     finally { setUploadingCover(false); if (coverInput.current) coverInput.current.value = ""; }
   };

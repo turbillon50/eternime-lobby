@@ -8,7 +8,7 @@ export default function HablarPage() {
   return (
     <>
       <HablarConEon />
-      <div className="mx-auto mt-4 max-w-2xl pb-12">
+      <div id="clona-voz" className="mx-auto mt-4 max-w-2xl scroll-mt-20 pb-12">
         <VoiceClone />
       </div>
     </>
