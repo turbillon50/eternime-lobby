@@ -269,7 +269,7 @@ export function PerfilClient() {
       <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)} title={t("profile.deleteAccount")}>
         <div className="grid gap-4">
           <p className="text-sm text-[var(--et-text-muted)]">{t("profile.dangerHint")}</p>
-          <Input value={deleteText} onChange={(e) => setDeleteText(e.target.value)} placeholder="ELIMINAR / DELETE" aria-label="confirm" />
+          <Input value={deleteText} onChange={(e) => setDeleteText(e.target.value)} placeholder="Escribe ELIMINAR" aria-label="Confirmar eliminación" />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setConfirmDelete(false)}>✕</Button>
             <Button variant="secondary" onClick={deleteAccount} loading={deleting}

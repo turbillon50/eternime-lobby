@@ -103,7 +103,7 @@ export function Boveda() {
                   <div key={f.id} className="group relative aspect-square overflow-hidden rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={f.url} alt={f.name ?? ""} className="h-full w-full object-cover transition group-hover:scale-105" />
-                    <button type="button" onClick={() => removeFile(f.id)} aria-label="x"
+                    <button type="button" onClick={() => removeFile(f.id)} aria-label="Quitar archivo"
                       className="absolute right-1.5 top-1.5 rounded-full bg-[rgba(10,10,15,0.7)] p-1 text-[var(--et-danger)] opacity-0 transition group-hover:opacity-100">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
                     </button>
@@ -122,7 +122,7 @@ export function Boveda() {
                     <span className="text-[var(--et-gold)]"><FileIcon kind={f.kind} /></span>
                     <a href={f.url} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 truncate text-sm text-[var(--et-text)] hover:text-[var(--et-gold-bright)]">{f.name ?? f.url}</a>
                     <span className="shrink-0 text-xs text-[var(--et-text-faint)]">{fmtSize(f.size)}</span>
-                    <button type="button" onClick={() => removeFile(f.id)} aria-label="x" className="shrink-0 rounded-full p-1 text-[var(--et-text-faint)] transition hover:text-[var(--et-danger)]">
+                    <button type="button" onClick={() => removeFile(f.id)} aria-label="Quitar archivo" className="shrink-0 rounded-full p-1 text-[var(--et-text-faint)] transition hover:text-[var(--et-danger)]">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
                     </button>
                   </div>
