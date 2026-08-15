@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser, AuthError } from "@/lib/auth";
-import { appendGuideMessage } from "@/lib/data/guide";
+import { appendGuideMessages } from "@/lib/data/guide";
 import { createMemory, countConversationMemories } from "@/lib/data/memories";
 import { refreshPersonalitySummary } from "@/lib/ai/eon";
 import { storeMemoryEmbedding } from "@/lib/ai/rag";
@@ -8,6 +8,7 @@ import { storeMemoryEmbedding } from "@/lib/ai/rag";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+const MAX_BODY_BYTES = 200 * 1024; // 200KB — corta payloads explosivos
 const MAX_TURNS = 200;
 const MAX_TURN_LENGTH = 2000;
 const MIN_CAPTURABLE_LENGTH = 40;
@@ -40,20 +41,25 @@ function sanitizeTurns(raw: unknown): Turn[] {
 export async function POST(request: Request) {
   try {
     const session = await requireUser();
-    const body = (await request.json().catch(() => ({}))) as { turns?: unknown };
-    const turns = sanitizeTurns(body.turns);
+
+    // Límite de tamaño del cuerpo (200KB) antes de parsear — protege memoria.
+    const raw = await request.text();
+    if (Buffer.byteLength(raw, "utf-8") > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: "Payload demasiado grande" }, { status: 413 });
+    }
+    let parsed: { turns?: unknown } = {};
+    try { parsed = raw ? JSON.parse(raw) : {}; } catch { parsed = {}; }
+    const turns = sanitizeTurns(parsed.turns);
     if (!turns.length) {
       return NextResponse.json({ saved: 0, captured: 0 });
     }
 
+    // Historial de la guía: un solo INSERT masivo (evita N+1).
     let saved = 0;
-    for (const t of turns) {
-      try {
-        await appendGuideMessage({ userId: session.sub, role: t.role, content: t.content });
-        saved += 1;
-      } catch (e) {
-        console.error("[voice/transcript] append failed:", e instanceof Error ? e.message : e);
-      }
+    try {
+      saved = await appendGuideMessages(session.sub, turns);
+    } catch (e) {
+      console.error("[voice/transcript] append failed:", e instanceof Error ? e.message : e);
     }
 
     // Lo que la persona dijo (unido) se preserva como recuerdo de conversación.
