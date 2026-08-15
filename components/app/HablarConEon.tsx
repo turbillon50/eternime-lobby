@@ -15,6 +15,7 @@ export function HablarConEon() {
   const [error, setError] = useState("");
   const [caption, setCaption] = useState("");
   const [usingCloned, setUsingCloned] = useState(false);
+  const [hasClonedVoice, setHasClonedVoice] = useState<boolean | null>(null);
   const sessionRef = useRef<Session | null>(null);
   const turnsRef = useRef<Array<{ role: "user" | "assistant"; content: string }>>([]);
 
@@ -44,6 +45,16 @@ export function HablarConEon() {
   }, [flushTranscript]);
 
   useEffect(() => () => { void stop(); }, [stop]);
+
+  // ¿Ya clonó su voz? Si no, mostramos un aviso para que Eon deje la voz temporal.
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/voice/clone")
+      .then((r) => r.json())
+      .then((d) => { if (alive) setHasClonedVoice(Boolean(d.voiceId)); })
+      .catch(() => { if (alive) setHasClonedVoice(null); });
+    return () => { alive = false; };
+  }, []);
 
   const start = async () => {
     setError(""); setStatus("connecting"); setCaption("");
@@ -93,6 +104,21 @@ export function HablarConEon() {
         Eon está listo para conocerte. Cuéntale lo que quieras: una historia, un consejo, un día que no quieres olvidar.
         Presiona el círculo, da permiso al micrófono y habla con naturalidad — puedes interrumpirlo cuando quieras.
       </p>
+
+      {hasClonedVoice === false ? (
+        <a
+          href="#clona-voz"
+          className="mt-5 flex max-w-md items-center gap-2.5 rounded-[var(--et-radius)] border border-[var(--et-border-soft)] bg-[rgba(233,238,244,0.05)] px-4 py-3 text-left text-sm text-[var(--et-text-muted)] transition hover:border-[var(--et-gold-dim)]"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--et-gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden>
+            <rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+          </svg>
+          <span>
+            Eon usa una voz temporal —{" "}
+            <span className="font-medium text-[var(--et-gold-bright)] underline underline-offset-4">clona la tuya aquí</span>.
+          </span>
+        </a>
+      ) : null}
 
       {/* Anillo de Eon */}
       <div className="relative mt-12 flex h-64 w-64 items-center justify-center">

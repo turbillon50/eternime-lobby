@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useT } from "@/components/i18n";
 import { Button, Card, CardDescription, CardTitle, EmptyState } from "@/components/ui";
+import { uploadFile } from "@/lib/upload-client";
 
 type StoredFile = {
   id: string; kind: "image" | "document" | "audio" | "video" | "other"; url: string;
@@ -53,11 +54,13 @@ export function Boveda() {
     setUploading(true); setError("");
     try {
       for (const file of list) {
-        const fd = new FormData(); fd.append("file", file);
-        const res = await fetch("/api/upload?purpose=file", { method: "POST", body: fd });
-        const data = await res.json();
-        if (!res.ok) { setError(data.error ?? t("common.connError")); continue; }
-        if (data.file) setFiles((cur) => [data.file, ...cur]);
+        try {
+          // Client upload directo a Blob (sin tope de 4.5MB de serverless).
+          const data = await uploadFile(file, "file");
+          if (data.file) setFiles((cur) => [data.file as StoredFile, ...cur]);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : t("common.connError"));
+        }
       }
     } catch { setError(t("common.connError")); }
     finally { setUploading(false); if (filesInput.current) filesInput.current.value = ""; }
