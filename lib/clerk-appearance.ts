@@ -1,43 +1,44 @@
 /**
- * Tema visual de Clerk (SignIn/SignUp/UserButton) en los colores de marca
- * de Eternime, leidos directos de styles/globals.css (tokens --et-*) para
- * que los widgets de Clerk se sientan parte del sitio, no un componente
- * pegado encima.
+ * Tema visual de Clerk (SignIn/SignUp/UserButton/avatar) en los colores de
+ * marca de Eternime "La luz que se queda": obsidiana + oro único (#C9A961).
+ * Mata el morado/índigo por defecto de Clerk en avatares y acentos.
  */
 export const eternimeClerkAppearance = {
   variables: {
-    colorPrimary: "#ffffff",
-    colorBackground: "#12121a",
-    colorInputBackground: "rgba(0, 0, 0, 0.34)",
-    colorInputText: "#f5f2ea",
-    colorText: "#f5f2ea",
-    colorTextSecondary: "rgba(245, 242, 234, 0.62)",
-    colorDanger: "#e07a6a",
-    colorSuccess: "#8fc8a0",
-    borderRadius: "0.9rem",
+    colorPrimary: "#c9a961",
+    colorBackground: "#121216",
+    colorInputBackground: "rgba(10, 10, 12, 0.7)",
+    colorInputText: "#f4efe6",
+    colorText: "#f4efe6",
+    colorTextSecondary: "#9b958a",
+    colorDanger: "#d98f7a",
+    colorSuccess: "#9bbf88",
+    borderRadius: "14px",
     fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   },
   elements: {
     card: {
-      backgroundColor: "#12121a",
-      border: "1px solid rgba(255, 255, 255, 0.12)",
+      backgroundColor: "#121216",
+      border: "1px solid #1e1e24",
       boxShadow: "0 28px 120px rgba(0, 0, 0, 0.56)",
     },
-    headerTitle: { fontFamily: "Georgia, 'Times New Roman', ui-serif, serif", color: "#ffffff" },
-    headerSubtitle: { color: "rgba(245, 242, 234, 0.62)" },
+    headerTitle: { fontFamily: "'Cormorant Garamond', Georgia, ui-serif, serif", color: "#f4efe6" },
+    headerSubtitle: { color: "#9b958a" },
     formButtonPrimary: {
-      backgroundColor: "#ffffff",
-      color: "#08080c",
-      boxShadow: "0 0 24px rgba(255, 255, 255, 0.22)",
-      "&:hover": { backgroundColor: "#f5f2ea" },
+      background: "linear-gradient(135deg, #c9a961, #dbbc78)",
+      color: "#16120a",
+      boxShadow: "0 0 24px rgba(201, 169, 97, 0.22)",
+      "&:hover": { background: "linear-gradient(135deg, #dbbc78, #dbbc78)" },
     },
-    footerActionLink: { color: "#ffffff" },
+    footerActionLink: { color: "#dbbc78" },
     socialButtonsBlockButton: {
-      backgroundColor: "rgba(255, 255, 255, 0.035)",
-      border: "1px solid rgba(255, 255, 255, 0.18)",
-      color: "#f5f2ea",
+      backgroundColor: "rgba(201, 169, 97, 0.05)",
+      border: "1px solid #1e1e24",
+      color: "#f4efe6",
     },
-    dividerLine: { backgroundColor: "rgba(255, 255, 255, 0.12)" },
-    dividerText: { color: "rgba(245, 242, 234, 0.38)" },
+    dividerLine: { backgroundColor: "#1e1e24" },
+    dividerText: { color: "#9b958a" },
+    avatarBox: { backgroundColor: "#121216", color: "#dbbc78" },
+    userButtonAvatarBox: { backgroundColor: "#121216", color: "#dbbc78" },
   },
 };

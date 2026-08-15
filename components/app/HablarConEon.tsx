@@ -15,6 +15,7 @@ export function HablarConEon() {
   const [error, setError] = useState("");
   const [caption, setCaption] = useState("");
   const [usingCloned, setUsingCloned] = useState(false);
+  const [hasClonedVoice, setHasClonedVoice] = useState<boolean | null>(null);
   const sessionRef = useRef<Session | null>(null);
   const turnsRef = useRef<Array<{ role: "user" | "assistant"; content: string }>>([]);
 
@@ -44,6 +45,16 @@ export function HablarConEon() {
   }, [flushTranscript]);
 
   useEffect(() => () => { void stop(); }, [stop]);
+
+  // ¿Ya clonó su voz? Si no, mostramos un aviso para que Eon deje la voz temporal.
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/voice/clone")
+      .then((r) => r.json())
+      .then((d) => { if (alive) setHasClonedVoice(Boolean(d.voiceId)); })
+      .catch(() => { if (alive) setHasClonedVoice(null); });
+    return () => { alive = false; };
+  }, []);
 
   const start = async () => {
     setError(""); setStatus("connecting"); setCaption("");
@@ -90,8 +101,24 @@ export function HablarConEon() {
       <p className="font-mono text-[0.62rem] uppercase tracking-[0.34em] text-[var(--et-gold-dim)]">Eon · voz en tiempo real</p>
       <h1 className="et-serif mt-3 text-3xl text-[var(--et-text)] sm:text-4xl">Habla con Eon</h1>
       <p className="mt-2 max-w-md text-sm text-[var(--et-text-muted)]">
-        Presiona el círculo, da permiso al micrófono y habla con naturalidad. Eon te escucha, te conoce y te responde con su voz. Puedes interrumpirlo cuando quieras.
+        Eon está listo para conocerte. Cuéntale lo que quieras: una historia, un consejo, un día que no quieres olvidar.
+        Presiona el círculo, da permiso al micrófono y habla con naturalidad — puedes interrumpirlo cuando quieras.
       </p>
+
+      {hasClonedVoice === false ? (
+        <a
+          href="#clona-voz"
+          className="mt-5 flex max-w-md items-center gap-2.5 rounded-[var(--et-radius)] border border-[var(--et-border-soft)] bg-[rgba(233,238,244,0.05)] px-4 py-3 text-left text-sm text-[var(--et-text-muted)] transition hover:border-[var(--et-gold-dim)]"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--et-gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden>
+            <rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+          </svg>
+          <span>
+            Eon usa una voz temporal —{" "}
+            <span className="font-medium text-[var(--et-gold-bright)] underline underline-offset-4">clona la tuya aquí</span>.
+          </span>
+        </a>
+      ) : null}
 
       {/* Anillo de Eon */}
       <div className="relative mt-12 flex h-64 w-64 items-center justify-center">
@@ -117,7 +144,7 @@ export function HablarConEon() {
           className="relative z-10 flex h-40 w-40 items-center justify-center rounded-full border text-[var(--et-gold-bright)]"
           style={{
             borderColor: "var(--et-gold)",
-            background: "radial-gradient(circle at 50% 40%, rgba(255,255,255,0.22), rgba(18,18,26,0.9) 70%)",
+            background: "radial-gradient(circle at 50% 40%, rgba(201,169,97,0.28), rgba(18,18,22,0.9) 70%)",
             boxShadow: speaking ? "var(--et-glow-strong)" : "var(--et-glow)",
           }}
           animate={speaking ? { scale: [1, 1.05, 1] } : { scale: 1 }}
