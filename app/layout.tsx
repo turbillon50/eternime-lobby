@@ -1,6 +1,15 @@
 import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/globals.css";
+
+// Cormorant — solo para titulos (.et-serif). El cuerpo sigue en sans.
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
 
 import { isClerkConfigured } from "@/lib/clerk";
 import { PwaRegister } from "@/components/pwa-register";
@@ -35,7 +44,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08080c",
+  themeColor: "#0a0a0c",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -51,7 +60,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const lang = "es";
 
   const tree = (
-    <html lang={lang} data-theme="dark" suppressHydrationWarning>
+    <html lang={lang} data-theme="dark" className={cormorant.variable} suppressHydrationWarning>
       <body>
         <I18nProvider lang={lang}>
           <AuroraBackground />

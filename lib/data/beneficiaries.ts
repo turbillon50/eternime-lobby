@@ -1,4 +1,5 @@
 import { getSql } from "@/lib/db";
+import { pgTextArray } from "./pg";
 import type { Beneficiary } from "./types";
 
 const COLS = "id, user_id, name, email, relationship, is_primary, delivery_condition, invited_at, photo_url, created_at";
@@ -87,11 +88,22 @@ export async function listHeirMemoryIds(beneficiaryId: string, userId: string): 
 export async function setHeirMemories(beneficiaryId: string, userId: string, memoryIds: string[]): Promise<void> {
   const sql = getSql();
   if (!sql) return;
+  // El beneficiario debe ser del usuario; si no, no tocamos nada (anti-IDOR).
+  const owns = await sql`SELECT 1 FROM eternime_beneficiaries WHERE id = ${beneficiaryId} AND user_id = ${userId} LIMIT 1`;
+  if (!owns.length) return;
+
   await sql`DELETE FROM eternime_memory_heirs WHERE beneficiary_id = ${beneficiaryId} AND user_id = ${userId}`;
-  for (const mid of memoryIds.slice(0, 200)) {
-    await sql`INSERT INTO eternime_memory_heirs (user_id, memory_id, beneficiary_id)
-              VALUES (${userId}, ${mid}, ${beneficiaryId}) ON CONFLICT DO NOTHING`;
-  }
+
+  const ids = memoryIds.slice(0, 200);
+  if (!ids.length) return;
+  // INSERT masivo, pero SOLO con recuerdos que de verdad son del usuario
+  // (evita asignar/filtrar recuerdos ajenos a un heredero — IDOR).
+  await sql`
+    INSERT INTO eternime_memory_heirs (user_id, memory_id, beneficiary_id)
+    SELECT ${userId}, m.id, ${beneficiaryId}
+    FROM eternime_memories m
+    WHERE m.user_id = ${userId} AND m.id::text = ANY(${pgTextArray(ids)}::text[])
+    ON CONFLICT DO NOTHING`;
 }
 
 export async function countHeirMemories(beneficiaryId: string, userId: string): Promise<number> {

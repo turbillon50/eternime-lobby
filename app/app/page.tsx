@@ -1,38 +1,24 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
-import { translate } from "@/lib/i18n";
-import { getServerLang } from "@/lib/i18n-server";
 import { countMemories, listMemories } from "@/lib/data/memories";
 import { countLetters, nextScheduledLetter } from "@/lib/data/letters";
 import { countBeneficiaries } from "@/lib/data/beneficiaries";
 import { findUserById } from "@/lib/data/users";
-import { FadeInOnScroll, HoverCard, NumberCounter, StaggerContainer, StaggerItem } from "@/components/motion";
-import { Badge, Card, CardDescription, CardTitle, EmptyState } from "@/components/ui";
-import { EternityProgress } from "@/components/app/EternityProgress";
+import { FadeInOnScroll } from "@/components/motion";
+import { AnilloLegado, type Segmento } from "@/components/app/AnilloLegado";
 
 export const dynamic = "force-dynamic";
 
-/** Nivel de eternidad: cuánto del legado está preservado (heurística suave). */
-function eternityLevel(memories: number, letters: number, beneficiaries: number): { percent: number; label: string } {
-  const score = Math.min(60, memories * 6) + Math.min(25, letters * 8) + Math.min(15, beneficiaries * 5);
-  const percent = Math.min(100, Math.round(score));
-  const label =
-    percent === 0
-      ? "Tu eternidad comienza con un solo recuerdo."
-      : percent < 30
-        ? "Tu legado empieza a tomar forma. Sigue preservando."
-        : percent < 60
-          ? "Tu historia ya tiene voz propia. Vas muy bien."
-          : percent < 90
-            ? "Tu legado está casi completo — quienes amas te encontrarán aquí."
-            : "Tu eternidad está preservada. Cada palabra tuya vivirá.";
-  return { percent, label };
-}
+/** Accesos deslizables bajo la acción principal. */
+const ACCESOS: { href: string; label: string; icon: string }[] = [
+  { href: "/app/hablar", label: "Hablar con Eon", icon: "M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3" },
+  { href: "/app/recuerdos", label: "Bóveda", icon: "M4 5h16v14H4zM4 9h16M9 5v4M9 13h6" },
+  { href: "/app/cartas", label: "Cartas", icon: "M4 6h16v12H4zM4 7l8 6 8-6" },
+  { href: "/app/beneficiarios", label: "Herederos", icon: "M16 11a4 4 0 1 0-8 0M12 7a4 4 0 1 0 0-8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" },
+];
 
 export default async function AppHomePage() {
   const session = await getSession();
-  const lang = await getServerLang();
-  const T = (k: string) => translate(lang, k as never);
   const userId = session?.sub ?? "";
   const [memories, letters, beneficiaries, recentMemories, user, nextLetter] = userId
     ? await Promise.all([
@@ -45,139 +31,110 @@ export default async function AppHomePage() {
       ])
     : ([0, 0, 0, [], null, null] as const);
 
-  const legacyDays = user?.created_at
-    ? Math.max(1, Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000) + 1)
-    : 1;
+  const hasVoice = Boolean((user?.prefs as Record<string, unknown> | null)?.eon_voice_id);
+  const hasStory = Boolean(user?.personality_summary?.trim());
+  const firstName = session?.name ? session.name.split(" ")[0] : null;
+
+  // Anillo del legado: 5 hitos reales que encienden cada segmento.
+  const segmentos: Segmento[] = [
+    { key: "voz", label: "Voz", done: hasVoice, href: "/app/hablar" },
+    { key: "recuerdos", label: "Recuerdos", done: memories >= 2, href: "/app/recuerdos", count: memories },
+    { key: "carta", label: "Carta", done: letters >= 1, href: "/app/cartas", count: letters },
+    { key: "heredero", label: "Heredero", done: beneficiaries >= 1, href: "/app/beneficiarios", count: beneficiaries },
+    { key: "historia", label: "Historia", done: hasStory, href: "/app/guia" },
+  ];
+
+  // La siguiente acción = primer hito pendiente, en orden.
+  const siguiente = (() => {
+    if (!hasVoice) return { label: "Clona tu voz — 3 minutos", href: "/app/hablar" };
+    if (memories < 2)
+      return { label: memories === 0 ? "Guarda tu primer recuerdo" : "Guarda un recuerdo más", href: "/app/recuerdos" };
+    if (letters < 1) return { label: "Escribe tu primera carta", href: "/app/cartas" };
+    if (beneficiaries < 1) return { label: "Nombra a tu primer heredero", href: "/app/beneficiarios" };
+    if (!hasStory) return { label: "Completa tu historia con Eon", href: "/app/guia" };
+    return { label: "Habla con Eon", href: "/app/hablar" };
+  })();
+
+  const lineaRecuerdos =
+    memories === 0
+      ? "Aún no has guardado recuerdos. Tu legado empieza con el primero."
+      : `${memories} ${memories === 1 ? "recuerdo preservado" : "recuerdos preservados"}${
+          recentMemories[0]?.title ? ` · el último: "${recentMemories[0].title}"` : ""
+        }.`;
+
   const daysToDelivery = nextLetter?.deliver_on
     ? Math.max(0, Math.ceil((new Date(nextLetter.deliver_on).getTime() - Date.now()) / 86400000))
     : null;
 
-  const lastThree = recentMemories.slice(0, 3);
-  const level = eternityLevel(memories, letters, beneficiaries);
-
-  const stats = [
-    { label: T("dash.memories"), value: memories, href: "/app/recuerdos" },
-    { label: T("dash.letters"), value: letters, href: "/app/cartas" },
-    { label: T("dash.heirs"), value: beneficiaries, href: "/app/beneficiarios" },
-    { label: T("dash.days"), value: legacyDays, href: "/app/perfil" },
-  ];
-
   return (
-    <div className="grid gap-8">
+    <div className="mx-auto grid w-full max-w-2xl gap-8">
+      {/* Saludo + línea de recuerdos */}
       <FadeInOnScroll>
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--et-text-faint)]">{T("dash.eyebrow")}</p>
-        <h1 className="et-serif mt-1 text-3xl text-[var(--et-text)]">
-          {T("dash.greeting")}{session?.name ? `, ${session.name.split(" ")[0]}` : ""}
+        <h1 className="et-serif text-3xl text-[var(--et-text)] sm:text-4xl">
+          Hola{firstName ? `, ${firstName}` : ""}.
         </h1>
-        <p className="mt-2 max-w-xl text-sm text-[var(--et-text-muted)]">
-          {T("dash.sub")}
-        </p>
+        <p className="mt-2 text-sm text-[var(--et-text-muted)]">{lineaRecuerdos}</p>
       </FadeInOnScroll>
 
-      <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <StaggerItem key={stat.label}>
-            <Link href={stat.href} className="block h-full">
-              <HoverCard className="h-full">
-                <Card className="h-full">
-                  <NumberCounter value={stat.value} className="et-serif text-4xl text-[var(--et-gold-bright)]" />
-                  <CardDescription className="mt-2">{stat.label}</CardDescription>
-                </Card>
-              </HoverCard>
-            </Link>
-          </StaggerItem>
-        ))}
-      </StaggerContainer>
-
-      <FadeInOnScroll delay={0.1}>
-        <Card>
-          <EternityProgress percent={level.percent} label={level.label} />
-        </Card>
+      {/* Anillo del legado */}
+      <FadeInOnScroll delay={0.08}>
+        <AnilloLegado segmentos={segmentos} />
       </FadeInOnScroll>
 
+      {/* La siguiente acción — botón principal único */}
+      <FadeInOnScroll delay={0.14} className="flex justify-center">
+        <Link href={siguiente.href} className="et-btn et-btn-primary min-h-[3.25rem] px-8 text-sm font-medium">
+          {siguiente.label}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </Link>
+      </FadeInOnScroll>
+
+      {/* Próxima carta programada (solo si existe) */}
       {nextLetter ? (
-        <FadeInOnScroll delay={0.12}>
-          <Card className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-[var(--et-gold)]">Próxima carta programada</p>
-              <CardTitle className="mt-1">{nextLetter.title}</CardTitle>
-              <CardDescription className="mt-1">
+        <FadeInOnScroll delay={0.18}>
+          <Link
+            href="/app/cartas"
+            className="et-card flex items-center justify-between gap-4 rounded-[var(--et-radius)] p-4"
+          >
+            <div className="min-w-0">
+              <p className="text-[0.65rem] uppercase tracking-[0.18em] text-[var(--et-gold)]">Próxima carta</p>
+              <p className="et-serif mt-1 truncate text-base text-[var(--et-text)]">{nextLetter.title}</p>
+              <p className="mt-0.5 truncate text-xs text-[var(--et-text-muted)]">
                 Para {nextLetter.recipient_name}
                 {daysToDelivery !== null
                   ? daysToDelivery === 0
                     ? " — se entrega hoy"
-                    : ` — se entrega en ${daysToDelivery} ${daysToDelivery === 1 ? "día" : "días"}`
+                    : ` — en ${daysToDelivery} ${daysToDelivery === 1 ? "día" : "días"}`
                   : ""}
-              </CardDescription>
+              </p>
             </div>
-            <Link href="/app/cartas" className="et-btn et-btn-ghost shrink-0">
-              Ver cartas
-            </Link>
-          </Card>
+            <span className="shrink-0 text-[var(--et-text-faint)]">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M9 6l6 6-6 6" /></svg>
+            </span>
+          </Link>
         </FadeInOnScroll>
       ) : null}
 
-      <FadeInOnScroll delay={0.15}>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="et-serif text-xl text-[var(--et-text)]">{T("dash.recent")}</h2>
-          {lastThree.length > 0 ? (
+      {/* Accesos deslizables */}
+      <FadeInOnScroll delay={0.22}>
+        <p className="mb-3 text-[0.65rem] uppercase tracking-[0.2em] text-[var(--et-text-faint)]">Ir a</p>
+        <div className="et-snap -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
+          {ACCESOS.map((a) => (
             <Link
-              href="/app/recuerdos"
-              className="text-xs uppercase tracking-[0.14em] text-[var(--et-gold)] transition hover:text-[var(--et-gold-bright)]"
+              key={a.href}
+              href={a.href}
+              className="et-card flex min-w-[8.5rem] shrink-0 flex-col gap-3 rounded-[var(--et-radius)] p-4"
             >
-              {T("dash.seeAll")}
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--et-border)] text-[var(--et-gold)]">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={a.icon} /></svg>
+              </span>
+              <span className="text-sm text-[var(--et-text)]">{a.label}</span>
             </Link>
-          ) : null}
+          ))}
         </div>
-        {lastThree.length === 0 ? (
-          <EmptyState
-            title={T("vault.emptyTitle")}
-            description="Empieza hoy: un momento, una voz, una historia. Tu guía aprenderá de cada palabra."
-            action={
-              <Link href="/app/recuerdos" className="et-btn et-btn-primary">
-                {T("dash.preserveNow")}
-              </Link>
-            }
-          />
-        ) : (
-          <StaggerContainer className="grid gap-4 sm:grid-cols-3">
-            {lastThree.map((memory) => (
-              <StaggerItem key={memory.id}>
-                <Card className="flex h-full flex-col gap-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <CardTitle>{memory.title}</CardTitle>
-                    <Badge tone="muted">{memory.kind}</Badge>
-                  </div>
-                  {memory.content ? (
-                    <CardDescription className="line-clamp-2">{memory.content}</CardDescription>
-                  ) : null}
-                  {memory.emotional_tone ? (
-                    <div className="mt-auto pt-1">
-                      <Badge>{memory.emotional_tone}</Badge>
-                    </div>
-                  ) : null}
-                </Card>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        )}
       </FadeInOnScroll>
-
-      {lastThree.length > 0 ? (
-        <FadeInOnScroll delay={0.2}>
-          <Card className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <CardTitle>{T("dash.preserveTitle")}</CardTitle>
-              <CardDescription className="mt-1">
-                {T("dash.preserveSub")}
-              </CardDescription>
-            </div>
-            <Link href="/app/recuerdos" className="et-btn et-btn-primary shrink-0">
-              {T("dash.preserveNow")}
-            </Link>
-          </Card>
-        </FadeInOnScroll>
-      ) : null}
     </div>
   );
 }
