@@ -29,6 +29,27 @@ export async function findUserById(id: string): Promise<EternimeUser | null> {
   return (rows[0] as EternimeUser) ?? null;
 }
 
+/**
+ * Busca un usuario por su teléfono, comparando SOLO los últimos 10 dígitos
+ * (así "+52 998 429 2748", "+5219984292748" y "9984292748" hacen match). Se
+ * usa para mapear un mensaje entrante de WhatsApp contra el dueño de la cuenta.
+ */
+export async function findUserByPhone(phone: string): Promise<EternimeUser | null> {
+  const sql = getSql();
+  if (!sql) return null;
+  const digits = phone.replace(/\D/g, "");
+  const last10 = digits.slice(-10);
+  if (last10.length < 10) return null;
+  const rows = await sql`
+    SELECT id, email, name, avatar_url, cover_url, tagline, bio,
+      to_char(birthdate, 'YYYY-MM-DD') AS birthdate, birthplace, location, phone,
+      occupation, socials, prefs, locale, role, personality_summary, created_at
+    FROM eternime_users
+    WHERE phone IS NOT NULL AND right(regexp_replace(phone, '[^0-9]', '', 'g'), 10) = ${last10}
+    LIMIT 1`;
+  return (rows[0] as EternimeUser) ?? null;
+}
+
 /** Busca por el id de Clerk (auth.userId). Punto de entrada de la sesion real. */
 export async function findUserByClerkId(clerkId: string): Promise<EternimeUser | null> {
   const sql = getSql();
