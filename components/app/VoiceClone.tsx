@@ -45,8 +45,8 @@ export function VoiceClone() {
       <Card>
         <CardTitle>Tu voz · Eon habla contigo</CardTitle>
         <CardDescription className="mt-1">
-          Clona tu voz para que Eon narre tus recuerdos con ella. Sube 1 a 3 minutos de tu voz hablando claro
-          —puedes leer algo o contar un recuerdo— en un lugar silencioso. Formatos: mp3, m4a o wav.
+          Tu voz es lo primero que se pierde y lo primero que se extraña. Clónala hoy — tres minutos. Sube 1 a 3 minutos
+          de tu voz hablando claro —puedes leer algo o contar un recuerdo— en un lugar silencioso. Formatos: mp3, m4a o wav.
         </CardDescription>
 
         {loading ? (

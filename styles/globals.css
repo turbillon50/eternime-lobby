@@ -7,7 +7,7 @@
 
 :root {
   color-scheme: dark;
-  background: #08080c;
+  background: #0a0a0c;
 }
 
 * {
@@ -16,14 +16,14 @@
 
 html {
   min-height: 100%;
-  background: #08080c;
+  background: #0a0a0c;
 }
 
 body {
   min-height: 100%;
   margin: 0;
   overflow-x: hidden;
-  background: #08080c;
+  background: #0a0a0c;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   letter-spacing: 0;
 }
@@ -42,13 +42,13 @@ button {
   width: clamp(14rem, 41vw, 35rem);
   aspect-ratio: 1;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(201, 169, 97, 0.14);
   background:
-    radial-gradient(circle at 50% 50%, transparent 52%, rgba(255, 255, 255, 0.1) 64%, transparent 72%),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 60%);
+    radial-gradient(circle at 50% 50%, transparent 52%, rgba(201, 169, 97, 0.16) 64%, transparent 72%),
+    radial-gradient(circle at 50% 50%, rgba(201, 169, 97, 0.1), transparent 60%);
   box-shadow:
-    0 0 70px rgba(255, 255, 255, 0.14),
-    inset 0 0 90px rgba(255, 255, 255, 0.05);
+    0 0 70px rgba(201, 169, 97, 0.14),
+    inset 0 0 90px rgba(201, 169, 97, 0.05);
   animation: ring-breathe 5.8s ease-in-out infinite;
 }
 
@@ -431,25 +431,26 @@ button {
    Dark premium + acentos dorado/ámbar etéreo
    ───────────────────────────────────────────────────────────── */
 :root {
-  --et-bg: #08080c;
-  --et-bg-elevated: #12121a;
-  --et-bg-overlay: rgba(18, 18, 26, 0.82);
-  --et-gold: #e9eef4;
-  --et-gold-bright: #ffffff;
-  --et-gold-dim: rgba(255, 255, 255, 0.55);
-  --et-border: rgba(255, 255, 255, 0.25);
-  --et-border-soft: rgba(255, 255, 255, 0.12);
-  --et-text: #f5f2ea;
-  --et-text-muted: rgba(245, 242, 234, 0.62);
-  --et-text-faint: rgba(245, 242, 234, 0.38);
-  --et-glow: 0 0 24px rgba(255, 255, 255, 0.22);
-  --et-glow-strong: 0 0 42px rgba(255, 255, 255, 0.32);
-  --et-danger: #e07a6a;
-  --et-success: #8fc8a0;
-  --et-radius: 0.9rem;
-  --et-radius-sm: 0.55rem;
-  --et-font-serif: "Georgia", "Times New Roman", ui-serif, serif;
-  --et-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* ── Marca "La luz que se queda" — obsidiana + oro único ── */
+  --et-bg: #0a0a0c;
+  --et-bg-elevated: #121216;
+  --et-bg-overlay: rgba(18, 18, 22, 0.86);
+  --et-gold: #c9a961;
+  --et-gold-bright: #dbbc78;
+  --et-gold-dim: rgba(201, 169, 97, 0.55);
+  --et-border: #1e1e24;
+  --et-border-soft: rgba(201, 169, 97, 0.14);
+  --et-text: #f4efe6;
+  --et-text-muted: #9b958a;
+  --et-text-faint: rgba(155, 149, 138, 0.62);
+  --et-glow: 0 0 24px rgba(201, 169, 97, 0.18);
+  --et-glow-strong: 0 0 42px rgba(201, 169, 97, 0.3);
+  --et-danger: #d98f7a;
+  --et-success: #9bbf88;
+  --et-radius: 14px;
+  --et-radius-sm: 10px;
+  --et-font-serif: var(--font-cormorant), "Cormorant Garamond", "Georgia", ui-serif, serif;
+  --et-font-sans: var(--font-sans, ui-sans-serif), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .et-surface {
@@ -472,9 +473,9 @@ html, body { background: var(--et-bg); }
 }
 
 .et-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--et-border);
   border-radius: var(--et-radius);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018));
+  background: linear-gradient(180deg, rgba(201, 169, 97, 0.045), rgba(201, 169, 97, 0.012)), var(--et-bg-elevated);
   backdrop-filter: blur(16px) saturate(1.15);
   -webkit-backdrop-filter: blur(16px) saturate(1.15);
   transition: border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
@@ -712,7 +713,7 @@ html[data-theme="light"] .et-btn-ghost:hover:not(:disabled) { background: rgba(9
   display: flex; align-items: center; justify-content: center;
   width: 3.4rem; height: 3.4rem; margin-top: -1.5rem;
   border-radius: 999px; border: 1px solid var(--et-gold);
-  background: radial-gradient(circle at 50% 38%, rgba(255,255,255,0.32), var(--et-bg-elevated) 72%);
+  background: radial-gradient(circle at 50% 38%, rgba(201,169,97,0.42), var(--et-bg-elevated) 72%);
   color: var(--et-gold-bright);
 }
 
@@ -733,13 +734,13 @@ html[data-theme="light"] .et-btn-ghost:hover:not(:disabled) { background: rgba(9
   mix-blend-mode: screen; will-change: transform;
 }
 .et-aurora .b1 { width: 46vw; height: 46vw; left: -8vw; top: -6vw;
-  background: radial-gradient(circle, rgba(180,205,255,0.5), transparent 65%);
+  background: radial-gradient(circle, rgba(201,169,97,0.28), transparent 65%);
   animation: et-drift1 22s ease-in-out infinite; }
 .et-aurora .b2 { width: 40vw; height: 40vw; right: -10vw; top: 18vh;
-  background: radial-gradient(circle, rgba(255,255,255,0.42), transparent 64%);
+  background: radial-gradient(circle, rgba(219,188,120,0.2), transparent 64%);
   animation: et-drift2 28s ease-in-out infinite; }
 .et-aurora .b3 { width: 38vw; height: 38vw; left: 24vw; bottom: -14vh;
-  background: radial-gradient(circle, rgba(150,180,235,0.4), transparent 66%);
+  background: radial-gradient(circle, rgba(201,169,97,0.22), transparent 66%);
   animation: et-drift3 26s ease-in-out infinite; }
 .et-aurora .veil { position: absolute; inset: 0;
   background: radial-gradient(120% 90% at 50% 0%, transparent 40%, var(--et-bg) 92%); }
@@ -752,8 +753,8 @@ html[data-theme="light"] .et-aurora .b2 { background: radial-gradient(circle, rg
 html[data-theme="light"] .et-aurora .b3 { background: radial-gradient(circle, rgba(110,140,200,0.32), transparent 66%); }
 @media (prefers-reduced-motion: reduce) { .et-aurora .blob { animation: none; } }
 
-/* halo del logo (anillo de luz blanca viva) */
-.et-glow-ring { border: 1px solid rgba(255,255,255,0.28); box-shadow: 0 0 24px rgba(255,255,255,0.18), inset 0 0 30px rgba(255,255,255,0.06); }
+/* halo del logo (anillo de luz dorada viva) */
+.et-glow-ring { border: 1px solid rgba(201,169,97,0.32); box-shadow: 0 0 24px rgba(201,169,97,0.2), inset 0 0 30px rgba(201,169,97,0.06); }
 
 /* Carrusel deslizable: oculta scrollbar, snap suave */
 .et-snap { -ms-overflow-style: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }

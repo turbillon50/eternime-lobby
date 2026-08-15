@@ -176,7 +176,7 @@ export function CartasClient() {
       ) : letters.length === 0 ? (
         <EmptyState
           title="Aún no hay cartas"
-          description="Escribe hoy lo que quieres que alguien lea mañana. Cada carta puede programarse para llegar en una fecha especial."
+          description="Escribe hoy lo que quieres que lean mañana. Eternime la entrega exactamente cuando tú digas."
           icon={
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="3" y="5" width="18" height="14" rx="2" />

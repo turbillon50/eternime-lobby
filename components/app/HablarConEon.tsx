@@ -90,7 +90,8 @@ export function HablarConEon() {
       <p className="font-mono text-[0.62rem] uppercase tracking-[0.34em] text-[var(--et-gold-dim)]">Eon · voz en tiempo real</p>
       <h1 className="et-serif mt-3 text-3xl text-[var(--et-text)] sm:text-4xl">Habla con Eon</h1>
       <p className="mt-2 max-w-md text-sm text-[var(--et-text-muted)]">
-        Presiona el círculo, da permiso al micrófono y habla con naturalidad. Eon te escucha, te conoce y te responde con su voz. Puedes interrumpirlo cuando quieras.
+        Eon está listo para conocerte. Cuéntale lo que quieras: una historia, un consejo, un día que no quieres olvidar.
+        Presiona el círculo, da permiso al micrófono y habla con naturalidad — puedes interrumpirlo cuando quieras.
       </p>
 
       {/* Anillo de Eon */}
@@ -117,7 +118,7 @@ export function HablarConEon() {
           className="relative z-10 flex h-40 w-40 items-center justify-center rounded-full border text-[var(--et-gold-bright)]"
           style={{
             borderColor: "var(--et-gold)",
-            background: "radial-gradient(circle at 50% 40%, rgba(255,255,255,0.22), rgba(18,18,26,0.9) 70%)",
+            background: "radial-gradient(circle at 50% 40%, rgba(201,169,97,0.28), rgba(18,18,22,0.9) 70%)",
             boxShadow: speaking ? "var(--et-glow-strong)" : "var(--et-glow)",
           }}
           animate={speaking ? { scale: [1, 1.05, 1] } : { scale: 1 }}
