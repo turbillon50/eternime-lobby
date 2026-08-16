@@ -25,6 +25,13 @@ export default function HomePage() {
       <article><small>VIDA</small><h2>Tu historia se construye sola.</h2><p>El legado deja de ser una tarea futura: aparece naturalmente porque Eternime te acompaña hoy.</p></article>
     </section>
 
+    <section className="eon-mcp-public">
+      <div><small>EON TRUST · MCP</small><h2>Tu memoria no pertenece al modelo.</h2><p>Conecta Eternime con distintas inteligencias y decide qué puede conocer cada una. ChatGPT para una cosa, Claude para otra, mañana una IA nueva. Tu contexto permanece contigo.</p></div>
+      <div className="eon-mcp-flow"><span>Eternime</span><i>→</i><b>Tu contexto autorizado</b><i>→</i><span>La IA que elijas</span></div>
+      <ul><li>Credenciales separadas por IA</li><li>Permisos por memoria, proyectos, pendientes y red</li><li>Acceso revocable y auditable</li><li>La Bóveda queda fuera por defecto</li></ul>
+      <Link href="/crear">Crear mi memoria portátil →</Link>
+    </section>
+
     <section className="eon-public-statement"><p>Un asistente que no sólo responde.</p><h2>Te conoce porque recuerda contigo.</h2><Link href="/crear">Crear mi memoria →</Link></section>
   </div>;
 }
