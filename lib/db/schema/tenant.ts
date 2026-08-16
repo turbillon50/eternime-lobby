@@ -167,3 +167,14 @@ export const dailyPromptsLog = pgTable("daily_prompts_log", {
 export type Memory = typeof memories.$inferSelect;
 export type NewMemory = typeof memories.$inferInsert;
 export type PersonalityProfile = typeof personalityProfile.$inferSelect;
+
+/** Eon-only learned context, physically separate from canonical personal memories. */
+export const eonMemory = pgTable("eon_memory", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  kind: text("kind").notNull().default("inference"),
+  content: text("content").notNull(),
+  sourceRef: text("source_ref"),
+  confidence: real("confidence").notNull().default(0.7),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
