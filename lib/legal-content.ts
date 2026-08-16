@@ -10,6 +10,9 @@ Eternime, operado por All Global Holding LLC, es responsable del tratamiento de 
 Qué datos tratamos
 Podemos tratar datos de cuenta e identidad; recuerdos, notas, conversaciones y documentos; fotografías, audio y video; muestras de voz cuando el usuario activa funciones de voz; datos de personas y contactos que el usuario decide incorporar a Mi Red; relaciones, empresas, roles, capacidades y fuentes de procedencia; cartas futuras y beneficiarios; datos técnicos y de seguridad necesarios para operar el servicio.
 
+Conexiones con inteligencias artificiales externas y MCP
+Si el usuario activa Eon Trust/MCP, Eternime puede poner a disposición de una inteligencia artificial externa únicamente las categorías de información que el usuario autorice mediante permisos específicos. Cada conexión utiliza una credencial independiente y revocable. La Bóveda y secretos no forman parte de estos permisos por defecto. El proveedor de la IA externa puede aplicar sus propios términos y avisos de privacidad al contenido que reciba; antes de conectar una IA, el usuario debe revisar esos términos. Eternime registra accesos técnicos para seguridad y control del usuario.
+
 Mi Red y datos de terceros
 Mi Red permite al usuario registrar o importar contactos seleccionados y construir relaciones entre personas, empresas, proyectos y capacidades. Los contactos importados se configuran como privados por defecto. Eternime registra la fuente del dato y procura distinguir entre información declarada, observada e inferida. El usuario debe contar con una base legítima para incorporar datos de terceros y evitar cargar información innecesaria o especialmente sensible sin autorización.
 
