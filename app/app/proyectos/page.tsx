@@ -1,0 +1,2 @@
+import type { Metadata } from "next"; import { ProjectsClient } from "@/components/app/ProjectsClient";
+export const metadata:Metadata={title:"Proyectos"}; export default function Page(){return <div className="grid gap-6"><header className="eon-page-head"><span className="eon-page-orb"/><div><p className="eon-page-kicker">Contexto operativo</p><h1>Proyectos</h1><p>Lo que estás construyendo, con personas, decisiones y pendientes alrededor.</p></div></header><ProjectsClient/></div>}
