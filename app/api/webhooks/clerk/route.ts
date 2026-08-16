@@ -3,10 +3,9 @@
  * local eternime_users (vía clerk_id). Firma verificada con Svix; idempotente
  * (seguro ante reintentos de Clerk).
  *
- * NOTA HISTORICA: este webhook antes llamaba a provisionTenant() para crear
- * una rama de Neon por usuario (arquitectura multi-tenant abandonada). La app
- * hoy usa una sola base compartida (eternime_users + tablas relacionadas);
- * el alta real ya no necesita aprovisionar nada, solo sincronizar la fila.
+ * Arquitectura actual: cada user.created aprovisiona un tenant Neon aislado.
+ * La base compartida queda como control plane/compatibilidad mientras los módulos
+ * se migran gradualmente al tenant privado.
  *
  * Configurar el endpoint en Clerk → Webhooks con CLERK_WEBHOOK_SECRET.
  */
@@ -16,6 +15,8 @@ import { Webhook } from "svix";
 
 import { sendWelcomeEmail } from "@/lib/email/resend";
 import { upsertUserFromClerk, findUserByClerkId } from "@/lib/data/users";
+import { provisionTenant } from "@/lib/tenant/provision";
+import { ensureDefaultMcpAccess } from "@/lib/data/mcp-access";
 
 export const runtime = "nodejs";
 
@@ -101,9 +102,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No se pudo sincronizar el usuario" }, { status: 500 });
   }
 
-  if (event.type === "user.created" && !wasAlreadySynced) {
-    sendWelcomeEmail(email, local.name).catch(() => {});
+  let tenant: Awaited<ReturnType<typeof provisionTenant>> | null = null;
+  if (event.type === "user.created") {
+    tenant = await provisionTenant({ clerkId: event.data.id, email, name: local.name, locale: local.locale || "es-MX" });
+    if (tenant.status === "error") {
+      return NextResponse.json({ error: "Tenant provisioning failed", detail: tenant.error }, { status: 500 });
+    }
+    await ensureDefaultMcpAccess(local.id).catch(() => null);
+    if (!wasAlreadySynced) sendWelcomeEmail(email, local.name).catch(() => {});
   }
 
-  return NextResponse.json({ ok: true, userId: local.id });
+  return NextResponse.json({ ok: true, userId: local.id, tenant });
 }

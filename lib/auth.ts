@@ -24,6 +24,7 @@ export type SessionPayload = {
   email: string;
   name: string;
   role: "user" | "admin";
+  clerkId: string;
 };
 
 export class AuthError extends Error {
@@ -54,7 +55,7 @@ export async function getSession(): Promise<SessionPayload | null> {
     if (!local) return null;
   }
 
-  return { sub: local.id, email: local.email, name: local.name, role: local.role };
+  return { sub: local.id, email: local.email, name: local.name, role: local.role, clerkId: userId };
 }
 
 /** Usuario completo de DB para la sesión actual, o null. */

@@ -4,6 +4,7 @@ import { listGuideMessages, appendGuideMessage } from "@/lib/data/guide";
 import { listMemories, createMemory, countConversationMemories } from "@/lib/data/memories";
 import { answerAsEon, refreshPersonalitySummary } from "@/lib/ai/eon";
 import { storeMemoryEmbedding } from "@/lib/ai/rag";
+import { listTenantEonMessages, appendTenantEonExchange, storeEonLearnedContext, TenantNotReadyError } from "@/lib/data/eon-tenant";
 
 const MIN_CAPTURABLE_LENGTH = 40;
 const PERSONALITY_REFRESH_EVERY = 5;
@@ -50,8 +51,14 @@ function localGuideReply(userText: string, memoryCount: number): string {
 export async function GET() {
   try {
     const session = await requireUser();
-    const messages = await listGuideMessages(session.sub);
-    return NextResponse.json({ messages });
+    try {
+      const messages = await listTenantEonMessages(session.clerkId);
+      return NextResponse.json({ messages, store: "tenant" });
+    } catch (e) {
+      if (!(e instanceof TenantNotReadyError)) console.warn("[guide] tenant read fallback", e);
+      const messages = await listGuideMessages(session.sub);
+      return NextResponse.json({ messages, store: "legacy" });
+    }
   } catch (e) {
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
@@ -65,9 +72,10 @@ export async function POST(request: Request) {
     const content = (body.content ?? "").trim();
     if (!content) return NextResponse.json({ error: "El mensaje no puede estar vacío" }, { status: 400 });
 
-    const userMessage = await appendGuideMessage({ userId: session.sub, role: "user", content });
-
-    const history = await listGuideMessages(session.sub);
+    let history;
+    try { history = await listTenantEonMessages(session.clerkId); }
+    catch { history = await listGuideMessages(session.sub); }
+    const userMessage = { id:`local-${Date.now()}`, user_id:session.sub, role:"user" as const, content, created_at:new Date().toISOString() };
 
     let reply: string | null = null;
     let cited: Array<{ id: string; title: string }> = [];
@@ -85,11 +93,21 @@ export async function POST(request: Request) {
       reply = localGuideReply(content, memories.length);
     }
 
-    const assistantMessage = await appendGuideMessage({ userId: session.sub, role: "assistant", content: reply });
+    let assistantMessage = null;
+    let store = "tenant";
+    try {
+      const saved = await appendTenantEonExchange(session.clerkId, content, reply);
+      assistantMessage = saved.assistantMessage;
+      await storeEonLearnedContext(session.clerkId, `Usuario: ${content}\nEon: ${reply}`, assistantMessage?.id ?? undefined, .75).catch(()=>{});
+    } catch {
+      store = "legacy";
+      await appendGuideMessage({ userId: session.sub, role: "user", content });
+      assistantMessage = await appendGuideMessage({ userId: session.sub, role: "assistant", content: reply });
+    }
 
     await captureConversationAsMemory(session.sub, content);
 
-    return NextResponse.json({ userMessage, assistantMessage, reply, cited }, { status: 201 });
+    return NextResponse.json({ userMessage, assistantMessage, reply, cited, store }, { status: 201 });
   } catch (e) {
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
     return NextResponse.json({ error: "Error interno" }, { status: 500 });

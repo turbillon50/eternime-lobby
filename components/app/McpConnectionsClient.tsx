@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 type Scope="identity.read"|"memory.read"|"projects.read"|"tasks.read"|"network.search";
-type Conn={id:string;label:string;provider:string;token_prefix:string;scopes:Scope[];created_at:string;last_used_at:string|null;revoked_at:string|null};
+type Conn={id:string;label:string;provider:string;token_prefix:string;scopes:Scope[];created_at:string;last_used_at:string|null;revoked_at:string|null;can_reveal?:boolean};
 const ALL:Scope[]=["identity.read","memory.read","projects.read","tasks.read","network.search"];
 const LABELS:Record<Scope,string>={"identity.read":"Identidad","memory.read":"Memoria","projects.read":"Proyectos","tasks.read":"Pendientes","network.search":"Mi Red"};
 const PROVIDERS=[{id:"chatgpt",name:"ChatGPT"},{id:"claude",name:"Claude"},{id:"gemini",name:"Gemini"},{id:"other",name:"Otra IA"}];
@@ -12,6 +12,7 @@ export function McpConnectionsClient(){
  useEffect(()=>{load()},[]);
  const toggle=(s:Scope)=>setScopes(v=>v.includes(s)?v.filter(x=>x!==s):[...v,s]);
  async function create(){setCreating(true);setToken("");try{const p=PROVIDERS.find(x=>x.id===provider);const r=await fetch('/api/mcp/tokens',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label:p?.name||'Mi IA',provider,scopes})});const d=await r.json();if(r.ok){setToken(d.token||'');load()}}finally{setCreating(false)}}
+ async function tokenAction(id:string,action:"reveal"|"rotate"){const r=await fetch("/api/mcp/tokens",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,action})});const d=await r.json();if(d.token){setToken(d.token);await copy(d.token)}else if(d.error)alert(d.error);load()}
  async function revoke(id:string){await fetch('/api/mcp/tokens?id='+encodeURIComponent(id),{method:'DELETE'});load()}
  async function copy(v:string){await navigator.clipboard.writeText(v);setCopied(true);setTimeout(()=>setCopied(false),1400)}
  return <div className="mcp-grid">
@@ -31,6 +32,6 @@ export function McpConnectionsClient(){
    {token&&<div className="mcp-token"><p>Guarda esta llave ahora. Eternime no puede volver a mostrártela.</p><code>{token}</code><button onClick={()=>copy(token)}>{copied?'Copiado':'Copiar llave'}</button><div className="mcp-endpoint"><span>Endpoint MCP</span><code>https://eternime.org/api/mcp</code><button onClick={()=>copy('https://eternime.org/api/mcp')}>Copiar</button></div></div>}
   </section>
   <section className="mcp-card mcp-guide"><p className="eon-page-kicker">Eon te acompaña</p><h3>¿No sabes cómo conectarlo?</h3><ol><li>Genera una llave para tu IA.</li><li>En la configuración MCP de esa IA agrega el endpoint de Eternime.</li><li>Usa la llave como Bearer token.</li><li>Prueba: “¿Qué recuerda Eternime sobre mis proyectos?”</li></ol><p className="mcp-note">La disponibilidad exacta de MCP depende del cliente de IA que uses. Eternime mantiene la memoria separada del modelo.</p></section>
-  <section className="mcp-card"><div className="flex items-center justify-between"><div><p className="eon-page-kicker">Accesos activos</p><h3>Mis IAs</h3></div><span className="mcp-count">{items.filter(x=>!x.revoked_at).length}</span></div><div className="mcp-list">{items.length?items.map(x=><div className={`mcp-item ${x.revoked_at?'revoked':''}`} key={x.id}><div><strong>{x.label}</strong><small>{x.token_prefix}… · {x.scopes.map(s=>LABELS[s]).join(', ')}</small><small>{x.last_used_at?'Último uso: '+new Date(x.last_used_at).toLocaleString():'Todavía no se ha usado'}</small></div>{!x.revoked_at&&<button onClick={()=>revoke(x.id)}>Revocar</button>}</div>):<p className="mcp-empty">Aún no has conectado otra IA.</p>}</div></section>
+  <section className="mcp-card"><div className="flex items-center justify-between"><div><p className="eon-page-kicker">Accesos activos</p><h3>Mis IAs</h3></div><span className="mcp-count">{items.filter(x=>!x.revoked_at).length}</span></div><div className="mcp-list">{items.length?items.map(x=><div className={`mcp-item ${x.revoked_at?'revoked':''}`} key={x.id}><div><strong>{x.label}</strong><small>{x.token_prefix}… · {x.scopes.map(s=>LABELS[s]).join(', ')}</small><small>{x.last_used_at?'Último uso: '+new Date(x.last_used_at).toLocaleString():'Todavía no se ha usado'}</small></div>{!x.revoked_at&&<div className="flex gap-1"><button onClick={()=>tokenAction(x.id,"reveal")}>Ver llave</button><button onClick={()=>tokenAction(x.id,"rotate")}>Rotar</button><button onClick={()=>revoke(x.id)}>Revocar</button></div>}</div>):<p className="mcp-empty">Aún no has conectado otra IA.</p>}</div></section>
  </div>
 }
