@@ -18,6 +18,8 @@ export const APP_NAV: NavItem[] = [
   { href: "/app/recuerdos", label: "Memoria", icon: <Icon d="M12 3v18M7 5a4 4 0 0 0 0 8 4 4 0 0 0 0 6M17 5a4 4 0 0 1 0 8 4 4 0 0 1 0 6M7 9h5M12 15h5" /> },
   { href: "/app/proyectos", label: "Proyectos", icon: <Icon d="M4 7h6l2 2h8v10H4z" /> },
   { href: "/app/pendientes", label: "Pendientes", icon: <Icon d="M5 12l4 4L19 6" /> },
+  { href: "/app/calendario", label: "Calendario", icon: <Icon d="M4 6h16v14H4zM8 3v6M16 3v6M4 10h16" /> },
+  { href: "/app/boveda", label: "Bóveda", icon: <Icon d="M5 5h14v14H5zM5 9h14M9 5v4M9 13h6" /> },
   { href: "/app/guia", label: "Mi historia", icon: <Icon d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13ZM20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z" /> },
   { href: "/app/cartas", label: "Cartas futuras", icon: <Icon d="M3 6h18v12H3zM3 7l9 6 9-6" /> },
   { href: "/app/red", label: "Mi Red", icon: <Icon d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM5 20a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM19 20a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM9 10l-2 3M15 10l2 3" /> },
@@ -25,7 +27,7 @@ export const APP_NAV: NavItem[] = [
   { href: "/app/perfil", label: "Yo", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0" /> },
 ];
 
-const FUTURE = ["Calendario", "Documentos", "Bóveda"];
+const FUTURE = ["Documentos"];
 type ShellUser = { name?: string; email?: string; avatar_url?: string | null };
 
 function Menu({ user, close }: { user: ShellUser | null; close: () => void }) {

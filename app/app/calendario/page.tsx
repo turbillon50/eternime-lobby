@@ -1,0 +1,2 @@
+import type { Metadata } from "next";import { CalendarClient } from "@/components/app/CalendarClient";
+export const metadata:Metadata={title:"Calendario"};export default function Page(){return <div className="grid gap-6"><header className="eon-page-head"><span className="eon-page-orb"/><div><p className="eon-page-kicker">Tiempo y contexto</p><h1>Calendario</h1><p>Fechas que importan, conectadas con tus proyectos y pendientes.</p></div></header><CalendarClient/></div>}

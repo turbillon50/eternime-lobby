@@ -107,7 +107,7 @@ export function Boveda() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={f.url} alt={f.name ?? ""} className="h-full w-full object-cover transition group-hover:scale-105" />
                     <button type="button" onClick={() => removeFile(f.id)} aria-label="Quitar archivo"
-                      className="absolute right-1.5 top-1.5 rounded-full bg-[rgba(10,10,15,0.7)] p-1 text-[var(--et-danger)] opacity-0 transition group-hover:opacity-100">
+                      className="absolute right-1.5 top-1.5 rounded-full bg-white/80 backdrop-blur-md p-1 text-[var(--et-danger)] opacity-0 transition group-hover:opacity-100">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
                     </button>
                   </div>
