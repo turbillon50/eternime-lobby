@@ -1,34 +1,47 @@
 // Contenido legal de Eternime (borrador — revisar con asesoría legal).
-export const PRIVACIDAD = `Borrador — pendiente de revisión por asesoría legal.
+export const PRIVACIDAD = `Borrador operativo — requiere revisión final por asesoría legal.
 
 Aviso de Privacidad de Eternime
-Última actualización: 20 de junio de 2026
+Última actualización: 16 de agosto de 2026
 
-En Eternime (eternime.org), operado por All Global Holding LLC, entendemos que los datos que nos confías no son datos cualquiera: son tu memoria, tu voz y aquello que deseas dejar a quienes amas. Por eso tratamos tu información con un cuidado especial. Este aviso explica qué recopilamos, para qué lo usamos y qué derechos tienes.
+Responsable
+Eternime, operado por All Global Holding LLC, es responsable del tratamiento de los datos personales que se recaban mediante eternime.org y sus aplicaciones asociadas. Para asuntos de privacidad: privacidad@eternime.org.
 
-Datos que recopilamos
-Recopilamos los datos de tu cuenta (nombre y correo electrónico), los recuerdos que guardas voluntariamente (textos, biografía, cartas), tus fotos, documentos y archivos de audio y video, los datos de los beneficiarios que designes, tus conversaciones con la inteligencia artificial "Eon" y, si decides habilitarla, muestras de tu voz. Una parte de esta información es de naturaleza íntima y sensible, y la tratamos con la confidencialidad que merece.
+Qué datos tratamos
+Podemos tratar datos de cuenta e identidad; recuerdos, notas, conversaciones y documentos; fotografías, audio y video; muestras de voz cuando el usuario activa funciones de voz; datos de personas y contactos que el usuario decide incorporar a Mi Red; relaciones, empresas, roles, capacidades y fuentes de procedencia; cartas futuras y beneficiarios; datos técnicos y de seguridad necesarios para operar el servicio.
 
-Para qué usamos tus datos
-Usamos tu información con un único propósito central: preservar y construir tu legado. Esto incluye almacenar y organizar tus recuerdos, permitir que Eon aprenda de ti mediante representaciones matemáticas de tu contenido (embeddings) para reflejar tu manera de pensar y expresarte, recrear tu voz si lo autorizas, y entregar tus cartas y tu legado a los beneficiarios que hayas señalado. No usamos tus datos para fines de publicidad ni para perfilarte comercialmente.
+Mi Red y datos de terceros
+Mi Red permite al usuario registrar o importar contactos seleccionados y construir relaciones entre personas, empresas, proyectos y capacidades. Los contactos importados se configuran como privados por defecto. Eternime registra la fuente del dato y procura distinguir entre información declarada, observada e inferida. El usuario debe contar con una base legítima para incorporar datos de terceros y evitar cargar información innecesaria o especialmente sensible sin autorización.
 
-Terceros que nos ayudan a operar
-Para prestar el servicio recurrimos a proveedores que actúan como encargados, bajo nuestras instrucciones: Google Gemini procesa el contenido para las funciones de IA y la generación de embeddings; ElevenLabs procesa muestras para la recreación de voz; Vercel y Neon alojan y almacenan tus datos; y Resend envía nuestros correos. Cada proveedor accede solo a lo necesario para su función.
+Inferencias y Eon
+Eon puede generar relaciones, etiquetas, capacidades o inferencias a partir de información que el usuario haya proporcionado o autorizado. Las inferencias se identifican como tales y no se consideran hechos confirmados salvo que exista evidencia suficiente. El usuario puede corregir o eliminar dichas inferencias.
 
-Seguridad y conservación
-Aplicamos medidas técnicas y organizativas razonables para proteger tu información frente a accesos no autorizados, pérdida o alteración. Conservamos tus datos mientras tu cuenta permanezca activa y, por la naturaleza del servicio, durante el tiempo necesario para cumplir su finalidad de legado, salvo que solicites su eliminación.
+Para qué usamos los datos
+Usamos la información para ofrecer una segunda memoria personal: almacenar y organizar contenido, permitir búsquedas y recuperación contextual, ayudar a recordar personas y compromisos, construir el grafo personal autorizado, ofrecer funciones de IA y voz, entregar cartas programadas y operar funciones de legado que el usuario active expresamente. No vendemos los datos personales del usuario.
 
-Tus derechos (ARCO)
-Puedes en cualquier momento Acceder a tus datos, Rectificarlos si son inexactos, Cancelarlos solicitando su eliminación, y Oponerte a determinados tratamientos. También puedes revocar el consentimiento que nos hayas otorgado. Para ejercer estos derechos, escríbenos a privacidad@eternime.org.
+Contactos, WhatsApp y redes sociales
+Eternime no pretende descargar de forma indiscriminada la agenda o conversaciones privadas de WhatsApp. Cuando se habiliten integraciones con contactos, WhatsApp, Facebook, Instagram u otros servicios, se tratará únicamente la información que el usuario seleccione, envíe, conecte o autorice conforme a las capacidades de cada plataforma. Cada integración deberá mostrar su finalidad antes de activarse.
 
-Entrega del legado tras el fallecimiento
-Una función esencial de Eternime es entregar tu legado a los beneficiarios que designes una vez confirmado tu fallecimiento, conforme a las instrucciones que dejes configuradas. Te recomendamos mantener actualizada esta información.
+Proveedores
+Para prestar el servicio podemos utilizar proveedores tecnológicos como Vercel, Neon, Google/Gemini, ElevenLabs, Resend, Twilio y proveedores de autenticación. Cada proveedor recibe únicamente la información necesaria para prestar la función correspondiente y está sujeto a sus propios términos y obligaciones de tratamiento.
 
-No vendemos tus datos
-Nunca vendemos, alquilamos ni comercializamos tu información personal con terceros.
+Seguridad y secretos
+Aplicamos medidas técnicas y organizativas razonables para reducir riesgos de acceso no autorizado, pérdida o alteración. Las credenciales, contraseñas, API keys y otros secretos no deben almacenarse como recuerdos ordinarios; las funciones de Bóveda deberán tratarlos separadamente con controles reforzados.
 
-Contacto
-Para dudas sobre este aviso o sobre el tratamiento de tus datos, contáctanos en privacidad@eternime.org o en [dirección de contacto].`;
+Conservación
+Los datos se conservan mientras sean necesarios para prestar el servicio o cumplir las instrucciones del usuario, salvo obligaciones legales aplicables. El usuario puede solicitar eliminación de contenido o de su cuenta, sujeto a respaldos temporales y obligaciones legales.
+
+Derechos y consentimiento
+El usuario puede solicitar acceso, rectificación, cancelación u oposición, así como revocar el consentimiento cuando corresponda. También puede solicitar información sobre las inferencias y fuentes utilizadas para construir Mi Red. Las solicitudes pueden enviarse a privacidad@eternime.org.
+
+Transferencias y servicios internacionales
+Algunos proveedores pueden procesar datos fuera de México. Eternime deberá mantener documentadas las transferencias y mecanismos contractuales aplicables y reflejarlos en la versión final de este aviso.
+
+Cambios
+Publicaremos cambios relevantes a este aviso en eternime.org/privacidad y, cuando el cambio requiera nuevo consentimiento, lo solicitaremos antes de aplicar el nuevo tratamiento.
+
+Marco legal
+Este aviso se prepara tomando como referencia la Ley Federal de Protección de Datos Personales en Posesión de los Particulares vigente en México. Debe ser revisado por asesoría legal antes de considerarse versión definitiva.`;
 
 export const TERMINOS = `Borrador — pendiente de revisión por asesoría legal.
 
