@@ -5,6 +5,7 @@ import { listMemories, createMemory, countConversationMemories } from "@/lib/dat
 import { answerAsEon, refreshPersonalitySummary } from "@/lib/ai/eon";
 import { storeMemoryEmbedding } from "@/lib/ai/rag";
 import { listTenantEonMessages, appendTenantEonExchange, storeEonLearnedContext, TenantNotReadyError } from "@/lib/data/eon-tenant";
+import { ensureTenantForUser } from "@/lib/tenant/ensure";
 
 const MIN_CAPTURABLE_LENGTH = 40;
 const PERSONALITY_REFRESH_EVERY = 5;
@@ -51,6 +52,7 @@ function localGuideReply(userText: string, memoryCount: number): string {
 export async function GET() {
   try {
     const session = await requireUser();
+    await ensureTenantForUser({clerkId:session.clerkId,email:session.email,name:session.name}).catch(()=>null);
     try {
       const messages = await listTenantEonMessages(session.clerkId);
       return NextResponse.json({ messages, store: "tenant" });
@@ -68,6 +70,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await requireUser();
+    await ensureTenantForUser({clerkId:session.clerkId,email:session.email,name:session.name}).catch(()=>null);
     const body = (await request.json()) as { content?: string };
     const content = (body.content ?? "").trim();
     if (!content) return NextResponse.json({ error: "El mensaje no puede estar vacío" }, { status: 400 });
