@@ -132,10 +132,10 @@ export function PerfilClient() {
       {welcomeMode ? (
         <FadeInOnScroll>
           <Card className="border-[rgba(255,255,255,0.18)] text-center">
-            <p className="font-mono text-[0.62rem] uppercase tracking-[0.34em] text-[var(--et-text-faint)]">Tu legado empieza aquí</p>
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.34em] text-[var(--et-text-faint)]">Tu memoria empieza aquí</p>
             <CardTitle className="mt-2 !text-2xl">Bienvenido a Eternime</CardTitle>
             <CardDescription className="mx-auto mt-2 max-w-md">
-              Lo que más importa ahora no es tu foto — es que Eon empiece a conocerte. Cada cosa que le cuentes queda con él para siempre.
+              Lo que más importa ahora no es tu foto — es que Eon empiece a conocerte. Cada cosa que le cuentes puede convertirse en contexto útil para ti.
             </CardDescription>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
               <Link href="/app/hablar" className="et-btn et-btn-primary px-6">Hablar con Eon</Link>

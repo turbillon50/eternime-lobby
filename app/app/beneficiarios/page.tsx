@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
 import { FadeInOnScroll } from "@/components/motion";
 import { BeneficiariosClient } from "@/components/app/BeneficiariosClient";
-import { translate } from "@/lib/i18n";
-import { getServerLang } from "@/lib/i18n-server";
 
-export const metadata: Metadata = { title: "Herederos" };
+export const dynamic = "force-dynamic";
 
-export default async function HerederosPage() {
-  const lang = await getServerLang();
+export const metadata: Metadata = { title: "Personas" };
+
+export default function HerederosPage() {
   return (
     <div className="grid gap-6">
       <FadeInOnScroll>
-        <h1 className="et-serif text-2xl text-[var(--et-text)]">{translate(lang, "heirs.title")}</h1>
-        <p className="mt-1 text-sm text-[var(--et-text-muted)]">{translate(lang, "heirs.sub")}</p>
+        <p className="eon-screen-kicker">Personas</p><h1 className="eon-screen-title">Tu red empieza por quienes importan.</h1>
+        <p className="eon-screen-sub">Relaciones, contexto y conexiones que Eon aprende contigo.</p>
       </FadeInOnScroll>
       <BeneficiariosClient />
     </div>
