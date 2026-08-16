@@ -18,15 +18,15 @@ import { AuroraBackground } from "@/components/aurora-background";
 import { I18nProvider } from "@/components/i18n";
 
 export const metadata: Metadata = {
-  title: { default: "Eternime — Tu legado vive para siempre", template: "%s · Eternime" },
+  title: { default: "Eternime — Tu segunda memoria", template: "%s · Eternime" },
   description:
-    "Digital Legacy Intelligence. Preserva tus recuerdos, cartas de legado y tu guía personal de IA para quienes amas.",
+    "Tu segunda memoria asistida por Eon. Guarda recuerdos, decisiones, documentos, voz e historia para hoy, mañana y siempre.",
   applicationName: "Eternime",
   manifest: "/manifest.json",
   keywords: ["legado digital", "memoria", "cartas de legado", "recuerdos", "Eternime"],
   openGraph: {
     title: "Eternime — Tu legado vive para siempre",
-    description: "Preserva tu memoria para tus seres queridos. Digital Legacy Intelligence.",
+    description: "Tu segunda memoria asistida por Eon. Recuerda contigo, crece contigo y permanece contigo.",
     locale: "es_MX",
     siteName: "Eternime",
     type: "website",
