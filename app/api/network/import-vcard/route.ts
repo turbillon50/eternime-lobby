@@ -1,0 +1,9 @@
+import { NextResponse } from "next/server";
+import { requireUser, AuthError } from "@/lib/auth";
+import { upsertNetworkPerson, recordConsent } from "@/lib/data/network";
+
+function unfold(s:string){return s.replace(/\r?\n[ \t]/g,"");}
+function val(line:string){const i=line.indexOf(":");return i>=0?line.slice(i+1).trim():"";}
+function parseVcards(raw:string){return unfold(raw).split(/BEGIN:VCARD/i).slice(1).map(block=>{const lines=block.split(/\r?\n/);const fn=lines.find(x=>/^FN[;:]/i.test(x));const tel=lines.find(x=>/^TEL[;:]/i.test(x));const email=lines.find(x=>/^EMAIL[;:]/i.test(x));const org=lines.find(x=>/^ORG[;:]/i.test(x));const title=lines.find(x=>/^TITLE[;:]/i.test(x));return {name:fn?val(fn):"",phone:tel?val(tel):"",email:email?val(email):"",company:org?val(org):"",role:title?val(title):""};}).filter(x=>x.name);}
+export const runtime="nodejs";
+export async function POST(req:Request){try{const s=await requireUser();const b=await req.json() as {vcard?:string;consent?:boolean};if(!b.consent)return NextResponse.json({error:"Necesitamos tu autorización para importar los contactos seleccionados."},{status:400});const raw=b.vcard||"";if(raw.length>5_000_000)return NextResponse.json({error:"Archivo demasiado grande"},{status:413});const cards=parseVcards(raw).slice(0,5000);let imported=0;for(const c of cards){const p=await upsertNetworkPerson({userId:s.sub,name:c.name,phone:c.phone,email:c.email,company:c.company,role:c.role,source:"vcard",confidence:.9,visibility:"private"});if(p)imported++;}await recordConsent(s.sub,"Importar contactos seleccionados para construir Mi Red","vcard",true,{count:imported});return NextResponse.json({imported,total:cards.length});}catch(e){if(e instanceof AuthError)return NextResponse.json({error:e.message},{status:e.status});return NextResponse.json({error:"Error interno"},{status:500});}}

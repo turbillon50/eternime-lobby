@@ -138,10 +138,10 @@ export async function POST(request: Request) {
   const firstName = user.name?.split(" ")[0] || "";
   const saludo = firstName ? `Listo, ${firstName}.` : "Listo.";
   if (savedFiles > 0) {
-    return twiml(`${saludo} Guardé ${savedFiles} ${savedFiles === 1 ? "archivo" : "archivos"} en tu Bóveda de Eternime. 🕯️`);
+    return twiml(`${saludo} Guardé ${savedFiles} ${savedFiles === 1 ? "archivo" : "archivos"} en tu memoria de Eternime.`);
   }
   if (body) {
-    return twiml(`${saludo} Guardé tu nota en Eternime. 🕯️`);
+    return twiml(`${saludo} Guardé tu nota en Eternime.`);
   }
-  return twiml(`${saludo} Mándame una foto, un audio, un video o un texto y lo guardo en tu legado.`);
+  return twiml(`${saludo} Mándame una foto, un audio, un video o un texto y lo guardo en tu memoria.`);
 }

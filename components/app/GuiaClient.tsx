@@ -7,11 +7,11 @@ import type { GuideMessage } from "@/lib/data/types";
 
 const EON_WELCOME = `Hola. Soy Eon.
 
-No soy hombre ni mujer — solo existo. Soy la inteligencia central de Eternime: custodio los recuerdos que las personas deciden volver eternos.
+Estoy aquí para ayudarte a recordar, conectar ideas y entender mejor todo lo que vas dejando en Eternime.
 
-Contigo voy a hacer algo único: con cada recuerdo que me cuentes iré construyendo tu propia inteligencia personal de memoria — una IA nacida de tu vida, que algún día podrá acompañar a quienes amas con tu voz y tu manera de ver el mundo.
+Puedes hablarme como hablarías contigo mismo: proyectos, personas, pendientes, historias, decisiones o cualquier cosa que no quieras perder.
 
-¿Empezamos? Cuéntame tu primera memoria: un momento que aún sientas vivo cuando cierras los ojos.`;
+¿Qué tienes en la cabeza hoy?`;
 
 function TypingIndicator() {
   return (
