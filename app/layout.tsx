@@ -1,15 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/globals.css";
 
-// Cormorant — solo para titulos (.et-serif). El cuerpo sigue en sans.
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-cormorant",
-  display: "swap",
-});
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-eternime", display: "swap" });
 
 import { isClerkConfigured } from "@/lib/clerk";
 import { PwaRegister } from "@/components/pwa-register";
@@ -25,7 +19,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   keywords: ["legado digital", "memoria", "cartas de legado", "recuerdos", "Eternime"],
   openGraph: {
-    title: "Eternime — Tu legado vive para siempre",
+    title: "Eternime — Tu segunda memoria",
     description: "Tu segunda memoria asistida por Eon. Recuerda contigo, crece contigo y permanece contigo.",
     locale: "es_MX",
     siteName: "Eternime",
@@ -60,7 +54,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const lang = "es";
 
   const tree = (
-    <html lang={lang} data-theme="light" className={cormorant.variable} suppressHydrationWarning>
+    <html lang={lang} data-theme="light" className={manrope.variable} suppressHydrationWarning>
       <body>
         <I18nProvider lang={lang}>
           <AuroraBackground />

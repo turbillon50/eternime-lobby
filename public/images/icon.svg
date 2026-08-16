@@ -1,5 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#000"/>
-  <circle cx="256" cy="256" r="124" fill="none" stroke="#fff" stroke-width="10"/>
-  <circle cx="256" cy="256" r="154" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/>
+ <defs>
+  <radialGradient id="a" cx="26%" cy="24%" r="78%"><stop stop-color="#8ed9ff"/><stop offset=".46" stop-color="#7267ff"/><stop offset=".78" stop-color="#bf7cff"/><stop offset="1" stop-color="#f1a9d8"/></radialGradient>
+  <filter id="b" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="20"/></filter>
+ </defs>
+ <rect width="512" height="512" rx="136" fill="#f8f9ff"/>
+ <path d="M116 268c0-95 60-164 145-164 89 0 147 67 137 154-10 92-70 157-151 151-80-6-131-61-131-141Z" fill="url(#a)" filter="url(#b)" opacity=".82"/>
+ <path d="M144 262c0-76 48-131 116-131 71 0 118 54 110 123-8 74-56 126-121 121-64-5-105-49-105-113Z" fill="url(#a)"/>
+ <ellipse cx="237" cy="225" rx="70" ry="62" fill="#fff" opacity=".28"/>
 </svg>

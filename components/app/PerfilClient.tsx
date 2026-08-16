@@ -160,7 +160,7 @@ export function PerfilClient() {
               style={{
                 backgroundImage: user?.cover_url
                   ? `linear-gradient(180deg, rgba(10,10,15,0.15), rgba(10,10,15,0.85)), url(${user.cover_url})`
-                  : "radial-gradient(120% 140% at 50% 0%, rgba(255,255,255,0.18), transparent 60%), linear-gradient(180deg, #14140f, #0a0a0f)",
+                  : "radial-gradient(120% 140% at 22% 0%, rgba(117,190,255,0.26), transparent 58%), radial-gradient(100% 120% at 85% 100%, rgba(210,142,255,0.18), transparent 62%), linear-gradient(180deg, #f7f9ff, #f0f2ff)",
               }}
             />
             <button
