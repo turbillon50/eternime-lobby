@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0c",
+  themeColor: "#f8f9ff",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -60,7 +60,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const lang = "es";
 
   const tree = (
-    <html lang={lang} data-theme="dark" className={cormorant.variable} suppressHydrationWarning>
+    <html lang={lang} data-theme="light" className={cormorant.variable} suppressHydrationWarning>
       <body>
         <I18nProvider lang={lang}>
           <AuroraBackground />
