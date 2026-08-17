@@ -53,7 +53,7 @@ export default async function AdminPage() {
       <StaggerContainer className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
         {KPI_DEFS.map((def) => (
           <StaggerItem key={def.key}>
-            <Card className="h-full">
+            <Card className="h-full va-spatial">
               <NumberCounter
                 value={kpis?.[def.key] ?? 0}
                 className="et-serif text-3xl text-[var(--et-gold-bright)] sm:text-4xl"
@@ -67,7 +67,7 @@ export default async function AdminPage() {
       </StaggerContainer>
 
       <FadeInOnScroll delay={0.1}>
-        <Card>
+        <Card className="va-crystal">
           <CardTitle className="mb-4">Registros por día</CardTitle>
           {signups.length > 0 ? (
             <SignupsChart data={signups} />
@@ -78,7 +78,7 @@ export default async function AdminPage() {
       </FadeInOnScroll>
 
       <FadeInOnScroll delay={0.15}>
-        <Card>
+        <Card className="va-crystal">
           <CardTitle className="mb-4">Últimas altas</CardTitle>
           {recent.length === 0 ? (
             <EmptyState title="Sin usuarios todavía" description="Las nuevas cuentas aparecerán aquí." />

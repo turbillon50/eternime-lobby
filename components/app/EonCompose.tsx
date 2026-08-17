@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { GuideMessage } from "@/lib/data/types";
+import { LivingMesh, LightSweep } from "@/components/visual/VisualArtifacts";
 
 type Citation = { id: string; title: string };
 type ApiResponse = { messages?: GuideMessage[]; reply?: string; error?: string; cited?: Citation[]; assistantMessage?: GuideMessage | null };
@@ -46,7 +47,7 @@ export function EonCompose({ firstName = "" }: { firstName?: string }) {
   }
 
   const hasChat = loaded && messages.length > 0;
-  return <div className={`eon-chat ${hasChat ? "has-chat" : ""}`}>
+  return <div className={`eon-chat va-crystal ${hasChat ? "has-chat" : ""}`}><LivingMesh/><LightSweep/>
     {!hasChat && <section className="eon-welcome">
       <div className="eon-presence" aria-hidden><span/><span/><span/></div>
       <p className="eon-kicker">Eon está aquí</p>

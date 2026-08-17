@@ -16,7 +16,7 @@ export function McpConnectionsClient(){
  async function revoke(id:string){await fetch('/api/mcp/tokens?id='+encodeURIComponent(id),{method:'DELETE'});load()}
  async function copy(v:string){await navigator.clipboard.writeText(v);setCopied(true);setTimeout(()=>setCopied(false),1400)}
  return <div className="mcp-grid">
-  <section className="mcp-hero">
+  <section className="mcp-hero va-crystal va-spatial">
    <div className="mcp-orbit" aria-hidden><i/><i/><i/><span className="eon-mini-orb"/></div>
    <p className="eon-page-kicker">Eon Trust · MCP</p><h2>Tu memoria puede acompañarte entre IAs.</h2>
    <p>ChatGPT, Claude, Gemini o la IA que uses pueden consultar sólo el contexto que tú autorices. Cambias de modelo sin volver a empezar de cero.</p>

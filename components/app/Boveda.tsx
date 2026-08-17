@@ -77,7 +77,7 @@ export function Boveda() {
   const others = files.filter((f) => f.kind !== "image");
 
   return (
-    <Card>
+    <Card className="va-crystal va-spatial">
       <input ref={filesInput} type="file" multiple hidden onChange={onFiles} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -103,7 +103,7 @@ export function Boveda() {
               <p className="mb-2 text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("profile.gallery")}</p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {images.map((f) => (
-                  <div key={f.id} className="group relative aspect-square overflow-hidden rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)]">
+                  <div key={f.id} className="group va-spatial relative aspect-square overflow-hidden rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={f.url} alt={f.name ?? ""} className="h-full w-full object-cover transition group-hover:scale-105" />
                     <button type="button" onClick={() => removeFile(f.id)} aria-label="Quitar archivo"
@@ -121,7 +121,7 @@ export function Boveda() {
               <p className="mb-2 text-xs uppercase tracking-[0.14em] text-[var(--et-text-faint)]">{t("profile.docs")}</p>
               <div className="grid gap-2">
                 {others.map((f) => (
-                  <div key={f.id} className="flex items-center gap-3 rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)] bg-[rgba(255,255,255,0.03)] px-3 py-2.5">
+                  <div key={f.id} className="va-spatial flex items-center gap-3 rounded-[var(--et-radius-sm)] border border-[var(--et-border-soft)] bg-[rgba(255,255,255,0.03)] px-3 py-2.5">
                     <span className="text-[var(--et-gold)]"><FileIcon kind={f.kind} /></span>
                     <a href={f.url} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 truncate text-sm text-[var(--et-text)] hover:text-[var(--et-gold-bright)]">{f.name ?? f.url}</a>
                     <span className="shrink-0 text-xs text-[var(--et-text-faint)]">{fmtSize(f.size)}</span>
