@@ -62,14 +62,39 @@ export function AppShell({ children, nav = APP_NAV, brand = "Eternime" }: PropsW
   return <div className="eon-app min-h-svh">
     <div className="eon-mesh" aria-hidden />
     <header className="eon-topbar">
-      <button className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
-      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-.02em] text-slate-800"><span className="eon-mini-orb"/>{brand}</Link>
-      <Link href="/app/perfil" className="crystal-avatar" aria-label="Perfil">{user?.name?.[0] || "·"}</Link>
+      <div className="eon-topbar-mobile">
+        <button className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
+        <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-.02em] text-slate-800"><span className="eon-mini-orb"/>{brand}</Link>
+        <Link href="/app/perfil" className="crystal-avatar" aria-label="Perfil">{user?.name?.[0] || "·"}</Link>
+      </div>
+      <div className="eon-desktop-header">
+        <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="eon-desktop-brand"><span className="eon-mini-orb"/><span><b>{brand}</b><small>Tu segunda memoria</small></span></Link>
+        {!brand.includes("ADMIN") && <nav className="eon-desktop-nav" aria-label="Navegación de Eternime">
+          <Link href="/app" className={pathname==="/app"?"active":""}>Eon</Link>
+          <Link href="/app/recuerdos" className={pathname.startsWith("/app/recuerdos")?"active":""}>Memoria</Link>
+          <Link href="/app/red" className={pathname.startsWith("/app/red")?"active":""}>Mi Red</Link>
+          <Link href="/app/proyectos" className={pathname.startsWith("/app/proyectos")?"active":""}>Proyectos</Link>
+          <Link href="/app/ias" className={pathname.startsWith("/app/ias")?"active":""}>Mis IAs</Link>
+        </nav>}
+        <div className="eon-desktop-actions">
+          {!brand.includes("ADMIN") && <Link href="/app/hablar" className="eon-desktop-voice"><span className="eon-mini-orb"/>Hablar con Eon</Link>}
+          <button className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
+          <Link href="/app/perfil" className="crystal-avatar" aria-label="Perfil">{user?.name?.[0] || "·"}</Link>
+        </div>
+      </div>
     </header>
 
     <AnimatePresence>{open && <><motion.button aria-label="Cerrar" className="fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-[2px]" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside className="eon-drawer" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
 
     <main className={`relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}><PageTransition>{children}</PageTransition></main>
+
+    {!brand.includes("ADMIN") && <footer className="eon-app-footer">
+      <div className="eon-app-footer-inner">
+        <div className="eon-app-footer-brand"><span className="eon-mini-orb"/><div><b>Eternime</b><small>Tu memoria permanece contigo, aunque cambie la IA.</small></div></div>
+        <nav><Link href="/privacidad">Privacidad</Link><Link href="/terminos">Términos</Link><Link href="/app/cuenta">Cuenta</Link><Link href="/app/ias">MCP / Mis IAs</Link></nav>
+        <small>© {new Date().getFullYear()} Eternime · All Global Holding LLC</small>
+      </div>
+    </footer>}
 
     {!brand.includes("ADMIN") && <nav className="eon-tabbar" aria-label="Navegación principal">
       <Link href="/app" className={pathname==="/app" ? "active" : ""}><Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z"/><span>Chat</span></Link>
