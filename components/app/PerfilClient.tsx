@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
 import { FadeInOnScroll } from "@/components/motion";
@@ -54,15 +54,16 @@ export function PerfilClient() {
     });
   };
 
-  useEffect(() => {
-    let alive = true;
-    void fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then((data) => { if (!alive) return; if (data.user) hydrate(data.user as ProfileUser); else setUser(null); })
-      .catch(() => { if (alive) setUser(null); });
-    return () => { alive = false; };
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      const data = await res.json();
+      if (data.user) hydrate(data.user as ProfileUser); else setUser(null);
+    } catch { setUser(null); }
   }, []);
-  useEffect(() => { try { if (new URLSearchParams(window.location.search).get("welcome") === "1") queueMicrotask(() => setWelcomeMode(true)); } catch {} }, []);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { try { if (new URLSearchParams(window.location.search).get("welcome") === "1") setWelcomeMode(true); } catch {} }, []);
 
   const setField = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -160,7 +161,7 @@ export function PerfilClient() {
               style={{
                 backgroundImage: user?.cover_url
                   ? `linear-gradient(180deg, rgba(10,10,15,0.15), rgba(10,10,15,0.85)), url(${user.cover_url})`
-                  : "radial-gradient(120% 140% at 22% 0%, rgba(117,190,255,0.26), transparent 58%), radial-gradient(100% 120% at 85% 100%, rgba(210,142,255,0.18), transparent 62%), linear-gradient(180deg, #12121a, #07070a)",
+                  : "radial-gradient(120% 140% at 22% 0%, rgba(117,190,255,0.26), transparent 58%), radial-gradient(100% 120% at 85% 100%, rgba(210,142,255,0.18), transparent 62%), linear-gradient(180deg, #f7f9ff, #f0f2ff)",
               }}
             />
             <button

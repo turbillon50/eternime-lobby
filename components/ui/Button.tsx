@@ -2,7 +2,6 @@
 
 import { motion, type HTMLMotionProps } from "framer-motion";
 import type { PropsWithChildren } from "react";
-import { motionTokens } from "@/lib/motion-tokens";
 
 type Variant = "primary" | "secondary" | "ghost";
 
@@ -33,9 +32,7 @@ export function Button({
       type={type}
       className={`${variantClass[variant]} ${className}`}
       disabled={disabled || loading}
-      whileHover={{ y: -1 }}
-      whileTap={{ scale: 0.975, y: 0 }}
-      transition={motionTokens.spring}
+      whileTap={{ scale: 0.97 }}
       {...props}
     >
       {loading ? (
