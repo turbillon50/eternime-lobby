@@ -178,3 +178,13 @@ export const eonMemory = pgTable("eon_memory", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const identityAssets = pgTable("identity_assets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  pose: text("pose").notNull(),
+  blobUrl: text("blob_url").notNull(),
+  mime: text("mime"),
+  consentedAt: timestamp("consented_at", { withTimezone: true }).notNull().defaultNow(),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

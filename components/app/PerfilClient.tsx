@@ -6,6 +6,7 @@ import { useClerk } from "@clerk/nextjs";
 import { FadeInOnScroll } from "@/components/motion";
 import { useT } from "@/components/i18n";
 import { VoiceClone } from "@/components/app/VoiceClone";
+import { IdentityCapture } from "@/components/app/IdentityCapture";
 import { uploadFile } from "@/lib/upload-client";
 import {
   Badge, Button, Card, CardDescription, CardTitle, Input, Modal, SkeletonCard, Textarea,
@@ -240,6 +241,7 @@ export function PerfilClient() {
       </FadeInOnScroll>
 
       <VoiceClone />
+      <IdentityCapture />
 
       <FadeInOnScroll delay={0.16}>
         <Card>
