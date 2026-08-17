@@ -8,7 +8,6 @@ const manrope = Manrope({ subsets: ["latin"], variable: "--font-eternime", displ
 import { isClerkConfigured } from "@/lib/clerk";
 import { PwaRegister } from "@/components/pwa-register";
 import { Splash } from "@/components/splash";
-import { AuroraBackground } from "@/components/aurora-background";
 import { I18nProvider } from "@/components/i18n";
 
 export const metadata: Metadata = {
@@ -38,7 +37,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f8f9ff",
+  themeColor: "#050506",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -54,10 +53,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const lang = "es";
 
   const tree = (
-    <html lang={lang} data-theme="light" className={manrope.variable} suppressHydrationWarning>
+    <html lang={lang} data-theme="dark" className={manrope.variable} suppressHydrationWarning>
       <body>
         <I18nProvider lang={lang}>
-          <AuroraBackground />
           <Splash />
           <PwaRegister />
           {children}
