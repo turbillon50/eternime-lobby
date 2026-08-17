@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { motionTokens } from "@/lib/motion-tokens";
 import { FadeInOnScroll, HoverCard, NumberCounter, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Badge } from "@/components/ui";
 
@@ -70,7 +69,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         <motion.span
           aria-hidden="true"
           animate={{ rotate: abierto ? 45 : 0 }}
-          transition={{ duration: motionTokens.standard, ease: motionTokens.ease }}
+          transition={{ duration: 0.25 }}
           className="text-xl leading-none text-[var(--et-gold-bright)]"
         >
           +
@@ -82,7 +81,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: motionTokens.standard, ease: motionTokens.ease }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="px-5 pb-5 text-sm leading-relaxed text-[var(--et-text-muted)]">{a}</p>
           </motion.div>

@@ -2,7 +2,6 @@
 
 import { motion, type Variants } from "framer-motion";
 import type { PropsWithChildren } from "react";
-import { motionTokens } from "@/lib/motion-tokens";
 
 type FadeInOnScrollProps = PropsWithChildren<{
   /** Retraso en segundos antes de iniciar la animación. */
@@ -19,8 +18,8 @@ type FadeInOnScrollProps = PropsWithChildren<{
 export function FadeInOnScroll({
   children,
   delay = 0,
-  duration = motionTokens.entrance,
-  y = 18,
+  duration = 0.7,
+  y = 24,
   once = true,
   className,
 }: FadeInOnScrollProps) {
@@ -29,7 +28,7 @@ export function FadeInOnScroll({
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration, delay, ease: motionTokens.ease },
+      transition: { duration, delay, ease: [0.22, 1, 0.36, 1] },
     },
   };
 

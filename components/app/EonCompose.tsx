@@ -46,7 +46,6 @@ export function EonCompose({ firstName = "" }: { firstName?: string }) {
   }
 
   const hasChat = loaded && messages.length > 0;
-  if (!loaded) return <div className="eon-chat eon-chat-boot" aria-busy="true"><section className="eon-welcome"><div className="eon-presence eon-presence-skeleton" aria-hidden><span/><span/><span/></div><div className="craft-skeleton craft-skeleton-kicker"/><div className="craft-skeleton craft-skeleton-title"/><div className="craft-skeleton craft-skeleton-sub"/></section><div className="eon-compose-card craft-compose-skeleton"><div className="craft-skeleton craft-skeleton-line"/><div className="flex justify-between"><i/><i/></div></div></div>;
   return <div className={`eon-chat ${hasChat ? "has-chat" : ""}`}>
     {!hasChat && <section className="eon-welcome">
       <div className="eon-presence" aria-hidden><span/><span/><span/></div>
