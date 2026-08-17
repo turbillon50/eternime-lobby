@@ -8,6 +8,7 @@ const manrope = Manrope({ subsets: ["latin"], variable: "--font-eternime", displ
 import { isClerkConfigured } from "@/lib/clerk";
 import { PwaRegister } from "@/components/pwa-register";
 import { Splash } from "@/components/splash";
+import { AuroraBackground } from "@/components/aurora-background";
 import { I18nProvider } from "@/components/i18n";
 
 export const metadata: Metadata = {
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang={lang} data-theme="dark" className={manrope.variable} suppressHydrationWarning>
       <body>
         <I18nProvider lang={lang}>
+          <AuroraBackground />
           <Splash />
           <PwaRegister />
           {children}

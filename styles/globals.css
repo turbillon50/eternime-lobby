@@ -992,7 +992,3 @@ img{image-rendering:auto}.eon-app svg,.eon-public-shell svg{shape-rendering:geom
 .craft-skeleton::after{content:"";position:absolute;inset:0;transform:translateX(-110%);background:linear-gradient(100deg,transparent,rgba(255,255,255,.075),transparent);animation:craftShimmer 1.5s var(--craft-ease) infinite}
 .craft-skeleton-kicker{width:112px;height:9px;margin:18px auto 0}.craft-skeleton-title{width:min(72vw,520px);height:clamp(38px,6vw,58px);margin:15px auto 0;border-radius:18px}.craft-skeleton-sub{width:min(64vw,430px);height:12px;margin:18px auto 0}.craft-compose-skeleton{width:min(100%,760px);margin-top:34px!important}.craft-skeleton-line{width:72%;height:14px;margin:3px 0 26px}.craft-compose-skeleton i{display:block;width:40px;height:40px;border-radius:14px;background:rgba(255,255,255,.05)}
 @keyframes craftShimmer{to{transform:translateX(110%)}}
-/* Performance budget: one animated atmospheric layer per scene, not stacked full-screen blurs. */
-.eon-app::after,.eon-public-shell::after{animation:none!important;transform:translateZ(0)}
-.eon-mesh,.eon-public-mesh{will-change:transform;contain:paint}
-.eon-topbar,.eon-tabbar,.eon-drawer{transform:translateZ(0)}
