@@ -68,6 +68,6 @@ export function EonCompose({ firstName = "" }: { firstName?: string }) {
       </div>
     </form>
 
-    {!hasChat && <div className="eon-suggestions"><button onClick={()=>setText("¿Qué tengo pendiente?")}>¿Qué tengo pendiente?</button><button onClick={()=>setText("Busca en mi memoria algo importante que haya olvidado")}>Busca en mi memoria</button><button onClick={()=>setText("Ayúdame a ordenar lo que estoy pensando")}>Ayúdame a pensar</button><button onClick={()=>setText("¿Qué personas de mi red podrían ayudarme hoy?")}>¿A quién conozco?</button></div>}
+    {!hasChat && <div className="eon-suggestions"><button onClick={()=>setText("¿Qué tengo pendiente?")}>¿Qué tengo pendiente?</button><button onClick={()=>setText("Crea un proyecto llamado ")}>Crear proyecto</button><button onClick={()=>setText("Recuérdame ")}>Crear pendiente</button><button onClick={()=>setText("Busca en mi memoria algo importante que haya olvidado")}>Busca en mi memoria</button><button onClick={()=>setText("¿Qué personas de mi red podrían ayudarme hoy?")}>¿A quién conozco?</button></div>}
   </div>;
 }
