@@ -6,6 +6,35 @@ import { answerAsEon, refreshPersonalitySummary } from "@/lib/ai/eon";
 import { storeMemoryEmbedding } from "@/lib/ai/rag";
 import { listTenantEonMessages, appendTenantEonExchange, storeEonLearnedContext, TenantNotReadyError } from "@/lib/data/eon-tenant";
 import { ensureTenantForUser } from "@/lib/tenant/ensure";
+import { createProject, createTask, listProjects, listTasks } from "@/lib/data/operations";
+
+
+async function executeDirectAction(userId: string, content: string): Promise<string | null> {
+  const t = content.trim();
+  const project = t.match(/^(?:eon[,,: ]*)?(?:crea|crear|inicia|iniciar) (?:un )?proyecto(?: llamado| de)?[ :]+(.+)$/i);
+  if (project?.[1]) {
+    const name = project[1].replace(/[.!]+$/, "").trim();
+    const made = await createProject(userId, name);
+    return made ? `Listo. Creé el proyecto “${made.name}”.` : null;
+  }
+  const task = t.match(/^(?:eon[,,: ]*)?(?:recuérdame|recuerdame|crea (?:un )?pendiente(?: para)?|anota (?:como )?pendiente)[ :]+(.+)$/i);
+  if (task?.[1]) {
+    const title = task[1].replace(/[.!]+$/, "").trim();
+    const made = await createTask(userId, { title });
+    return made ? `Hecho. Guardé “${made.title}” en tus pendientes.` : null;
+  }
+  if (/^(?:eon[,,: ]*)?¿?qué tengo pendiente|^(?:eon[,,: ]*)?mis pendientes/i.test(t)) {
+    const tasks = (await listTasks(userId)).filter(x => x.status === "open").slice(0, 6);
+    if (!tasks.length) return "No tienes pendientes abiertos.";
+    return `Tienes ${tasks.length}${tasks.length === 6 ? " o más" : ""}: ${tasks.map((x,i)=>`${i+1}. ${x.title}`).join(" · ")}`;
+  }
+  if (/^(?:eon[,,: ]*)?¿?(?:cuáles|cuales|mis) proyectos|^(?:eon[,,: ]*)?¿?qué proyectos/i.test(t)) {
+    const projects = (await listProjects(userId)).filter(x => x.status === "active").slice(0, 6);
+    if (!projects.length) return "Todavía no tienes proyectos activos. Puedo crear uno desde aquí.";
+    return `Tus proyectos activos: ${projects.map(x=>x.name).join(" · ")}.`;
+  }
+  return null;
+}
 
 const MIN_CAPTURABLE_LENGTH = 40;
 const PERSONALITY_REFRESH_EVERY = 5;
@@ -80,10 +109,10 @@ export async function POST(request: Request) {
     catch { history = await listGuideMessages(session.sub); }
     const userMessage = { id:`local-${Date.now()}`, user_id:session.sub, role:"user" as const, content, created_at:new Date().toISOString() };
 
-    let reply: string | null = null;
+    let reply: string | null = await executeDirectAction(session.sub, content).catch(()=>null);
     let cited: Array<{ id: string; title: string }> = [];
     try {
-      const eon = await answerAsEon({ userId: session.sub, message: content, history });
+      const eon = reply ? null : await answerAsEon({ userId: session.sub, message: content, history });
       if (eon) {
         reply = eon.reply;
         cited = eon.cited.map((m) => ({ id: m.id, title: m.title }));
