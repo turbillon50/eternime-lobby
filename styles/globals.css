@@ -864,3 +864,113 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 .voice-turns{width:min(100%,680px);margin:18px auto 0;display:grid;gap:8px;text-align:left}.voice-turns p{padding:10px 13px;border-radius:16px;background:rgba(255,255,255,.45);font-size:11px;line-height:1.45;color:#7b839a;backdrop-filter:blur(14px)}.voice-turns p.assistant{background:rgba(239,238,255,.65)}.voice-turns b{display:block;margin-bottom:3px;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:#9aa0b2}
 .readiness-card{padding:24px;border-radius:28px;border:1px solid rgba(255,255,255,.9);background:linear-gradient(145deg,rgba(255,255,255,.68),rgba(241,240,255,.58));box-shadow:0 18px 55px rgba(73,76,135,.08);backdrop-filter:blur(22px)}.readiness-score{display:flex;align-items:center;gap:18px}.readiness-ring{display:grid;flex:0 0 86px;width:86px;height:86px;place-items:center;border-radius:50%;position:relative}.readiness-ring:after{content:"";position:absolute;inset:7px;border-radius:50%;background:#f8f8ff}.readiness-ring span{position:relative;z-index:1;font-size:18px;font-weight:700;color:#5148c8}.readiness-score h3{margin-top:4px;font-size:20px;color:#35405d}.readiness-score p:last-child{margin-top:4px;font-size:11px;line-height:1.5;color:#8a91a7}.readiness-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}.readiness-grid a{display:flex;align-items:center;gap:9px;padding:11px;border-radius:16px;background:rgba(255,255,255,.5);color:#7d849a}.readiness-grid a.done{background:rgba(238,247,242,.75);color:#567765}.readiness-grid a>span{font-size:13px}.readiness-grid a div{min-width:0;flex:1}.readiness-grid b,.readiness-grid small{display:block}.readiness-grid b{font-size:11px}.readiness-grid small{margin-top:2px;font-size:8px;opacity:.75}.readiness-grid i{font-style:normal;font-size:11px}@media(max-width:600px){.readiness-score{align-items:flex-start}.readiness-ring{flex-basis:70px;width:70px;height:70px}.readiness-grid{grid-template-columns:1fr 1fr}}
 .identity-video-note{padding:12px 14px;border-radius:16px;background:rgba(239,239,255,.55);font-size:10px;line-height:1.55;color:#858ca2}
+
+/* Craft recovery — scoped polish only. No palette/layout overrides. */
+.eon-app .et-card,
+.eon-app .eon-menu-item,
+.eon-app .eon-recent-item,
+.eon-app .eon-compose-card,
+.eon-app .network-panel,
+.eon-app .network-search,
+.eon-app .network-node,
+.eon-app .mcp-card,
+.eon-app .calendar-shell,
+.eon-public-shell .et-card {
+  transition: transform 180ms cubic-bezier(.22,1,.36,1), box-shadow 220ms cubic-bezier(.22,1,.36,1), border-color 180ms ease, background-color 180ms ease;
+}
+
+.eon-app .et-btn,
+.eon-app .compose-action,
+.eon-app .eon-send-btn,
+.eon-app .eon-pill,
+.eon-app .crystal-icon,
+.eon-app .crystal-avatar,
+.eon-app .eon-tabbar > a,
+.eon-app button,
+.eon-public-shell .et-btn,
+.eon-public-shell button,
+.eon-public-shell a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.eon-app .et-btn:focus-visible,
+.eon-app .et-input:focus-visible,
+.eon-app .compose-action:focus-visible,
+.eon-app .eon-send-btn:focus-visible,
+.eon-app .crystal-icon:focus-visible,
+.eon-app .crystal-avatar:focus-visible,
+.eon-app .eon-tabbar > a:focus-visible,
+.eon-public-shell a:focus-visible,
+.eon-public-shell button:focus-visible,
+.eon-public-shell input:focus-visible,
+.eon-public-shell textarea:focus-visible {
+  outline: 2px solid rgba(103,94,235,.52);
+  outline-offset: 3px;
+}
+
+.eon-app .et-btn:active,
+.eon-app .compose-action:active,
+.eon-app .eon-send-btn:active,
+.eon-app .crystal-icon:active,
+.eon-app .crystal-avatar:active,
+.eon-app .eon-tabbar > a:active,
+.eon-public-shell button:active,
+.eon-public-shell a:active {
+  transform: scale(.975);
+}
+
+@media (hover:hover) and (pointer:fine) {
+  .eon-app .et-card:hover,
+  .eon-app .eon-recent-item:hover,
+  .eon-app .network-panel:hover,
+  .eon-app .mcp-card:hover {
+    transform: translateY(-2px);
+  }
+  .eon-app .eon-menu-item:hover,
+  .eon-app .eon-tabbar > a:hover,
+  .eon-app .compose-action:hover,
+  .eon-app .crystal-icon:hover,
+  .eon-public-shell .et-btn:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.eon-app .et-input,
+.eon-public-shell input,
+.eon-public-shell textarea {
+  transition: border-color 160ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.eon-app .et-input:focus,
+.eon-app .eon-compose-card:focus-within {
+  box-shadow: 0 0 0 3px rgba(103,94,235,.08);
+}
+
+.eon-app img,
+.eon-public-shell img {
+  image-rendering: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eon-app .et-card,
+  .eon-app .eon-menu-item,
+  .eon-app .eon-recent-item,
+  .eon-app .eon-compose-card,
+  .eon-app .network-panel,
+  .eon-app .network-search,
+  .eon-app .network-node,
+  .eon-app .mcp-card,
+  .eon-app .et-btn,
+  .eon-app .compose-action,
+  .eon-app .eon-send-btn,
+  .eon-app .crystal-icon,
+  .eon-app .crystal-avatar,
+  .eon-app .eon-tabbar > a,
+  .eon-public-shell .et-card,
+  .eon-public-shell .et-btn,
+  .eon-public-shell a,
+  .eon-public-shell button {
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+}
