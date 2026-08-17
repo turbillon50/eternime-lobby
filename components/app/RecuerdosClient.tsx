@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { motionTokens } from "@/lib/motion-tokens";
 import { StaggerContainer, StaggerItem } from "@/components/motion";
 import {
   Badge, Button, Card, CardDescription, CardTitle, EmptyState, Input, Modal, SkeletonCard, Textarea,
@@ -67,13 +68,13 @@ function NarrateButton({ memory }: { memory: Memory }) {
 export function RecuerdosClient() {
   const t = useT();
   const searchParams = useSearchParams();
-  const [socialMsg, setSocialMsg] = useState("");
-  useEffect(() => {
-    const connected = searchParams.get("social_connected");
-    const err = searchParams.get("social_error");
-    if (connected && SOCIAL_FEEDBACK[connected]) setSocialMsg(SOCIAL_FEEDBACK[connected]);
-    else if (err) setSocialMsg(SOCIAL_ERROR_FEEDBACK[err] ?? "Algo no salio bien con la conexion.");
-  }, [searchParams]);
+  const connected = searchParams.get("social_connected");
+  const socialError = searchParams.get("social_error");
+  const socialMsg = connected && SOCIAL_FEEDBACK[connected]
+    ? SOCIAL_FEEDBACK[connected]
+    : socialError
+      ? (SOCIAL_ERROR_FEEDBACK[socialError] ?? "Algo no salio bien con la conexion.")
+      : "";
 
   const [memories, setMemories] = useState<Memory[] | null>(null);
   const [tab, setTab] = useState<Tab>("todos");
@@ -87,14 +88,14 @@ export function RecuerdosClient() {
   const [deleting, setDeleting] = useState(false);
   const photoInput = useRef<HTMLInputElement>(null);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch("/api/memories");
-      const data = await res.json();
-      setMemories(Array.isArray(data.memories) ? data.memories : []);
-    } catch { setMemories([]); }
+  useEffect(() => {
+    let alive = true;
+    void fetch("/api/memories")
+      .then((res) => res.json())
+      .then((data) => { if (alive) setMemories(Array.isArray(data.memories) ? data.memories : []); })
+      .catch(() => { if (alive) setMemories([]); });
+    return () => { alive = false; };
   }, []);
-  useEffect(() => { load(); }, [load]);
 
   const filtered = useMemo(() => {
     if (!memories) return [];
@@ -172,7 +173,7 @@ export function RecuerdosClient() {
             <button key={t.value} type="button" onClick={() => setTab(t.value)}
               className="relative rounded-full px-3.5 py-1.5 text-xs uppercase tracking-[0.12em] transition-colors"
               style={{ color: tab === t.value ? "var(--et-bg)" : "var(--et-text-muted)" }}>
-              {tab === t.value ? (<motion.span layoutId="recuerdos-tab" className="absolute inset-0 rounded-full bg-[var(--et-gold)]" transition={{ type: "spring", stiffness: 380, damping: 32 }} />) : null}
+              {tab === t.value ? (<motion.span layoutId="recuerdos-tab" className="absolute inset-0 rounded-full bg-[var(--et-gold)]" transition={motionTokens.spring} />) : null}
               <span className="relative z-10">{t.label}</span>
             </button>
           ))}

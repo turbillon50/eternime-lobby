@@ -2,6 +2,7 @@
 
 /** Gráfica de barras de registros por día (14 días) — CSS + Framer, sin librerías. */
 import { motion } from "framer-motion";
+import { motionTokens } from "@/lib/motion-tokens";
 import type { SignupPoint } from "@/lib/data/admin";
 
 export function SignupsChart({ data }: { data: SignupPoint[] }) {
@@ -25,7 +26,7 @@ export function SignupsChart({ data }: { data: SignupPoint[] }) {
                 initial={{ height: 0 }}
                 whileInView={{ height: `${Math.max(pct, 2)}%` }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: motionTokens.entrance, delay: i * 0.035, ease: motionTokens.ease }}
               />
               <div className="pointer-events-none absolute -top-7 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md border border-[var(--et-border)] bg-[var(--et-bg)] px-2 py-0.5 text-[0.65rem] text-[var(--et-gold-bright)] opacity-0 transition group-hover:opacity-100">
                 {d.count} · {d.day.slice(5)}

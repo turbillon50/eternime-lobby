@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { motionTokens } from "@/lib/motion-tokens";
 import { useLang } from "@/components/i18n";
 
 type Item = { key: string; icon: React.ReactNode; es: { t: string; d: string }; en: { t: string; d: string } };
@@ -37,7 +38,7 @@ export function ExploraClient() {
     <div className="relative">
       {/* Hero */}
       <section className="px-5 pt-10 text-center sm:px-8 sm:pt-16">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: motionTokens.cinematic, ease: motionTokens.ease }}
           className="et-glow-ring mx-auto flex h-16 w-16 items-center justify-center rounded-full"
           style={{ boxShadow: "0 0 40px rgba(255,255,255,0.3)" }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.3"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
@@ -66,7 +67,7 @@ export function ExploraClient() {
             return (
               <motion.article key={it.key}
                 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: motionTokens.entrance, delay: i * 0.04, ease: motionTokens.ease }}
                 className="et-card relative flex min-w-[78%] flex-col gap-4 p-6 sm:min-w-[320px]"
                 style={{ scrollSnapAlign: "center" }}>
                 <span className="absolute right-5 top-5 h-16 w-16 rounded-full" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%)", filter: "blur(6px)" }} />
