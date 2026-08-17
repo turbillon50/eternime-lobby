@@ -13,6 +13,9 @@ Podemos tratar datos de cuenta e identidad; recuerdos, notas, conversaciones y d
 Conexiones con inteligencias artificiales externas y MCP
 Si el usuario activa Eon Trust/MCP, Eternime puede poner a disposición de una inteligencia artificial externa únicamente las categorías de información que el usuario autorice mediante permisos específicos. Cada conexión utiliza una credencial independiente y revocable. La Bóveda y secretos no forman parte de estos permisos por defecto. El proveedor de la IA externa puede aplicar sus propios términos y avisos de privacidad al contenido que reciba; antes de conectar una IA, el usuario debe revisar esos términos. Eternime registra accesos técnicos para seguridad y control del usuario.
 
+Datos biométricos y presencia digital
+Si activas voluntariamente Identidad de Voz o Identidad Visual, Eternime puede tratar muestras de tu voz, fotografías de tu rostro y metadatos técnicos asociados. Estas funciones requieren una acción y consentimiento específicos del titular. Las capturas visuales se conservan en el espacio privado asignado a la cuenta y no autorizan por sí mismas la generación, publicación o uso de un avatar. La clonación de voz utiliza un proveedor especializado y puede revocarse desde la cuenta. Cuando solicites la eliminación, Eternime eliminará o desactivará los registros bajo su control y solicitará la eliminación al proveedor cuando la integración lo permita.
+
 Mi Red y datos de terceros
 Mi Red permite al usuario registrar o importar contactos seleccionados y construir relaciones entre personas, empresas, proyectos y capacidades. Los contactos importados se configuran como privados por defecto. Eternime registra la fuente del dato y procura distinguir entre información declarada, observada e inferida. El usuario debe contar con una base legítima para incorporar datos de terceros y evitar cargar información innecesaria o especialmente sensible sin autorización.
 
