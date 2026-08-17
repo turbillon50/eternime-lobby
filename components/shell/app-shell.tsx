@@ -37,18 +37,18 @@ function Menu({ user, close, nav, brand }: { user: ShellUser | null; close: () =
   const { signOut } = useClerk();
   return <div className="flex h-full flex-col p-5 sm:p-6">
     <div className="mb-7 flex items-center justify-between">
-      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} onClick={close} className="flex items-center gap-3 font-semibold tracking-[-.02em] text-slate-900"><span className="eon-mini-orb" /> {brand}</Link>
+      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} onClick={close} className="flex items-center gap-3 font-semibold tracking-[-.02em] text-[var(--craft-text)]"><span className="eon-mini-orb" /> {brand}</Link>
       <button onClick={close} className="crystal-icon" aria-label="Cerrar menú">×</button>
     </div>
     <nav className="space-y-1">
       {nav.map((item) => { const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href); return <Link key={item.href} href={item.href} onClick={close} className={`eon-menu-item ${active ? "is-active" : ""}`}>{item.icon}<span>{item.label}</span></Link>; })}
     </nav>
     <div className="my-5 h-px bg-slate-900/8" />
-    <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.18em] text-slate-400">Tu universo</p>
+    <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.18em] text-[var(--craft-text-3)]">Tu universo</p>
     <div className="space-y-1">{FUTURE.map(x => <div key={x} className="eon-menu-item opacity-60"><span className="h-5 w-5 rounded-md border border-current/30"/><span>{x}</span><span className="ml-auto text-[9px] uppercase tracking-wider">pronto</span></div>)}</div>
     <div className="mt-auto pt-6">
-      <Link href="/app/perfil" onClick={close} className="mb-2 flex items-center gap-3 rounded-2xl p-3 hover:bg-white/50"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">{user?.name?.[0] || "·"}</span><span className="min-w-0"><b className="block truncate text-sm text-slate-800">{user?.name || "Tu perfil"}</b><span className="block truncate text-xs text-slate-500">{user?.email || "Eternime"}</span></span></Link>
-      <button onClick={() => signOut({ redirectUrl: "/" })} className="w-full rounded-xl px-3 py-2 text-left text-xs text-slate-500 hover:bg-white/50">Cerrar sesión</button>
+      <Link href="/app/perfil" onClick={close} className="mb-2 flex items-center gap-3 rounded-2xl p-3 hover:bg-white/[.05]"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[.06] shadow-sm ring-1 ring-white/[.08]">{user?.name?.[0] || "·"}</span><span className="min-w-0"><b className="block truncate text-sm text-[var(--craft-text)]">{user?.name || "Tu perfil"}</b><span className="block truncate text-xs text-[var(--craft-text-3)]">{user?.email || "Eternime"}</span></span></Link>
+      <button onClick={() => signOut({ redirectUrl: "/" })} className="w-full rounded-xl px-3 py-2 text-left text-xs text-[var(--craft-text-3)] hover:bg-white/[.05]">Cerrar sesión</button>
     </div>
   </div>;
 }
@@ -63,7 +63,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "Eternime" }: PropsW
     <div className="eon-mesh" aria-hidden />
     <header className="eon-topbar">
       <button className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
-      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-.02em] text-slate-800"><span className="eon-mini-orb"/>{brand}</Link>
+      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-.02em] text-[var(--craft-text)]"><span className="eon-mini-orb"/>{brand}</Link>
       <Link href="/app/perfil" className="crystal-avatar" aria-label="Perfil">{user?.name?.[0] || "·"}</Link>
     </header>
 

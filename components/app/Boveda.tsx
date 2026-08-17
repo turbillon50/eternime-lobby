@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useT } from "@/components/i18n";
 import { Button, Card, CardDescription, CardTitle, EmptyState } from "@/components/ui";
 import { uploadFile } from "@/lib/upload-client";
@@ -39,15 +39,15 @@ export function Boveda() {
   const [error, setError] = useState("");
   const filesInput = useRef<HTMLInputElement>(null);
 
-  const load = useCallback(async () => {
-    try {
-      const r = await fetch("/api/files");
-      const d = await r.json();
-      setFiles(Array.isArray(d.files) ? d.files : []);
-    } catch { /* ignore */ }
-    finally { setLoaded(true); }
+  useEffect(() => {
+    let alive = true;
+    void fetch("/api/files")
+      .then((r) => r.json())
+      .then((d) => { if (alive) setFiles(Array.isArray(d.files) ? d.files : []); })
+      .catch(() => {})
+      .finally(() => { if (alive) setLoaded(true); });
+    return () => { alive = false; };
   }, []);
-  useEffect(() => { load(); }, [load]);
 
   const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const list = Array.from(e.target.files ?? []); if (!list.length) return;
@@ -107,7 +107,7 @@ export function Boveda() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={f.url} alt={f.name ?? ""} className="h-full w-full object-cover transition group-hover:scale-105" />
                     <button type="button" onClick={() => removeFile(f.id)} aria-label="Quitar archivo"
-                      className="absolute right-1.5 top-1.5 rounded-full bg-white/80 backdrop-blur-md p-1 text-[var(--et-danger)] opacity-0 transition group-hover:opacity-100">
+                      className="absolute right-1.5 top-1.5 rounded-full bg-black/70 backdrop-blur-md ring-1 ring-white/10 p-1 text-[var(--et-danger)] opacity-0 transition group-hover:opacity-100">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
                     </button>
                   </div>

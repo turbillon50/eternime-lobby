@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { PropsWithChildren } from "react";
+import { motionTokens } from "@/lib/motion-tokens";
 
 type HoverCardProps = PropsWithChildren<{
   /** Escala al hacer hover. */
@@ -13,14 +14,14 @@ type HoverCardProps = PropsWithChildren<{
 }>;
 
 /** Wrapper con micro-interacción premium: lift + glow sutil al hover, press al tap. */
-export function HoverCard({ children, scale = 1.015, lift = 4, className, onClick }: HoverCardProps) {
+export function HoverCard({ children, scale = 1.008, lift = 3, className, onClick }: HoverCardProps) {
   return (
     <motion.div
       className={className}
       onClick={onClick}
       whileHover={{ scale, y: -lift }}
       whileTap={{ scale: 0.985 }}
-      transition={{ type: "spring", stiffness: 320, damping: 24 }}
+      transition={motionTokens.spring}
     >
       {children}
     </motion.div>

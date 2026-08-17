@@ -1,5 +1,5 @@
-/* Eternime Service Worker v4 — network-first páginas+assets, SWR para bundles hash, purga de cachés viejos, auto-update de clientes. */
-const VERSION = "eternime-v4";
+/* Eternime Service Worker v5 — network-first páginas+assets, SWR para bundles hash, purga de cachés viejos, auto-update de clientes. */
+const VERSION = "eternime-v5";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGES_CACHE = `${VERSION}-pages`;
 const OFFLINE_URL = "/offline.html";
