@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button, Skeleton } from "@/components/ui";
+import { CrystalSurface, LivingMesh, LightSweep, PresenceHalo, SpatialFrame } from "@/components/visual/VisualArtifacts";
 import type { GuideMessage } from "@/lib/data/types";
 
 const EON_WELCOME = `Hola. Soy Eon.
@@ -236,8 +237,24 @@ export function GuiaClient() {
     messages !== null && messages.length === 0 ? [welcomeMessage] : messages ?? [];
 
   return (
-    <div className="flex h-[calc(100dvh-220px)] min-h-[420px] flex-col">
-      <div className="flex-1 overflow-y-auto pb-4">
+    <div className="guia-scene">
+      <aside className="guia-context-rail" aria-label="Contexto de Eon">
+        <CrystalSurface className="guia-context-card">
+          <LivingMesh />
+          <PresenceHalo />
+          <div className="guia-context-orb"><span className="eon-mini-orb" /></div>
+          <p className="eon-page-kicker">Eon · Mi historia</p>
+          <h2>Una conversación que se vuelve memoria.</h2>
+          <p>Eon conecta lo que cuentas con personas, proyectos, decisiones y recuerdos. No necesitas ordenar nada antes de hablar.</p>
+          <div className="guia-context-stats"><span><b>{visibleMessages.length}</b> mensajes visibles</span><span><b>{voiceAvailable ? "Activa" : "Texto"}</b> voz de Eon</span></div>
+          <LightSweep />
+        </CrystalSurface>
+      </aside>
+      <SpatialFrame className="guia-conversation-shell">
+        <LivingMesh className="guia-conversation-mesh" />
+        <div className="guia-conversation-head"><div><p className="eon-page-kicker">Conversación</p><h1>Mi historia con Eon</h1></div><span className="guia-live-status"><i/> memoria activa</span></div>
+        <div className="guia-conversation-body">
+      <div className="flex-1 overflow-y-auto pb-4 guia-scroll">
         {messages === null ? (
           <div className="grid gap-3">
             <Skeleton width="60%" height="3.2rem" className="rounded-2xl" />
@@ -260,7 +277,9 @@ export function GuiaClient() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="mt-3 flex items-end gap-2 border-t border-[var(--et-border-soft)] pt-4">
+      <CrystalSurface className="guia-compose">
+        <LightSweep />
+        <div className="flex items-end gap-2">
         <textarea
           className="et-input flex-1 py-3"
           style={{ minHeight: "unset", height: "auto", resize: "none" }}
@@ -279,7 +298,10 @@ export function GuiaClient() {
         <Button onClick={send} loading={sending} disabled={!input.trim()}>
           Enviar
         </Button>
-      </div>
+        </div>
+      </CrystalSurface>
+        </div>
+      </SpatialFrame>
     </div>
   );
 }
