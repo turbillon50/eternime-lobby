@@ -663,7 +663,7 @@ a { color: inherit; text-decoration: none; }
 }
 /* Cuando el compose fijo está presente, el contenido nunca queda debajo */
 .eon-main[data-compose="true"] {
-  padding-bottom: calc(var(--eon-tabbar-h) + var(--eon-safe-b) + var(--eon-compose-h, 96px) + 20px);
+  padding-bottom: calc(var(--eon-tabbar-h) + var(--eon-safe-b) + var(--eon-compose-h, 168px) + 20px);
 }
 
 /* ═══ EON — PRESENCIA ══════════════════════════════════════════════════ */

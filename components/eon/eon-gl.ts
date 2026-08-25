@@ -40,23 +40,22 @@ varying vec2 vUv;
 
 uniform vec2  uRes;
 uniform float uTime;
-uniform float uSpeed;     // ritmo del flujo interno
-uniform float uExpand;    // expansión / contracción del cuerpo
-uniform float uAmber;     // pulsos ámbar (memoria, compromiso, atención)
-uniform float uFocus;     // concentración violeta (pensamiento)
-uniform float uBright;    // energía global
-uniform float uFlash;     // apertura luminosa breve (éxito)
-uniform vec2  uPointer;   // reacción sutil al cursor / touch
-uniform float uAudio;     // nivel de audio real (escucha)
-uniform vec2  uDir;       // dirección de los filamentos (acción)
-uniform float uShells;    // calidad: número de capas internas
+uniform float uSpeed;
+uniform float uExpand;
+uniform float uAmber;
+uniform float uFocus;
+uniform float uBright;
+uniform float uFlash;
+uniform vec2  uPointer;
+uniform float uAudio;
+uniform vec2  uDir;
+uniform float uShells;
 
 const vec3 VIOLET = vec3(0.545, 0.361, 1.0);
 const vec3 ULTRA  = vec3(0.427, 0.212, 1.0);
 const vec3 INDIGO = vec3(0.204, 0.125, 0.435);
 const vec3 AMBER  = vec3(1.0, 0.667, 0.271);
 const vec3 IVORY  = vec3(0.957, 0.937, 0.910);
-const vec3 CYAN   = vec3(0.475, 0.906, 1.0);
 
 float hash(vec3 p) {
   p = fract(p * 0.3183099 + vec3(0.71, 0.113, 0.419));
@@ -68,12 +67,16 @@ float vnoise(vec3 x) {
   vec3 i = floor(x);
   vec3 f = fract(x);
   f = f * f * (3.0 - 2.0 * f);
-  return mix(
-    mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
-        mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
-    mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
-        mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y),
-    f.z);
+  float n000 = hash(i);
+  float n100 = hash(i + vec3(1.0, 0.0, 0.0));
+  float n010 = hash(i + vec3(0.0, 1.0, 0.0));
+  float n110 = hash(i + vec3(1.0, 1.0, 0.0));
+  float n001 = hash(i + vec3(0.0, 0.0, 1.0));
+  float n101 = hash(i + vec3(1.0, 0.0, 1.0));
+  float n011 = hash(i + vec3(0.0, 1.0, 1.0));
+  float n111 = hash(i + vec3(1.0, 1.0, 1.0));
+  return mix(mix(mix(n000, n100, f.x), mix(n010, n110, f.x), f.y),
+             mix(mix(n001, n101, f.x), mix(n011, n111, f.x), f.y), f.z);
 }
 
 float fbm(vec3 p) {
@@ -81,144 +84,119 @@ float fbm(vec3 p) {
   float a = 0.5;
   for (int i = 0; i < 4; i++) {
     v += a * vnoise(p);
-    p *= 2.02;
+    p = p * 2.03 + vec3(11.7, 5.3, 7.1);
     a *= 0.5;
   }
   return v;
 }
 
-// Filamento: cresta fina y orgánica, no una mancha difusa
-float filament(vec3 p, float sharp) {
-  float n = fbm(p);
-  float ridge = 1.0 - abs(n * 2.0 - 1.0);
-  return pow(clamp(ridge, 0.0, 1.0), sharp);
+/* Hebra: convierte un campo de ruido en hilos finos de luz. */
+float hebra(float n, float k) {
+  return pow(clamp(1.0 - abs(2.0 * n - 1.0), 0.0, 1.0), k);
+}
+
+/* Una capa de filamentos con domain-warp organico, nunca repetitivo. */
+float capa(vec3 q, float t, float warpAmp) {
+  vec3 w = q + warpAmp * vec3(
+    fbm(q * 1.15 + vec3(0.0, 0.0, t * 0.05)),
+    fbm(q * 1.15 + vec3(9.2, 4.1, -t * 0.045)),
+    0.0);
+  float n = fbm(w * 2.1 + vec3(0.0, 0.0, t * 0.03));
+  return hebra(n, 16.0);
 }
 
 void main() {
-  vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / min(uRes.x, uRes.y);
-  float r = length(uv);
-
-  float R = 0.78 * uExpand;
+  vec2 frag = (vUv * 0.5 + 0.5) * uRes;
+  vec2 p = (frag * 2.0 - uRes) / min(uRes.x, uRes.y);
   float t = uTime * uSpeed;
+
+  float R = 0.74 * uExpand;
+  float r = length(p);
 
   vec3 col = vec3(0.0);
   float alpha = 0.0;
 
-  // ── Resplandor exterior: ceñido al canto, nunca una mancha difusa ────
-  float glow = exp(-max(r - R, 0.0) * 13.0);
-  vec3 glowCol = mix(ULTRA, VIOLET, 0.5 + 0.5 * sin(t * 0.6));
-  glowCol = mix(glowCol, AMBER, uAmber * 0.5);
-  col += glowCol * glow * 0.22 * uBright;
-  alpha += glow * 0.26;
+  /* Halo exterior minimo: una exhalacion, no un resplandor. */
+  float halo = exp(-max(r - R, 0.0) * 10.0) * step(R, r);
+  col += ULTRA * halo * 0.05;
+  alpha = max(alpha, halo * 0.16);
 
-  if (r < R) {
-    // Normal de la esfera (bordes perfectamente nítidos por el mask)
-    float z = sqrt(max(R * R - r * r, 0.0));
-    vec3 N = vec3(uv, z) / R;
-    vec3 V = vec3(0.0, 0.0, 1.0);
+  if (r < R + 0.02) {
+    vec2 pn = p / R;
+    float rr = clamp(dot(pn, pn), 0.0, 1.0);
+    vec3 N = vec3(pn, sqrt(1.0 - rr));
 
-    float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.6);
+    /* Los hilos viven DENTRO del cristal: se apagan hacia el limbo. */
+    float cuerpo = smoothstep(0.06, 0.45, N.z);
 
-    // Lensing: el interior se comprime hacia el canto como en vidrio real
-    float lens = 1.0 + fres * 0.55;
-    vec3 P = vec3(uv * lens, z);
+    /* Corrientes: la energia fluye en cauces curvos, no llena la esfera. */
+    float ang = 0.55 + t * 0.012;
+    float ca = cos(ang);
+    float sa = sin(ang);
+    vec2 st = mat2(ca, -sa, sa, ca) * pn;
+    st *= vec2(0.72, 1.18);
+    float dens = smoothstep(0.34, 0.80, fbm(vec3(pn * 0.85, t * 0.012 + 5.2)));
 
-    // Luz que responde al puntero (sutil, nunca protagonista)
-    vec3 L = normalize(vec3(uPointer.x * 0.55 - 0.30, uPointer.y * 0.40 + 0.44, 0.82));
+    float warpAmp = 0.55 + uAudio * 0.3;
+    vec2 drift = uDir * t * 0.02 + uPointer * 0.05;
 
-    // ── Capas internas: profundidad real, no un plano ─────────────────
-    vec3 inner = vec3(0.0);
-    float shells = uShells;
-    for (int i = 0; i < 6; i++) {
-      if (float(i) >= shells) break;
-      float fi = float(i) / max(shells - 1.0, 1.0);
+    float shells2 = step(1.5, uShells);
+    float shells3 = step(2.5, uShells);
 
-      // Cada capa vive a distinta profundidad dentro de la esfera
-      vec3 q = P * (1.25 + fi * 1.9);
-      q.z -= fi * 0.6;
+    vec3 q1 = vec3(st * 1.25 - N.xy * 0.30 + drift, 1.9 + t * 0.014);
+    vec3 q2 = vec3(st * 1.02 - N.xy * 0.16 + drift * 1.2, 0.8 - t * 0.011);
+    vec3 q3 = vec3(st * 0.86 - N.xy * 0.05 + drift * 1.5, -0.6 + t * 0.017);
 
-      // Domain warping -> movimiento fluido y NO repetitivo
-      vec3 flow = vec3(uDir * 0.5, 0.28);
-      vec3 w = q + flow * t * 0.55;
-      float warp = fbm(w * 0.9 + vec3(0.0, 0.0, t * 0.18));
-      vec3 qq = q + vec3(warp) * (1.5 + uFocus * 1.1) + flow * t * 0.3;
+    float f1 = capa(q1, t, warpAmp);
+    float f2 = capa(q2, t * 1.13, warpAmp) * shells2;
+    float f3 = capa(q3, t * 0.87, warpAmp) * shells3;
 
-      // Dos familias anisótropas que se cruzan -> malla de hilos, no nube.
-      // El estirado del dominio alarga las crestas hasta volverlas filamentos.
-      float sharp = 9.0 + uFocus * 5.0;
-      float f1 = filament(qq * vec3(1.0, 2.7, 1.0), sharp);
-      float f2 = filament(qq.zxy * vec3(2.7, 1.0, 1.0) + 5.73, sharp);
+    /* Profundidad por color: lejos ultravioleta tenue, cerca violeta claro. */
+    vec3 hilos = ULTRA * f1 * 0.38
+               + mix(ULTRA, VIOLET, 0.6) * f2 * 0.55
+               + VIOLET * f3 * 0.72;
 
-      // Caústicas internas: familia lenta y ancha que modula el brillo
-      float caus = filament(qq * 0.5 - vec3(0.0, 0.0, t * 0.22), 3.4);
-      // El umbral abre huecos negros reales entre hilo e hilo
-      float fil = max(max(f1, f2 * 0.85) - 0.055, 0.0) * (0.5 + caus * 0.85);
+    /* Aliento calido minimo: la memoria humana siempre esta presente. */
+    hilos += AMBER * f3 * 0.06;
 
-      // Absorción por profundidad: el fondo de la esfera se apaga (masa)
-      float depthW = mix(1.0, 0.18, fi * fi);
+    /* Pulsos ambar: escasos, lentos, humanos. */
+    float aMask = smoothstep(0.66, 0.92, fbm(vec3(pn * 1.05, t * 0.02 + 31.7)));
+    hilos = mix(hilos, AMBER * (f2 + f3) * 0.5, aMask * uAmber * 0.75);
 
-      // Color por profundidad: ultravioleta al fondo, violeta al frente
-      vec3 layerCol = mix(ULTRA, VIOLET, fi);
-      layerCol = mix(layerCol, INDIGO, 0.32 * (1.0 - fi));
+    /* Pensamiento: las hebras cercanas se avivan. */
+    hilos += VIOLET * f3 * uFocus * 0.35;
 
-      // Corriente ámbar: humanidad y memoria. Viaja por la segunda familia
-      // de hilos, así violeta y ámbar se entretejen en vez de mezclarse.
-      float amberFlow = smoothstep(0.28, 0.85, f2) * smoothstep(0.35, 0.9, caus);
-      layerCol = mix(layerCol, AMBER, clamp(amberFlow * (0.55 + uAmber * 1.6), 0.0, 0.92));
+    /* Nunca quemar, nunca plasma. */
+    hilos *= (0.14 + 0.86 * dens);
+    hilos = hilos / (1.0 + (hilos.r + hilos.g + hilos.b) * 0.6);
+    col += hilos * cuerpo * uBright;
 
-      inner += layerCol * fil * depthW;
-    }
-    inner *= 2.45 / max(shells * 0.5, 1.0);
+    /* Chispas marfil diminutas. */
+    float sp = hash(vec3(floor(pn * 52.0), floor(t * 0.5)));
+    float tw = smoothstep(0.9962, 1.0, sp) * (0.35 + 0.65 * abs(sin(t * 2.4 + sp * 40.0)));
+    col += IVORY * tw * 0.5 * cuerpo;
 
-    // El cristal absorbe hacia el canto: silueta oscura, interior vivo
-    inner *= mix(1.0, 0.28, smoothstep(0.45, 1.0, r / R));
+    /* Cuerpo de cristal: presencia oscura, no relleno. */
+    col += INDIGO * 0.045 * (1.0 - N.z) * uBright;
 
-    // Cuerpo de cristal oscuro: absorbe, no ilumina
-    inner += INDIGO * 0.035;
+    /* Rim: un solo canto fino, sin aros ni bandas. */
+    float fres = pow(1.0 - N.z, 4.0);
+    col += mix(ULTRA, VIOLET, 0.5) * fres * (0.34 + uFlash * 0.5);
 
-    // Núcleo: masa y conciencia — ceñido, no un globo de luz
-    float core = exp(-r * r * 15.0);
-    inner += mix(ULTRA, VIOLET, 0.5) * core * 0.14;
-    inner += IVORY * pow(core, 2.5) * (0.10 + uFlash * 0.85);
+    /* Canto especular superior, pequeno y nitido. */
+    vec3 L = normalize(vec3(-0.35, 0.72, 0.58));
+    float spec = pow(clamp(dot(N, L), 0.0, 1.0), 90.0);
+    col += IVORY * spec * 0.22;
 
-    // Sombreado direccional: volumen, no disco plano
-    float lam = clamp(dot(N, L), 0.0, 1.0);
-    inner *= 0.42 + 0.86 * lam;
+    /* Exito: apertura breve y serena. */
+    col += (VIOLET * 0.35 + IVORY * 0.12) * uFlash * cuerpo;
 
-    // Partículas volumétricas / destellos marfil — pocos y pequeños
-    float sp = vnoise(P * 30.0 + vec3(0.0, 0.0, t * 1.6));
-    float sparkle = smoothstep(0.955, 0.999, sp);
-    inner += IVORY * sparkle * 0.34 * (0.5 + uAudio);
-
-    // Señal técnica cian, excepcional y mínima
-    float pin = smoothstep(0.965, 1.0, vnoise(P * 13.0 - vec3(t * 0.5)));
-    inner += CYAN * pin * 0.22;
-
-    // ── Canto óptico: refracción y reflejo interno ────────────────────
-    vec3 rimCol = mix(VIOLET, IVORY, 0.42);
-    rimCol = mix(rimCol, AMBER, uAmber * 0.35);
-    inner += rimCol * fres * (0.5 + uFlash * 0.7);
-
-    // Reflejo especular pequeño y nítido: cristal, no plástico
-    vec3 H = normalize(L + V);
-    float spec = pow(clamp(dot(N, H), 0.0, 1.0), 190.0);
-    inner += IVORY * spec * 0.42;
-
-    // El cuerpo absorbe luz en el centro-bajo: cristal ÓSCURO
-    inner *= mix(0.72, 1.15, smoothstep(0.0, 1.0, 0.5 + 0.5 * N.y));
-
-    col += inner * uBright;
-
-    // Borde perfectamente nítido (antialias de 2 px)
     float px = 2.0 / min(uRes.x, uRes.y);
     float mask = 1.0 - smoothstep(R - px, R, r);
-    alpha = max(alpha, mask);
-    col *= mix(1.0, 1.0, mask);
+    alpha = max(alpha, mask * 0.94);
   }
 
-  // Vignette interna para que el negro OLED respire
-  col *= 1.0 - 0.18 * smoothstep(0.3, 1.2, r);
-
+  col *= 1.0 - 0.14 * smoothstep(0.35, 1.25, r);
   gl_FragColor = vec4(col, clamp(alpha, 0.0, 1.0));
 }
 `;
