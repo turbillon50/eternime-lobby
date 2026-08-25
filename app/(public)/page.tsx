@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EonOrb } from "@/components/eon/EonOrb";
 
 export const metadata: Metadata = {
   title: "Eternime — Tu segunda memoria",
@@ -9,9 +10,9 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return <div className="eon-public-home">
-    <section className="eon-public-hero va-crystal va-spatial">
+    <section className="eon-public-hero va-crystal">
       <div className="eon-public-mesh" aria-hidden />
-      <div className="eon-public-presence" aria-hidden><span/><span/><span/></div>
+      <EonOrb size={148} label="EON, la memoria viva de Eternime" className="mb-5" />
       <p className="eon-kicker">Eternime · Personal memory intelligence</p>
       <h1>Tu segunda memoria.</h1>
       <p className="lead">Habla con Eon. Guarda lo importante. Recupera ideas, personas, proyectos y decisiones cuando las necesites.</p>

@@ -250,12 +250,13 @@ export function AppShell({
       .catch(() => {});
   }, []);
 
-  // Cierra el drawer al navegar
-  useEffect(() => { setOpen(false); }, [pathname]);
-
-  // Preferencia de sidebar colapsada
+  // Preferencia de sidebar colapsada (se lee tras pintar, no en el cuerpo
+  // del efecto, para no encadenar renders ni romper la hidratación).
   useEffect(() => {
-    try { setCollapsed(localStorage.getItem("eon:sidebar") === "collapsed"); } catch {}
+    const id = requestAnimationFrame(() => {
+      try { setCollapsed(localStorage.getItem("eon:sidebar") === "collapsed"); } catch {}
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
   const toggleCollapsed = () => {
     setCollapsed((v) => {

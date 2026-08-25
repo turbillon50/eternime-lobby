@@ -8,17 +8,17 @@ export const dynamic = "force-dynamic";
 
 export default function SignUpPage() {
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-[#08080c] px-6 py-16">
+    <main className="flex min-h-dvh items-center justify-center bg-black px-6 py-16">
       {isClerkConfigured() ? (
         <SignUp appearance={eternimeClerkAppearance} forceRedirectUrl="/app/perfil?welcome=1" signInUrl="/sign-in" />
       ) : (
         <div className="max-w-sm text-center">
-          <p className="font-serif text-2xl text-[#e8d9a8]">Crear mi Eternime</p>
-          <p className="mt-4 text-sm leading-relaxed text-[#d8d2c4]/80">
+          <p className="font-serif text-2xl text-[var(--eon-ivory)]">Crear mi Eternime</p>
+          <p className="mt-4 text-sm leading-relaxed text-[var(--eon-muted)]">
             El registro se activa en producción con Clerk. Esta es la vista de
             demostración.
           </p>
-          <Link href="/" className="mt-8 inline-block text-sm text-[#e8d9a8] underline-offset-4 hover:underline">
+          <Link href="/" className="mt-8 inline-block text-sm text-[var(--eon-ivory)] underline-offset-4 hover:underline">
             Volver al inicio
           </Link>
         </div>

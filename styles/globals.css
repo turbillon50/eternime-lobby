@@ -74,9 +74,12 @@
   --et-bg: var(--eon-black);
   --et-bg-elevated: var(--eon-surface-raised);
   --et-bg-overlay: rgba(5, 5, 8, 0.82);
-  --et-gold: var(--eon-amber);
-  --et-gold-bright: #ffc37a;
-  --et-gold-dim: rgba(255, 170, 69, 0.55);
+  /* El acento general de la app es VIOLETA (inteligencia, actividad,
+     contexto). El ámbar queda reservado para humanidad/memoria/compromiso,
+     que es donde de verdad comunica. */
+  --et-gold: var(--eon-violet);
+  --et-gold-bright: #a98aff;
+  --et-gold-dim: rgba(139, 92, 255, 0.62);
   --et-border: var(--eon-edge);
   --et-border-soft: rgba(255, 255, 255, 0.06);
   --et-text: var(--eon-ivory);
@@ -86,6 +89,8 @@
   --et-glow-strong: 0 0 42px rgba(139, 92, 255, 0.32);
   --et-danger: var(--eon-err);
   --et-success: var(--eon-ok);
+  /* Usado por los paquetes de Socio (texto negro encima -> ámbar, no violeta) */
+  --et-accent: var(--eon-amber);
   --et-radius: var(--eon-r);
   --et-radius-sm: var(--eon-r-sm);
   --et-font-serif: var(--font-eternime), ui-sans-serif, system-ui, sans-serif;
@@ -364,7 +369,21 @@ a { color: inherit; text-decoration: none; }
 }
 .eon-sub { max-width: 60ch; margin: 14px auto 0; font-size: clamp(0.9rem, 2vw, 1.02rem); line-height: 1.65; color: var(--eon-muted); }
 .et-serif { font-family: var(--font-eternime), ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.035em; font-weight: 560; }
-.eon-page-head { margin-bottom: 22px; }
+
+/* Encabezado de pantalla: presencia de EON + jerarquía tipográfica.
+   .eon-page-orb ya se usaba en 8 cabeceras pero nunca tuvo estilos; ahora
+   es la marca de presencia que acompaña al título. */
+.eon-page-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+.eon-page-head > div { min-width: 0; }
+.eon-page-head h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.05; letter-spacing: -0.05em; color: var(--eon-ivory); }
+.eon-page-head p:not(.eon-page-kicker) { margin-top: 9px; max-width: 64ch; font-size: 13.5px; line-height: 1.65; color: var(--eon-muted); }
+.eon-page-orb {
+  position: relative; flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%; margin-top: 2px;
+  background: radial-gradient(circle at 34% 30%, rgba(244,239,232,0.92) 0 7%, var(--eon-violet) 28%, var(--eon-ultraviolet) 58%, #140b2e 84%);
+  box-shadow: inset 0 0 14px rgba(0,0,0,0.8), 0 0 22px -5px rgba(139, 92, 255, 0.85);
+  animation: eonBreath 6s ease-in-out infinite;
+}
+@media (max-width: 640px) { .eon-page-orb { width: 34px; height: 34px; } }
 
 /* ═══ CRAFT UI · CONTROLES FÍSICOS ═════════════════════════════════════
    Responden por forma, luz y movimiento — no sólo cambiando de color.    */
@@ -1330,6 +1349,42 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 0 70px rgba(109,54,255,0.24), inset 0 0 90px rgba(139,92,255,0.07);
   animation: eonBreath 5.8s ease-in-out infinite;
 }
+
+/* Bottom nav de las páginas públicas (patrón propio, con botón central). */
+.et-bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: flex; align-items: flex-end; justify-content: space-around; gap: 0.25rem;
+  padding: 0.45rem 0.5rem calc(0.45rem + var(--eon-safe-b));
+  background: linear-gradient(180deg, rgba(3, 3, 6, 0.97), rgba(0, 0, 0, 1));
+  backdrop-filter: blur(26px) saturate(140%);
+  -webkit-backdrop-filter: blur(26px) saturate(140%);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.et-bottom-nav::before {
+  content: ""; position: absolute; left: 10%; right: 10%; top: -1px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 255, 0.45), transparent);
+}
+.et-bottom-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0.35rem 0;
+  color: var(--eon-faint);
+  transition: color var(--eon-fast) ease, transform var(--eon-fast) var(--eon-spring);
+}
+.et-bottom-item:active { transform: scale(0.93); }
+.et-bottom-item-active { color: var(--eon-ivory); }
+.et-bottom-item-active svg { filter: drop-shadow(0 0 8px rgba(139, 92, 255, 0.9)); }
+.et-bottom-label { font-size: 9.5px; line-height: 1; }
+.et-bottom-center { flex: 1 1 0; display: flex; justify-content: center; }
+.et-bottom-center-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 54px; height: 54px; margin-top: -1.4rem;
+  border-radius: 999px; border: 1px solid rgba(139, 92, 255, 0.5);
+  background: linear-gradient(150deg, var(--eon-violet), var(--eon-ultraviolet) 74%);
+  color: #fff;
+  transition: transform var(--eon-fast) var(--eon-spring), box-shadow var(--eon-std) ease;
+}
+.et-bottom-center-btn:active { transform: scale(0.94); }
+@media (min-width: 1024px) { .et-bottom-nav { display: none !important; } }
 
 /* ═══ FOOTER APP ═══════════════════════════════════════════════════════ */
 .eon-app-footer { display: none; }

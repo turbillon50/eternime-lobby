@@ -129,13 +129,25 @@ function Bubble({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
     >
+      {/* Mismo lenguaje visual que el hilo de Inicio: el usuario en violeta
+          emitido, Eon en cristal oscuro. */}
       <div
-        className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-          isUser
-            ? "rounded-br-sm bg-[rgba(255,255,255,0.14)] text-[var(--et-text)]"
-            : "rounded-bl-sm border border-[var(--et-border-soft)] bg-[var(--et-bg-elevated)] text-[var(--et-text)]"
+        className={`rounded-[20px] px-4 py-3 text-sm leading-relaxed ${
+          isUser ? "rounded-br-sm text-white" : "rounded-bl-sm text-[var(--eon-ivory)]"
         }`}
-        style={isUser ? { border: "1px solid rgba(255,255,255,0.3)" } : undefined}
+        style={
+          isUser
+            ? {
+                background: "linear-gradient(150deg, var(--eon-violet), var(--eon-ultraviolet) 78%)",
+                boxShadow: "0 12px 30px -14px rgba(109,54,255,.95), inset 0 1px 0 rgba(255,255,255,.2)",
+              }
+            : {
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid var(--eon-edge)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)",
+                backdropFilter: "blur(18px)",
+              }
+        }
       >
         {!isUser ? (
           <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-[var(--et-gold-dim)]">Eon</p>
@@ -171,7 +183,13 @@ export function GuiaClient() {
   }, [load]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = bottomRef.current;
+    if (!el) return;
+    // Sólo se desplaza el hilo, NUNCA el documento: un scrollIntoView pelado
+    // arrastraba toda la página y metía el título bajo la topbar sticky.
+    const box = el.closest<HTMLElement>(".guia-scroll");
+    if (box) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
+    else el.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages, sending]);
 
   const onVoiceUnavailable = useCallback(() => setVoiceAvailable(false), []);

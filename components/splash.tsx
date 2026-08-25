@@ -20,8 +20,9 @@ export function Splash() {
       <motion.div className="eon-splash-mesh" initial={{scale:.84,opacity:0}} animate={{scale:1,opacity:1,rotate:[0,8,-5,0]}} transition={{scale:{duration:.7,ease:[.22,1,.36,1]},opacity:{duration:.45},rotate:{duration:4,repeat:Infinity,ease:"easeInOut"}}}>
         <i/><i/><i/>
       </motion.div>
-      <motion.div className="eon-splash-word" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{delay:.22,duration:.5}}>Eternime</motion.div>
-      <motion.p initial={{opacity:0}} animate={{opacity:.58}} transition={{delay:.4,duration:.45}}>Tu segunda memoria</motion.p>
+      {/* EON es la entidad; Eternime sigue siendo la marca del producto */}
+      <motion.div className="eon-splash-word" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{delay:.22,duration:.5}}>EON</motion.div>
+      <motion.p initial={{opacity:0}} animate={{opacity:.58}} transition={{delay:.4,duration:.45}}>Eternime · Tu segunda memoria</motion.p>
     </motion.div>
   ) : null}</AnimatePresence>;
 }

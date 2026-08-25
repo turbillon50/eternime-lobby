@@ -56,7 +56,11 @@ export function EonOrb({
   useEffect(() => {
     const el = holder.current;
     if (!el) return;
-    if (typeof IntersectionObserver === "undefined") { setVisible(true); return; }
+    if (typeof IntersectionObserver === "undefined") {
+      // Navegador sin IO: se monta igual, pero fuera del cuerpo del efecto.
+      const id = setTimeout(() => setVisible(true), 0);
+      return () => clearTimeout(id);
+    }
     const io = new IntersectionObserver(
       ([e]) => setVisible(e.isIntersecting),
       { rootMargin: "120px" },
