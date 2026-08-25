@@ -62,7 +62,7 @@ export default function ManifiestoPage() {
       </div>
 
       <FadeInOnScroll className="mt-20">
-        <h2 className="et-serif text-xl text-[var(--et-gold-bright)]">Nuestros compromisos</h2>
+        <h2 className="et-serif text-xl text-[var(--et-text)]">Nuestros compromisos</h2>
         <ul className="mt-6 flex flex-col gap-4">
           {compromisos.map((c) => (
             <li key={c} className="flex items-start gap-3 text-[var(--et-text-muted)]">

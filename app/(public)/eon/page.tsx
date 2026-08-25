@@ -73,7 +73,7 @@ export default function EonPage() {
         {verdades.map((v) => (
           <FadeInOnScroll key={v.titulo}>
             <div className="rounded-[var(--et-radius)] border border-[var(--et-border-soft)] bg-[var(--et-bg-elevated)] p-6">
-              <h2 className="et-serif text-lg text-[var(--et-gold-bright)]">{v.titulo}</h2>
+              <h2 className="et-serif text-lg text-[var(--et-text)]">{v.titulo}</h2>
               <p className="mt-2 text-sm leading-relaxed text-[var(--et-text-muted)]">{v.texto}</p>
             </div>
           </FadeInOnScroll>

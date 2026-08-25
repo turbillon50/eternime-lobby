@@ -118,7 +118,7 @@ export function PreciosContent() {
                     <Badge>Mas elegido</Badge>
                   </div>
                 )}
-                <h2 className="et-serif text-xl text-[var(--et-gold-bright)]">{plan.nombre}</h2>
+                <h2 className="et-serif text-xl text-[var(--et-text)]">{plan.nombre}</h2>
                 <p className="mt-1 text-sm text-[var(--et-text-muted)]">{plan.descripcion}</p>
                 <div className="mt-6 flex items-baseline gap-2">
                   {plan.precio === null ? (
