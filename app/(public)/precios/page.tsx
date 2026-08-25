@@ -4,7 +4,7 @@ import { PreciosContent } from "@/components/public/precios-content";
 export const metadata: Metadata = {
   title: "Precios | Eternime",
   description:
-    "Planes Semilla (gratis), Legado ($199 MXN/mes) y Eterno ($2,999 MXN pago unico). Elige cómo preservar tu memoria para siempre.",
+    "Plan Semilla gratis y Legado por US$10 al mes. Tu segunda memoria, sin limites. Eterno, muy pronto.",
   openGraph: {
     title: "Precios de Eternime",
     description: "Desde gratis hasta para siempre. Tu legado, a tu medida.",

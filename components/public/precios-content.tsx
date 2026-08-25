@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { BotonSuscripcion } from "@/components/boton-suscripcion";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FadeInOnScroll, HoverCard, NumberCounter, StaggerContainer, StaggerItem } from "@/components/motion";
 import { Badge } from "@/components/ui";
 
-const planes = [
+const planes: Array<{ nombre: string; precio: number | null; periodo: string; descripcion: string; destacado: boolean; incluye: string[]; cta: string; modo: "gratis" | "checkout" | "pronto" }> = [
   {
     nombre: "Semilla",
     precio: 0,
@@ -15,24 +16,27 @@ const planes = [
     destacado: false,
     incluye: ["50 recuerdos en texto, voz o foto", "3 cartas de legado", "1 ser querido designado", "Bóveda privada y cifrada"],
     cta: "Comenzar gratis",
+    modo: "gratis",
   },
   {
     nombre: "Legado",
-    precio: 199,
-    periodo: "MXN al mes",
+    precio: 10,
+    periodo: "USD al mes",
     descripcion: "La memoria viva completa, sin límites.",
     destacado: true,
     incluye: ["Recuerdos ilimitados", "Cartas de legado ilimitadas", "Guía de IA entrenada con tu esencia", "Entregas programadas al futuro", "Seres queridos ilimitados"],
     cta: "Elegir Legado",
+    modo: "checkout",
   },
   {
     nombre: "Eterno",
-    precio: 2999,
-    periodo: "MXN, pago único",
+    precio: null,
+    periodo: "",
     descripcion: "Todo, para siempre. Sin mensualidades.",
     destacado: false,
     incluye: ["Todo lo del plan Legado", "Acceso vitalicio garantizado", "Bóveda familiar compartida", "Herederos digitales designados", "Soporte prioritario"],
-    cta: "Hacerlo eterno",
+    cta: "Muy pronto",
+    modo: "pronto",
   },
 ];
 
@@ -117,10 +121,16 @@ export function PreciosContent() {
                 <h2 className="et-serif text-xl text-[var(--et-gold-bright)]">{plan.nombre}</h2>
                 <p className="mt-1 text-sm text-[var(--et-text-muted)]">{plan.descripcion}</p>
                 <div className="mt-6 flex items-baseline gap-2">
-                  <span className="et-serif text-4xl">
-                    $<NumberCounter value={plan.precio} />
-                  </span>
-                  <span className="text-xs text-[var(--et-text-muted)]">{plan.periodo}</span>
+                  {plan.precio === null ? (
+                    <span className="et-serif text-2xl text-[var(--et-text-muted)]">Precio por anunciar</span>
+                  ) : (
+                    <>
+                      <span className="et-serif text-4xl">
+                        $<NumberCounter value={plan.precio} />
+                      </span>
+                      <span className="text-xs text-[var(--et-text-muted)]">{plan.periodo}</span>
+                    </>
+                  )}
                 </div>
                 <ul className="mt-6 flex flex-1 flex-col gap-2.5">
                   {plan.incluye.map((item) => (
@@ -130,12 +140,17 @@ export function PreciosContent() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="/crear"
-                  className={"mt-8 w-full text-center " + (plan.destacado ? "et-btn et-btn-primary" : "et-btn et-btn-ghost")}
-                >
-                  {plan.cta}
-                </Link>
+                {plan.modo === "checkout" ? (
+                  <BotonSuscripcion className="et-btn et-btn-primary w-full text-center">{plan.cta}</BotonSuscripcion>
+                ) : plan.modo === "pronto" ? (
+                  <span aria-disabled="true" className="et-btn et-btn-ghost mt-8 w-full cursor-default text-center opacity-60">
+                    {plan.cta}
+                  </span>
+                ) : (
+                  <Link href="/crear" className="et-btn et-btn-ghost mt-8 w-full text-center">
+                    {plan.cta}
+                  </Link>
+                )}
               </div>
             </HoverCard>
           </StaggerItem>
