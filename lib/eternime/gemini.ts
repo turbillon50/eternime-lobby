@@ -2,7 +2,7 @@ import type { MemoryRecord, PersonalAgentState } from "@/lib/eternime/types";
 import { eternimeMasterAgent } from "@/lib/eternime/master-agent";
 
 const geminiBaseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
-const defaultGuideModel = "gemini-2.0-flash";
+const defaultGuideModel = "gemini-2.5-flash";
 const defaultEmbeddingModel = "text-embedding-004";
 
 function getGeminiApiKey() {
@@ -98,7 +98,7 @@ export async function createGeminiGuideResponse(input: {
           ],
         },
       ],
-      generationConfig: { maxOutputTokens: 320, temperature: 0.7 },
+      generationConfig: { maxOutputTokens: 320, temperature: 0.7, thinkingConfig: { thinkingBudget: 0 } },
     }),
   });
 
