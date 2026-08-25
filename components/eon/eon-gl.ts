@@ -460,8 +460,11 @@ export class EonRenderer {
     if (gl) {
       if (this.buffer) gl.deleteBuffer(this.buffer);
       if (this.program) gl.deleteProgram(this.program);
-      const ext = gl.getExtension("WEBGL_lose_context");
-      if (ext) ext.loseContext();
+      // OJO: NO se llama a WEBGL_lose_context.loseContext(). React reutiliza
+      // el mismo <canvas> cuando cambia el tamaño (p. ej. al colapsar la
+      // sidebar); forzar la pérdida del contexto lo dejaba inservible y el
+      // orbe caía al fallback CSS para siempre. El contexto se libera solo
+      // cuando el canvas se recolecta.
     }
     this.gl = null;
     this.program = null;
