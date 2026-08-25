@@ -1,41 +1,45 @@
 "use client";
 
 /**
- * EON — componente de presencia, reutilizable y controlable por estado.
- *
- * Rendimiento: lazy-load del render avanzado (sólo monta WebGL cuando entra
- * en viewport), pausa fuera de viewport y con pestaña oculta, DPR limitado,
- * menos capas en equipos modestos. Accesibilidad: representación semántica
- * simple; la animación no genera ruido para lectores de pantalla.
+ * EON — presencia viva. Arte craft 4K compuesto en capas:
+ * dos copias del mismo arte en blend screen girando en sentidos
+ * contrarios (flujo interno orgánico), respiración lenta, parallax
+ * espacial sutil al puntero y luz ambiental que baña la interfaz.
+ * Estados conectados a actividad real. Misma interfaz pública que
+ * la versión WebGL a la que reemplaza.
  */
 
-import { useEffect, useRef, useState } from "react";
-import { EonRenderer, type EonState } from "./eon-gl";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import type { EonState } from "./eon-gl";
 import { useEon } from "./eon-state";
 
 type Props = {
-  /** Lado en px. El canvas es cuadrado. */
+  /** Lado en px. El orbe es cuadrado. */
   size?: number;
   /** Fuerza un estado; si se omite, usa el estado global real de EON. */
   state?: EonState;
-  /** Reacción sutil al cursor (desactivar en orbes decorativos pequeños). */
+  /** Reacción sutil al puntero (desactivar en orbes decorativos pequeños). */
   interactive?: boolean;
   className?: string;
   /** Etiqueta accesible; null = decorativo (aria-hidden). */
   label?: string | null;
 };
 
-/** Heurística barata de capacidad del equipo. */
-function pickQuality(size: number): number {
-  if (typeof navigator === "undefined") return 1;
-  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
-  const cores = navigator.hardwareConcurrency ?? 4;
-  const small = size <= 64;
-  if (small) return 0.5;
-  if (mem <= 2 || cores <= 2) return 0.5;
-  if (mem <= 4 || cores <= 4) return 0.7;
-  return 1;
-}
+type Visual = {
+  breath: number; spin: number; bright: number; hue: number;
+  sat: number; scale: number; ambient: number; amber: number;
+};
+
+/** Espejo del perfil por estado de la versión WebGL. */
+const VISUALS: Record<EonState, Visual> = {
+  idle:      { breath: 7,   spin: 200, bright: 1.0,  hue: 0,   sat: 1.0,  scale: 1.0,  ambient: 0.08, amber: 0.22 },
+  listening: { breath: 4.5, spin: 150, bright: 1.14, hue: 0,   sat: 1.06, scale: 1.04, ambient: 0.13, amber: 0.34 },
+  thinking:  { breath: 3.2, spin: 80,  bright: 1.06, hue: -16, sat: 1.12, scale: 0.99, ambient: 0.13, amber: 0.10 },
+  acting:    { breath: 4,   spin: 60,  bright: 1.16, hue: 6,   sat: 1.15, scale: 1.02, ambient: 0.14, amber: 0.62 },
+  success:   { breath: 5,   spin: 120, bright: 1.32, hue: 0,   sat: 1.10, scale: 1.05, ambient: 0.18, amber: 0.42 },
+  error:     { breath: 9,   spin: 260, bright: 0.85, hue: 14,  sat: 0.90, scale: 0.94, ambient: 0.05, amber: 0.80 },
+  offline:   { breath: 12,  spin: 420, bright: 0.45, hue: 0,   sat: 0.35, scale: 0.97, ambient: 0.03, amber: 0.05 },
+};
 
 export function EonOrb({
   size = 120,
@@ -45,146 +49,93 @@ export function EonOrb({
   label = null,
 }: Props) {
   const holder = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const renderer = useRef<EonRenderer | null>(null);
-  const [gl, setGl] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const raf = useRef(0);
+  const [inView, setInView] = useState(true);
+  const [pxy, setPxy] = useState({ x: 0, y: 0 });
   const eon = useEon();
   const active: EonState = state ?? eon.state;
+  const v = VISUALS[active] ?? VISUALS.idle;
 
-  // Sólo monta el canvas cuando el orbe está realmente a la vista
+  /* Pausa total fuera del viewport: cero trabajo invisible. */
   useEffect(() => {
     const el = holder.current;
-    if (!el) return;
-    if (typeof IntersectionObserver === "undefined") {
-      // Navegador sin IO: se monta igual, pero fuera del cuerpo del efecto.
-      const id = setTimeout(() => setVisible(true), 0);
-      return () => clearTimeout(id);
-    }
+    if (!el || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver(
-      ([e]) => setVisible(e.isIntersecting),
-      { rootMargin: "120px" },
+      ([e]) => setInView(e.isIntersecting),
+      { rootMargin: "80px" },
     );
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
+  /* Micro-sensación espacial: el orbe se inclina apenas hacia el puntero. */
   useEffect(() => {
-    if (!visible) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const reduced =
-      typeof matchMedia !== "undefined" &&
-      matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const r = new EonRenderer(canvas, { quality: pickQuality(size) });
-    if (!r.init()) { setGl(false); return; }
-    renderer.current = r;
-    setGl(true);
-    r.setState(active);
-
-    if (reduced) {
-      // Versión estática elegante: sin RAF, sólo un frame.
-      r.renderStatic();
-    } else {
-      r.start();
-    }
-
-    const ro = new ResizeObserver(() => {
-      r.resize();
-      if (reduced) r.renderStatic();
-    });
-    ro.observe(canvas);
-
-    const onVis = () => {
-      if (reduced) return;
-      if (document.hidden) r.stop(); else r.start();
-    };
-    document.addEventListener("visibilitychange", onVis);
-
-    return () => {
-      document.removeEventListener("visibilitychange", onVis);
-      ro.disconnect();
-      r.dispose();
-      renderer.current = null;
-    };
-    // `active` se propaga en el efecto de abajo; aquí sólo monta/desmonta.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, size]);
-
-  // Pausa cuando sale del viewport (rendimiento)
-  useEffect(() => {
-    const r = renderer.current;
-    if (!r) return;
-    const reduced =
-      typeof matchMedia !== "undefined" &&
-      matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
-    if (visible && !document.hidden) r.start(); else r.stop();
-  }, [visible]);
-
-  // Estado -> shader
-  useEffect(() => {
-    const r = renderer.current;
-    if (!r) return;
-    r.setState(active);
-    const reduced =
-      typeof matchMedia !== "undefined" &&
-      matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // En reduced-motion el cambio de estado se ve por iluminación, no por movimiento
-    if (reduced) r.renderStatic();
-  }, [active]);
-
-  // Nivel de audio real
-  useEffect(() => {
-    renderer.current?.setAudio(eon.audio);
-  }, [eon.audio]);
-
-  // Reacción sutil al cursor / touch
-  useEffect(() => {
-    if (!interactive || !gl) return;
+    if (!interactive) return;
     const el = holder.current;
     if (!el) return;
-    const move = (cx: number, cy: number) => {
-      const b = el.getBoundingClientRect();
-      renderer.current?.setPointer(
-        ((cx - b.left) / b.width) * 2 - 1,
-        -(((cy - b.top) / b.height) * 2 - 1),
-      );
+    const move = (e: PointerEvent) => {
+      cancelAnimationFrame(raf.current);
+      raf.current = requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        const nx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+        const ny = ((e.clientY - r.top) / r.height - 0.5) * 2;
+        setPxy({
+          x: Math.max(-1, Math.min(1, nx)) * 3,
+          y: Math.max(-1, Math.min(1, ny)) * 3,
+        });
+      });
     };
-    const onMouse = (e: MouseEvent) => move(e.clientX, e.clientY);
-    const onTouch = (e: TouchEvent) => {
-      const t = e.touches[0];
-      if (t) move(t.clientX, t.clientY);
-    };
-    const reset = () => renderer.current?.setPointer(0, 0);
-    window.addEventListener("mousemove", onMouse, { passive: true });
-    window.addEventListener("touchmove", onTouch, { passive: true });
-    window.addEventListener("mouseleave", reset);
+    const leave = () => setPxy({ x: 0, y: 0 });
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerleave", leave);
     return () => {
-      window.removeEventListener("mousemove", onMouse);
-      window.removeEventListener("touchmove", onTouch);
-      window.removeEventListener("mouseleave", reset);
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerleave", leave);
+      cancelAnimationFrame(raf.current);
     };
-  }, [interactive, gl]);
+  }, [interactive]);
 
-  const a11y = label
-    ? { role: "img" as const, "aria-label": label }
-    : { "aria-hidden": true as const };
+  /* Escuchar de verdad: el nivel de audio real aviva la luz. */
+  const audioBoost = active === "listening" ? eon.audio * 0.2 : 0;
+  const src = size <= 340 ? "/eon/orb-a-1024.webp" : "/eon/orb-a.webp";
+
+  const style = useMemo(
+    () =>
+      ({
+        width: size,
+        height: size,
+        "--o2-breath": `${v.breath}s`,
+        "--o2-spin": `${v.spin}s`,
+        "--o2-bright": String(v.bright + audioBoost),
+        "--o2-hue": `${v.hue}deg`,
+        "--o2-sat": String(v.sat),
+        "--o2-scale": String(v.scale),
+        "--o2-ambient": String(v.ambient),
+        "--o2-amber": String(v.amber),
+        "--o2-px": `${pxy.x}px`,
+        "--o2-py": `${pxy.y}px`,
+      }) as CSSProperties,
+    [size, v, audioBoost, pxy],
+  );
 
   return (
     <div
       ref={holder}
-      className={`eon-orb ${className}`}
-      style={{ width: size, height: size }}
+      className={`eon-orb2 ${className}`}
       data-state={active}
-      {...a11y}
+      data-paused={inView ? undefined : ""}
+      style={style}
+      role={label ? "img" : undefined}
+      aria-label={label ?? undefined}
+      aria-hidden={label ? undefined : true}
     >
-      <span className="eon-orb-halo" aria-hidden />
-      {/* Fallback estable: se ve siempre debajo; el canvas lo cubre si hay WebGL */}
-      {!gl && <span className="eon-orb-fallback" aria-hidden />}
-      {visible && <canvas ref={canvasRef} width={size} height={size} />}
+      <span className="eon-orb2-ambient" aria-hidden />
+      <span className="eon-orb2-stack">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="eon-orb2-base" src={src} alt="" draggable={false} loading="lazy" decoding="async" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="eon-orb2-flow" src={src} alt="" draggable={false} loading="lazy" decoding="async" aria-hidden />
+      </span>
     </div>
   );
 }

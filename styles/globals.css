@@ -721,6 +721,9 @@ a { color: inherit; text-decoration: none; }
 .eon-home { display: grid; gap: 26px; }
 /* Composición asimétrica controlada: trabajo al centro, contexto al lado */
 .eon-home-layout { display: grid; gap: 28px; align-items: start; }
+@media (max-width: 1023px) {
+  .eon-home-layout { padding-bottom: calc(var(--eon-tabbar-h, 64px) + var(--eon-safe-b, 0px) + 180px); }
+}
 .eon-rail { min-width: 0; }
 .eon-rail h2 { font-size: 16px; letter-spacing: -0.03em; color: var(--eon-ivory); margin-bottom: 12px; }
 .eon-home-hero { display: grid; justify-items: center; text-align: center; padding-top: 6px; }
@@ -1597,3 +1600,53 @@ a { color: inherit; text-decoration: none; }
    EON; aquí se evita animar propiedades costosas. */
 .eon-mesh, .va-mesh i, .et-aurora .blob, .eon-orb-halo { will-change: transform, opacity; }
 img { max-width: 100%; height: auto; }
+
+/* ============ EON 2.0 — presencia craft: arte + capas vivas ============ */
+.eon-orb2 { position: relative; display: inline-block; flex: 0 0 auto; }
+.eon-orb2-ambient {
+  position: absolute; inset: -46%; pointer-events: none; border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(139, 92, 255, calc(var(--o2-ambient, 0.08))), transparent 62%),
+    radial-gradient(closest-side at 42% 68%, rgba(255, 170, 69, calc(var(--o2-amber, 0.2) * 0.08)), transparent 58%);
+  filter: blur(6px);
+  animation: o2ambient calc(var(--o2-breath, 7s) * 1.6) ease-in-out infinite;
+}
+.eon-orb2-stack {
+  position: relative; display: block; width: 100%; height: 100%;
+}
+.eon-orb2-base, .eon-orb2-flow {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  user-select: none; -webkit-user-drag: none;
+  filter: brightness(var(--o2-bright, 1)) saturate(var(--o2-sat, 1)) hue-rotate(var(--o2-hue, 0deg));
+  transition: filter 800ms ease;
+}
+.eon-orb2-base {
+  position: relative;
+  translate: var(--o2-px, 0px) var(--o2-py, 0px);
+  transition: translate 700ms cubic-bezier(0.22, 1, 0.36, 1), filter 800ms ease;
+  animation: o2spin calc(var(--o2-spin, 200s) * 1.4) linear infinite, o2breath var(--o2-breath, 7s) ease-in-out infinite;
+}
+.eon-orb2-flow {
+  position: absolute; inset: 0;
+  mix-blend-mode: screen; opacity: 0.5;
+  scale: 1.06;
+  translate: var(--o2-px, 0px) var(--o2-py, 0px);
+  transition: translate 700ms cubic-bezier(0.22, 1, 0.36, 1), filter 800ms ease;
+  animation: o2spin var(--o2-spin, 200s) linear infinite reverse;
+}
+@keyframes o2spin { from { rotate: 0deg; } to { rotate: 360deg; } }
+@keyframes o2breath {
+  0%, 100% { scale: var(--o2-scale, 1); }
+  50% { scale: calc(var(--o2-scale, 1) * 1.012); }
+}
+@keyframes o2ambient { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
+.eon-orb2[data-paused] .eon-orb2-stack,
+.eon-orb2[data-paused] .eon-orb2-base,
+.eon-orb2[data-paused] .eon-orb2-flow,
+.eon-orb2[data-paused] .eon-orb2-ambient { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .eon-orb2 .eon-orb2-stack,
+  .eon-orb2 .eon-orb2-base,
+  .eon-orb2 .eon-orb2-flow,
+  .eon-orb2 .eon-orb2-ambient { animation: none !important; }
+}
