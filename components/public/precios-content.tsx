@@ -20,8 +20,8 @@ const planes: Array<{ nombre: string; precio: number | null; periodo: string; de
   },
   {
     nombre: "Legado",
-    precio: 10,
-    periodo: "USD al mes",
+    precio: 199,
+    periodo: "MXN al mes",
     descripcion: "La memoria viva completa, sin límites.",
     destacado: true,
     incluye: ["Recuerdos ilimitados", "Cartas de legado ilimitadas", "Guía de IA entrenada con tu esencia", "Entregas programadas al futuro", "Seres queridos ilimitados"],
@@ -29,13 +29,13 @@ const planes: Array<{ nombre: string; precio: number | null; periodo: string; de
     modo: "checkout",
   },
   {
-    nombre: "Eterno",
+    nombre: "Socio",
     precio: null,
     periodo: "",
-    descripcion: "Todo, para siempre. Sin mensualidades.",
+    descripcion: "Vende Eternime y gana de por vida.",
     destacado: false,
-    incluye: ["Todo lo del plan Legado", "Acceso vitalicio garantizado", "Bóveda familiar compartida", "Herederos digitales designados", "Soporte prioritario"],
-    cta: "Muy pronto",
+    incluye: ["Comparte tu link y gana 5% siendo suscriptor", "Socio Comercial: 20% de por vida", "Socio Master: 40% + venta internacional", "Panel de administración con tu red en vivo", "Comisiones sobre cada cobro, para siempre"],
+    cta: "Entra a tu panel de socio",
     modo: "pronto",
   },
 ];
@@ -54,8 +54,8 @@ const faqs = [
     a: "Escribes una carta, eliges al destinatario y la fecha o el evento (un cumpleaños número 18, una boda). Eternime la entrega exactamente en ese momento.",
   },
   {
-    q: "El plan Eterno de verdad es para siempre?",
-    a: "Sí. Un solo pago cubre la preservación de tu bóveda a perpetuidad, con herederos digitales que garantizan la continuidad de tu legado familiar.",
+    q: "Cómo funciona el programa de socios?",
+    a: "Cualquier suscriptor puede compartir su link personal y ganar el 5% de por vida de cada cuenta que traiga. Los paquetes Socio Comercial y Socio Master suben ese porcentaje a 20% y 40%, con panel de administración y venta internacional. Las comisiones aplican solo sobre suscripciones cobradas, nunca por reclutar.",
   },
 ];
 

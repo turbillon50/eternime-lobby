@@ -6,6 +6,7 @@ import { stripePost } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
+/** Compra de paquetes del programa: Socio $50,000 MXN (20%) / Master $100,000 MXN (40%). */
 export async function POST(request: NextRequest) {
   try {
     const session = await requireUser();
@@ -23,46 +24,36 @@ export async function POST(request: NextRequest) {
         .returning();
     }
 
-    const price = process.env.STRIPE_PRICE_LEGADO;
-    if (!price) return NextResponse.json({ error: "Precio no configurado." }, { status: 500 });
-
-    // Referido: cookie sellada por /r/[code]. Se ignora si el código es del mismo usuario.
-    let refCode = "";
-    const cookieRef = request.cookies.get("eternime_ref")?.value ?? "";
-    if (cookieRef) {
-      const [p] = await db
-        .select()
-        .from(controlSchema.partners)
-        .where(eq(controlSchema.partners.code, cookieRef))
-        .limit(1);
-      if (p && p.active && p.userId !== u.id) refCode = p.code;
+    let paquete = "socio";
+    try {
+      const body = (await request.json()) as { paquete?: string };
+      if (body?.paquete === "master") paquete = "master";
+    } catch {
+      // sin body → socio
     }
 
+    const price = paquete === "master" ? process.env.STRIPE_PRICE_MASTER : process.env.STRIPE_PRICE_SOCIO;
+    if (!price) return NextResponse.json({ error: "Paquete no configurado." }, { status: 500 });
+
     const base = process.env.NEXT_PUBLIC_APP_URL || "https://eternime.org";
-    const params: Record<string, string> = {
-      mode: "subscription",
+    const co = await stripePost("/checkout/sessions", {
+      mode: "payment",
       "line_items[0][price]": price,
       "line_items[0][quantity]": "1",
       client_reference_id: u.id,
       customer_email: session.email,
-      success_url: `${base}/app?suscripcion=activa`,
-      cancel_url: `${base}/precios`,
-      allow_promotion_codes: "true",
+      success_url: `${base}/app/socio?activacion=ok`,
+      cancel_url: `${base}/app/socio`,
       "metadata[clerk_id]": session.clerkId,
-      "subscription_data[metadata][control_user_id]": u.id,
-    };
-    if (refCode) {
-      params["metadata[ref_code]"] = refCode;
-      params["subscription_data[metadata][ref_code]"] = refCode;
-    }
+      "metadata[paquete]": paquete,
+    });
 
-    const co = await stripePost("/checkout/sessions", params);
     return NextResponse.json({ url: co.url });
   } catch (e) {
     if (e instanceof AuthError) {
       return NextResponse.json({ error: e.message, url: "/crear" }, { status: e.status });
     }
-    console.error("[checkout]", e);
-    return NextResponse.json({ error: "No se pudo iniciar el pago.", }, { status: 500 });
+    console.error("[checkout socio]", e);
+    return NextResponse.json({ error: "No se pudo iniciar el pago." }, { status: 500 });
   }
 }

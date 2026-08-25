@@ -11,7 +11,9 @@
  */
 import {
   bigint,
+  boolean,
   index,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
@@ -130,6 +132,75 @@ export const waitlist = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [uniqueIndex("waitlist_email_idx").on(table.email)],
+);
+
+
+/** Programa de socios y referidos — escalera firmada 25-ago-2026 (5/20/40, MXN). */
+export const partners = pgTable(
+  "partners",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tier: text("tier").notNull().default("referido"),
+    pct: integer("pct").notNull().default(5),
+    code: text("code").notNull(),
+    active: boolean("active").notNull().default(true),
+    stripeAccountId: text("stripe_account_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("partners_user_id_key").on(table.userId),
+    uniqueIndex("partners_code_key").on(table.code),
+  ],
+);
+
+/** Atribución sellada: la primera persona que refiere a un usuario, gana para siempre. */
+export const referralAttributions = pgTable(
+  "referral_attributions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    referredUserId: uuid("referred_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    partnerId: uuid("partner_id")
+      .notNull()
+      .references(() => partners.id, { onDelete: "cascade" }),
+    code: text("code").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("referral_attributions_referred_key").on(table.referredUserId),
+    index("referral_attributions_partner_idx").on(table.partnerId),
+  ],
+);
+
+/** Ledger de comisiones — solo sobre dinero cobrado; payable a los 30 días (ventana de contracargos). */
+export const commissionLedger = pgTable(
+  "commission_ledger",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    partnerId: uuid("partner_id")
+      .notNull()
+      .references(() => partners.id, { onDelete: "cascade" }),
+    referredUserId: uuid("referred_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    stripeInvoiceId: text("stripe_invoice_id").notNull(),
+    amountGrossCents: integer("amount_gross_cents").notNull(),
+    pct: integer("pct").notNull(),
+    amountCommissionCents: integer("amount_commission_cents").notNull(),
+    currency: text("currency").notNull().default("mxn"),
+    status: text("status").notNull().default("pending"),
+    payableAt: timestamp("payable_at", { withTimezone: true }),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("commission_ledger_invoice_key").on(table.stripeInvoiceId),
+    index("commission_ledger_partner_idx").on(table.partnerId),
+  ],
 );
 
 export type User = typeof users.$inferSelect;
