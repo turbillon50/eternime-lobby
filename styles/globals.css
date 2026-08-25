@@ -78,7 +78,7 @@
      contexto). El ámbar queda reservado para humanidad/memoria/compromiso,
      que es donde de verdad comunica. */
   --et-gold: var(--eon-violet);
-  --et-gold-bright: #a98aff;
+  --et-gold-bright: var(--eon-violet);
   --et-gold-dim: rgba(139, 92, 255, 0.62);
   --et-border: var(--eon-edge);
   --et-border-soft: rgba(255, 255, 255, 0.06);
@@ -1649,4 +1649,37 @@ img { max-width: 100%; height: auto; }
   .eon-orb2 .eon-orb2-base,
   .eon-orb2 .eon-orb2-flow,
   .eon-orb2 .eon-orb2-ambient { animation: none !important; }
+}
+
+/* ===== Identidad pública: la marca es Eternime — header y footer craft ===== */
+.eon-brand-text b { font-size: 17px; letter-spacing: 0.01em; text-transform: none; }
+.public-crystal-header nav { display: flex; align-items: center; gap: 22px; }
+.public-crystal-header nav a.public-cta, .public-cta {
+  padding: 9px 16px; border-radius: 999px; background: var(--eon-violet); color: #fff !important;
+  font-weight: 600; font-size: 13.5px; letter-spacing: 0.01em;
+  box-shadow: 0 0 18px rgba(139, 92, 255, 0.35);
+  transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 250ms ease, filter 250ms ease;
+}
+.public-crystal-header nav a.public-cta:hover, .public-cta:hover { filter: brightness(1.08); box-shadow: 0 0 26px rgba(139, 92, 255, 0.5); transform: translateY(-1px); }
+.public-crystal-header nav .public-entrar, .public-entrar {
+  padding: 9px 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--eon-ivory); font-size: 13.5px; font-weight: 550; background: transparent; cursor: pointer;
+  transition: border-color 250ms ease, background 250ms ease;
+}
+.public-crystal-header nav .public-entrar:hover, .public-entrar:hover { border-color: rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.05); }
+.public-entrar[data-ghost] { opacity: 0.45; pointer-events: none; }
+.site-footer { border-top: 1px solid rgba(255, 255, 255, 0.07); padding: 56px 24px 32px; }
+.site-footer-inner { max-width: 1120px; margin-inline: auto; display: grid; gap: 40px; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .site-footer-inner { grid-template-columns: 1.2fr 2fr; } }
+.site-footer-logo { color: var(--eon-ivory); font-weight: 620; font-size: 18px; letter-spacing: 0.01em; }
+.site-footer-brand p:last-child { margin-top: 6px; color: var(--eon-faint); font-size: 13px; }
+.site-footer-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.site-footer-eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--eon-violet); margin-bottom: 12px; }
+.site-footer-cols ul { display: grid; gap: 9px; }
+.site-footer-cols a { color: var(--eon-muted); font-size: 13.5px; transition: color 200ms ease; }
+.site-footer-cols a:hover { color: var(--eon-ivory); }
+.site-footer-legal { max-width: 1120px; margin: 36px auto 0; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.05); color: var(--eon-faint); font-size: 12px; }
+@media (max-width: 700px) {
+  .public-crystal-header nav a:not(.public-cta) { display: none; }
+  .public-crystal-header nav { gap: 10px; }
 }

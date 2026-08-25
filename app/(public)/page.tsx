@@ -13,7 +13,7 @@ export default function HomePage() {
     <section className="eon-public-hero va-crystal">
       <div className="eon-public-mesh" aria-hidden />
       <EonOrb size={148} label="EON, la memoria viva de Eternime" className="mb-5" />
-      <p className="eon-kicker">Eternime · Personal memory intelligence</p>
+      <p className="eon-kicker">Memoria personal inteligente</p>
       <h1>Tu segunda memoria.</h1>
       <p className="lead">Habla con Eon. Guarda lo importante. Recupera ideas, personas, proyectos y decisiones cuando las necesites.</p>
       <div className="actions"><Link href="/crear" className="primary">Empezar</Link><Link href="/entrar" className="secondary">Ya tengo cuenta</Link></div>

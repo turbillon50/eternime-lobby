@@ -3,23 +3,22 @@ import Link from "next/link";
 import { AuthSheet } from "@/components/public/auth-sheet";
 import { EonOrb } from "@/components/eon/EonOrb";
 
-/**
- * Lockup de marca igual que en el shell: EON es la entidad, Eternime el
- * producto — tal como aparece en la referencia visual.
- */
+/** La marca es Eternime. Eon — el orbe — la acompaña como presencia. */
 export function PublicHeader() {
   return (
     <header className="public-crystal-header">
       <Link href="/" className="public-brand">
-        <EonOrb size={34} label="EON" />
+        <EonOrb size={34} label="Eon, tu guía en Eternime" />
         <span className="eon-brand-text">
-          <b>EON</b>
-          <small>Eternime</small>
+          <b>Eternime</b>
+          <small>Tu segunda memoria</small>
         </span>
       </Link>
       <nav>
         <Link href="/como-funciona">Cómo funciona</Link>
         <Link href="/eon">Eon</Link>
+        <Link href="/precios">Precios</Link>
+        <Link href="/crear" className="public-cta">Crear mi memoria</Link>
         <AuthSheet />
       </nav>
     </header>

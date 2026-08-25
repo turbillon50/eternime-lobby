@@ -161,8 +161,8 @@ function Drawer({
           {/* EON en estado reducido dentro del drawer */}
           <EonOrb size={34} interactive={false} />
           <span className="eon-brand-text">
-            <b>{isAdmin ? "ADMIN" : "EON"}</b>
-            <small>{isAdmin ? "Eternime" : "Eternime"}</small>
+            <b>Eternime</b>
+            <small>{isAdmin ? "Administración" : "Tu segunda memoria"}</small>
           </span>
         </Link>
         <button onClick={close} className="crystal-icon" aria-label="Cerrar menú">
@@ -292,8 +292,8 @@ export function AppShell({
             <Link href={isAdmin ? "/admin" : "/app"} className="eon-brand">
               <EonOrb size={collapsed ? 38 : 44} label="EON, tu presencia en Eternime" />
               <span className="eon-brand-text">
-                <b>{isAdmin ? "ADMIN" : "EON"}</b>
-                <small>Eternime</small>
+                <b>Eternime</b>
+                <small>{isAdmin ? "Administración" : "Tu segunda memoria"}</small>
               </span>
             </Link>
 
