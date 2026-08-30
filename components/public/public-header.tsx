@@ -33,6 +33,7 @@ export function PublicHeader() {
           <Link href="/como-funciona">Cómo funciona</Link>
           <Link href="/eon">Eon</Link>
           <Link href="/videos">Videos y redes</Link>
+          <Link href="/precios">Precios</Link>
         </nav>
         <MobileMenu />
         {account}
