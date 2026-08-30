@@ -16,6 +16,7 @@ function Icon({ d }: { d: string }) {
 export const APP_NAV: NavItem[] = [
   { href: "/app", label: "Chat", icon: <Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z" /> },
   { href: "/app/recuerdos", label: "Memoria", icon: <Icon d="M12 3v18M7 5a4 4 0 0 0 0 8 4 4 0 0 0 0 6M17 5a4 4 0 0 1 0 8 4 4 0 0 1 0 6M7 9h5M12 15h5" /> },
+  { href: "/app/hablar", label: "Hablar con Eon", icon: <Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3" /> },
   { href: "/app/proyectos", label: "Proyectos", icon: <Icon d="M4 7h6l2 2h8v10H4z" /> },
   { href: "/app/pendientes", label: "Pendientes", icon: <Icon d="M5 12l4 4L19 6" /> },
   { href: "/app/calendario", label: "Calendario", icon: <Icon d="M4 6h16v14H4zM8 3v6M16 3v6M4 10h16" /> },
@@ -138,12 +139,5 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
       </div>
     </footer>}
 
-    {!brand.includes("ADMIN") && <nav className="eon-tabbar" aria-label="Navegación principal">
-      <Link href="/app" className={pathname==="/app" ? "active" : ""} aria-current={pathname==="/app" ? "page" : undefined}><Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z"/><span>Chat</span></Link>
-      <Link href="/app/recuerdos" className={pathname.startsWith("/app/recuerdos") ? "active" : ""} aria-current={pathname.startsWith("/app/recuerdos") ? "page" : undefined}><Icon d="M12 3v18M7 5a4 4 0 0 0 0 8 4 4 0 0 0 0 6M17 5a4 4 0 0 1 0 8 4 4 0 0 1 0 6"/><span>Memoria</span></Link>
-      <Link href="/app/hablar" className={`compose ${pathname.startsWith("/app/hablar") ? "active" : ""}`} aria-label="Compose con Eon" aria-current={pathname.startsWith("/app/hablar") ? "page" : undefined}><span className="compose-core"><Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3"/></span><span>Compose</span></Link>
-      <Link href="/app/red" className={pathname.startsWith("/app/red") ? "active" : ""} aria-current={pathname.startsWith("/app/red") ? "page" : undefined}><Icon d="M5 18c2-3 4-4 7-4s5 1 7 4M8 9a4 4 0 1 0 8 0"/><span>Mi Red</span></Link>
-      <Link href="/app/perfil" className={pathname.startsWith("/app/perfil") || pathname.startsWith("/app/cuenta") ? "active" : ""} aria-current={pathname.startsWith("/app/perfil") || pathname.startsWith("/app/cuenta") ? "page" : undefined}><Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0"/><span>Yo</span></Link>
-    </nav>}
   </div>;
 }
