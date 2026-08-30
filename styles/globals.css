@@ -1758,3 +1758,53 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 }
 @media(max-width:520px){.eon-growth-feature,.eon-growth-priority{padding:18px;border-radius:24px}.eon-growth-share .official-social-share :is(a,button){flex:1 1 calc(50% - 5px)}.eon-network-method{padding-inline:8px}.official-media-paths{grid-template-columns:1fr}.official-media-paths>a{padding:17px}}
 @media(prefers-reduced-motion:reduce){.eon-growth-card,.official-media-paths>a{transition:none}.eon-growth-card:hover,.eon-growth-card:active,.official-media-paths>a:hover{transform:none}}
+
+/* Mobile chat: one professional composer; all navigation lives in the drawer. */
+.eon-app.eon-app .eon-compose-card.eon-compose-real{
+  display:grid;
+  gap:6px;
+  padding:10px 10px 9px!important;
+  border-color:rgba(255,255,255,.13)!important;
+  border-radius:24px!important;
+  background:linear-gradient(150deg,rgba(22,18,32,.96),rgba(5,5,9,.96))!important;
+  box-shadow:0 20px 54px rgba(0,0,0,.54),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.eon-app.eon-app .eon-compose-card.eon-compose-real:hover{transform:none!important}
+.eon-app.eon-app .eon-compose-card.eon-compose-real>textarea{
+  display:block;
+  width:100%;
+  min-height:36px!important;
+  max-height:144px!important;
+  margin:0!important;
+  padding:7px 8px 5px!important;
+  resize:none;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#f7f4fa!important;
+  font-size:16px!important;
+  line-height:1.45!important;
+}
+.eon-app.eon-app .eon-compose-card.eon-compose-real>textarea::placeholder{color:#827b8b!important;opacity:1}
+.eon-compose-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px}
+.eon-compose-tools{display:flex;align-items:center;gap:7px}
+.eon-app.eon-app .eon-compose-real .compose-action{
+  width:38px;height:38px;padding:0;border-color:rgba(255,255,255,.1);border-radius:50%;
+  background:rgba(255,255,255,.035);color:#c7c0ce;box-shadow:inset 0 1px rgba(255,255,255,.07)
+}
+.eon-app.eon-app .eon-compose-real .compose-action:hover{border-color:rgba(183,155,255,.3);background:rgba(139,92,255,.1);color:#fff}
+.eon-app.eon-app .eon-compose-real .eon-send-btn{width:40px;height:40px;border-radius:50%}
+
+@media(max-width:1023px){
+  .eon-app.eon-app>.eon-tabbar{display:none!important}
+  .eon-app.eon-app>.eon-app-main{padding-bottom:calc(24px + env(safe-area-inset-bottom))!important}
+  .eon-app.eon-app .eon-chat{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+  .eon-app.eon-app .eon-compose-card.eon-compose-real{
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+    width:min(100%,760px)!important;
+    margin:14px auto 0!important;
+  }
+  .eon-app.eon-app .eon-chat.has-chat .eon-thread{min-height:calc(100svh - 250px)!important;padding-bottom:12px!important}
+}
