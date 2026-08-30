@@ -24,8 +24,9 @@ export function composioUserId(clerkId: string): string {
 export function integrationCallbackUrl(requestUrl: string, source: "onboarding" | "profile") {
   const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL;
   const origin = configuredOrigin ? new URL(configuredOrigin).origin : new URL(requestUrl).origin;
-  const callback = new URL("/app/integraciones", origin);
+  const callback = new URL(source === "onboarding" ? "/app/bienvenida" : "/app/integraciones", origin);
   callback.searchParams.set("source", source);
+  if (source === "onboarding") callback.searchParams.set("step", "2");
   return callback.toString();
 }
 
