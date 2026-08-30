@@ -13,6 +13,7 @@ function MobileMenu() {
       <div>
         <Link href="/como-funciona">Cómo funciona</Link>
         <Link href="/eon">Eon</Link>
+        <Link href="/videos">Videos y redes</Link>
         <Link href="/precios">Precios</Link>
       </div>
     </details>
@@ -31,6 +32,7 @@ export function PublicHeader() {
         <nav className="public-desktop-nav" aria-label="Navegación principal">
           <Link href="/como-funciona">Cómo funciona</Link>
           <Link href="/eon">Eon</Link>
+          <Link href="/videos">Videos y redes</Link>
         </nav>
         <MobileMenu />
         {account}

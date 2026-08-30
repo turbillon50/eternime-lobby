@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/manifiesto",
     "/precios",
     "/eon",
+    "/videos",
     "/entrar",
     "/crear",
     "/privacidad",
