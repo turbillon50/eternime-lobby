@@ -37,7 +37,7 @@ export const INTEGRATION_CATALOG: readonly IntegrationDefinition[] = [
   {
     slug: "gmail",
     name: "Gmail",
-    icon: "/integrations/gmail.svg",
+    icon: "https://www.gstatic.com/marketing-cms/assets/images/fb/b9/4fe54d1545b29db67869ef90acf2/logo-gmail-2026-color-2x-web-64dp.webp=s48-fcrop64=1,00000000ffffffff-rw",
     website: "https://mail.google.com/",
     eyebrow: "Correo",
     description: "Convierte conversaciones importantes en contexto, relaciones y pendientes.",
@@ -48,7 +48,7 @@ export const INTEGRATION_CATALOG: readonly IntegrationDefinition[] = [
   {
     slug: "outlook",
     name: "Outlook",
-    icon: "/integrations/outlook.svg",
+    icon: "https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/Outlook-m365-apps?resMode=sharp2&op_usm=1.5,0.65,15,0&qlt=85",
     website: "https://www.microsoft.com/microsoft-365/outlook/",
     eyebrow: "Correo Microsoft",
     description: "Conecta tu correo de Microsoft si ahí vive tu actividad principal.",
@@ -58,7 +58,7 @@ export const INTEGRATION_CATALOG: readonly IntegrationDefinition[] = [
   {
     slug: "googlecalendar",
     name: "Google Calendar",
-    icon: "/integrations/google-calendar.svg",
+    icon: "https://www.gstatic.com/marketing-cms/assets/images/38/86/2eceb731438ba023b59a0880b03e/logo-calendar-2026-color-2x-web-64dp.webp=s48-fcrop64=1,00000000ffffffff-rw",
     website: "https://calendar.google.com/",
     eyebrow: "Agenda",
     description: "Relaciona reuniones y fechas con las personas, proyectos y decisiones de tu memoria.",
@@ -69,7 +69,7 @@ export const INTEGRATION_CATALOG: readonly IntegrationDefinition[] = [
   {
     slug: "googledrive",
     name: "Google Drive",
-    icon: "/integrations/google-drive.svg",
+    icon: "https://www.gstatic.com/marketing-cms/assets/images/68/7a/7cd8ff6441ec80320b49631381b4/logo-drive-2026-color-2x-web-64dp.webp=s48-fcrop64=1,00000000ffffffff-rw",
     website: "https://drive.google.com/",
     eyebrow: "Documentos",
     description: "Encuentra archivos relevantes sin convertir Eternime en otra carpeta de documentos.",
