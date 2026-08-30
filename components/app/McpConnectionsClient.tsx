@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type Scope = "identity.read" | "memory.read" | "projects.read" | "tasks.read" | "network.search";
+type Scope = "identity.read" | "memory.read" | "memory.write" | "projects.read" | "projects.write" | "tasks.read" | "tasks.write" | "network.search" | "network.write";
 type Conn = {
   id: string;
   label: string;
@@ -14,17 +14,22 @@ type Conn = {
   can_reveal?: boolean;
 };
 
-const ALL: Scope[] = ["identity.read", "memory.read", "projects.read", "tasks.read", "network.search"];
+const ALL: Scope[] = ["identity.read", "memory.read", "memory.write", "projects.read", "projects.write", "tasks.read", "tasks.write", "network.search", "network.write"];
 const LABELS: Record<Scope, string> = {
-  "identity.read": "Identidad",
-  "memory.read": "Memoria",
-  "projects.read": "Proyectos",
-  "tasks.read": "Pendientes",
-  "network.search": "Mi Red",
+  "identity.read": "Leer identidad",
+  "memory.read": "Consultar memoria",
+  "memory.write": "Guardar memoria",
+  "projects.read": "Consultar proyectos",
+  "projects.write": "Crear y actualizar proyectos",
+  "tasks.read": "Consultar pendientes",
+  "tasks.write": "Crear y actualizar pendientes",
+  "network.search": "Consultar Mi Red",
+  "network.write": "Guardar contactos",
 };
 const PROVIDERS = [
   { id: "chatgpt", name: "ChatGPT" },
   { id: "claude", name: "Claude" },
+  { id: "grok", name: "Grok" },
   { id: "gemini", name: "Gemini" },
   { id: "other", name: "Otra IA" },
 ];
@@ -107,14 +112,14 @@ export function McpConnectionsClient() {
     <section className="mcp-hero va-crystal va-spatial">
       <div className="mcp-signal" aria-hidden><i/><i/><i/></div>
       <p className="eon-page-kicker">Eon Trust · MCP</p><h2>Tu memoria puede acompañarte entre IAs.</h2>
-      <p>ChatGPT, Claude, Gemini o la IA que uses pueden consultar sólo el contexto que tú autorices. Cambias de modelo sin volver a empezar de cero.</p>
+      <p>ChatGPT, Claude, Grok, Gemini o la IA que uses pueden consultar y guardar sólo lo que tú autorices. Cambias de modelo sin volver a empezar de cero.</p>
       <div className="mcp-principles"><span>Tu memoria es tuya</span><span>Acceso revocable</span><span>Contexto mínimo necesario</span></div>
     </section>
 
     <section className="mcp-card">
       <div className="mcp-step"><b>1</b><div><strong>Elige la IA</strong><small>Cada IA recibe su propia conexión segura.</small></div></div>
       <div className="mcp-provider-row">{PROVIDERS.map((item) => <button key={item.id} className={provider === item.id ? "active" : ""} onClick={() => setProvider(item.id)}>{item.name}</button>)}</div>
-      <div className="mcp-step"><b>2</b><div><strong>Decide qué puede conocer</strong><small>Bóveda y secretos quedan fuera.</small></div></div>
+      <div className="mcp-step"><b>2</b><div><strong>Decide qué puede consultar y guardar</strong><small>Bóveda, secretos y borrado quedan fuera.</small></div></div>
       <div className="mcp-scope-grid">{ALL.map((scope) => <button key={scope} onClick={() => toggle(scope)} className={scopes.includes(scope) ? "active" : ""}><span>{scopes.includes(scope) ? "✓" : "○"}</span>{LABELS[scope]}</button>)}</div>
       <div className="mcp-step"><b>3</b><div><strong>Genera la conexión</strong><small>Recibirás una sola URL lista para pegar.</small></div></div>
       <button className="mcp-create" disabled={!scopes.length || creating} onClick={create}>{creating ? "Creando conexión…" : "Conectar esta IA"}</button>
@@ -131,9 +136,9 @@ export function McpConnectionsClient() {
         <li>Genera la conexión para tu IA.</li>
         <li>Copia la URL completa que entrega Eternime.</li>
         <li>En ChatGPT pégala como servidor MCP y elige “Sin autenticación”.</li>
-        <li>Escanea las herramientas y prueba: “¿Qué recuerda Eternime sobre mis proyectos?”</li>
+        <li>Escanea las herramientas y prueba: “Guarda esto en Eternime”.</li>
       </ol>
-      <p className="mcp-note">En Claude, Gemini u otro cliente compatible, pega la misma URL en el campo de servidor MCP remoto. No agregues headers ni pegues una llave por separado.</p>
+      <p className="mcp-note">En Claude, Gemini u otro cliente compatible, pega la misma URL en el campo de servidor MCP remoto. No agregues headers ni pegues una llave por separado. Ninguna IA conectada puede borrar contenido.</p>
     </section>
 
     <section className="mcp-card">

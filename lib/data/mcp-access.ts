@@ -2,7 +2,17 @@ import "server-only";
 import crypto from "node:crypto";
 import { getSql } from "@/lib/db";
 
-export const MCP_SCOPES = ["identity.read","memory.read","projects.read","tasks.read","network.search"] as const;
+export const MCP_SCOPES = [
+  "identity.read",
+  "memory.read",
+  "memory.write",
+  "projects.read",
+  "projects.write",
+  "tasks.read",
+  "tasks.write",
+  "network.search",
+  "network.write",
+] as const;
 export type McpScope = typeof MCP_SCOPES[number];
 export type McpAccess = { id:string; user_id:string; label:string; provider:string; token_prefix:string; scopes:McpScope[]; created_at:string; last_used_at:string|null; revoked_at:string|null; can_reveal?:boolean };
 
