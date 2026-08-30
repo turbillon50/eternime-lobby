@@ -27,16 +27,6 @@ export default function AppVideosPage() {
         </div>
       </header>
 
-      <section className="eon-growth-feature">
-        <div className="eon-growth-feature__copy">
-          <p className="eon-page-kicker">Video oficial</p>
-          <h2>Tu hogar de memoria.</h2>
-          <p>Una mirada a los recuerdos, relaciones y legado que Eternime mantiene bajo tu control.</p>
-        </div>
-        <OfficialVideo className="eon-growth-video" />
-        <div className="eon-growth-share"><SocialShare /></div>
-      </section>
-
       <section className="eon-growth-priority" aria-labelledby="growth-priority-title">
         <div className="eon-growth-priority__head">
           <p className="eon-page-kicker">Tu sistema</p>
@@ -63,6 +53,16 @@ export default function AppVideosPage() {
             <b>Comparar planes <span aria-hidden>→</span></b>
           </Link>
         </div>
+      </section>
+
+      <section className="eon-growth-feature">
+        <div className="eon-growth-feature__copy">
+          <p className="eon-page-kicker">Video oficial</p>
+          <h2>Tu hogar de memoria.</h2>
+          <p>Una mirada a los recuerdos, relaciones y legado que Eternime mantiene bajo tu control.</p>
+        </div>
+        <OfficialVideo className="eon-growth-video" />
+        <div className="eon-growth-share"><SocialShare /></div>
       </section>
 
       <section className="eon-network-method" aria-labelledby="network-method-title">
