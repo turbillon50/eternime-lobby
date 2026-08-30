@@ -124,7 +124,7 @@ function Bubble({
   const isUser = message.role === "user";
   return (
     <motion.div
-      className={`max-w-[85%] sm:max-w-[70%] ${isUser ? "ml-auto" : "mr-auto"}`}
+      className={`guia-bubble max-w-[85%] sm:max-w-[70%] ${isUser ? "is-user ml-auto" : "is-assistant mr-auto"}`}
       initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -138,9 +138,9 @@ function Bubble({
         style={isUser ? { border: "1px solid rgba(255,255,255,0.3)" } : undefined}
       >
         {!isUser ? (
-          <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-[var(--et-gold-dim)]">Eon</p>
+          <p className="guia-bubble-label mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-[var(--et-gold-dim)]">Eon</p>
         ) : null}
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        <p className="guia-bubble-copy whitespace-pre-wrap">{message.content}</p>
         {!isUser && voiceAvailable ? (
           <PlayVoiceButton text={message.content} onUnavailable={onVoiceUnavailable} />
         ) : null}
@@ -281,7 +281,7 @@ export function GuiaClient() {
         <LightSweep />
         <div className="flex items-end gap-2">
         <textarea
-          className="et-input flex-1 py-3"
+          className="guia-compose-input et-input flex-1 py-3"
           style={{ minHeight: "unset", height: "auto", resize: "none" }}
           rows={1}
           placeholder="Escríbele a Eon…"
@@ -295,7 +295,7 @@ export function GuiaClient() {
           }}
           aria-label="Mensaje para Eon"
         />
-        <Button onClick={send} loading={sending} disabled={!input.trim()}>
+        <Button className="guia-send-btn" onClick={send} loading={sending} disabled={!input.trim()}>
           Enviar
         </Button>
         </div>

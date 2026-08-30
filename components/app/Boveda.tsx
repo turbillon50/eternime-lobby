@@ -77,7 +77,7 @@ export function Boveda() {
   const others = files.filter((f) => f.kind !== "image");
 
   return (
-    <Card className="va-crystal va-spatial">
+    <Card className="eon-vault va-crystal va-spatial">
       <input ref={filesInput} type="file" multiple hidden onChange={onFiles} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -92,7 +92,7 @@ export function Boveda() {
       {error ? <p className="mt-3 text-sm text-[var(--et-danger)]">{error}</p> : null}
 
       {files.length === 0 ? (
-        <div className="mt-5">
+        <div className="eon-vault-empty mt-5">
           <EmptyState title={t("profile.emptyTitle")} description={t("profile.emptyDesc")}
             action={<Button variant="ghost" onClick={() => filesInput.current?.click()}>{t("profile.choose")}</Button>} />
         </div>
