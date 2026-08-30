@@ -1,11 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type IntegrationGroup = "ownership" | "daily" | "context";
 type IntegrationItem = {
   slug: string;
   name: string;
+  icon: string;
+  website: string;
   eyebrow: string;
   description: string;
   permission: string;
@@ -26,18 +29,6 @@ const GROUPS: { key: IntegrationGroup; title: string; copy: string }[] = [
   { key: "daily", title: "Tu día a día", copy: "Correo y actividad que se convierten en contexto útil." },
   { key: "context", title: "Tu contexto", copy: "Agenda y documentos que completan tus recuerdos." },
 ];
-
-function IntegrationGlyph({ slug }: { slug: string }) {
-  const paths: Record<string, string> = {
-    supabase: "M5 4h10l-4 7h8L8 21l3-7H5V4Z",
-    neon: "M5 18V6l7 7 7-7v12M8 9h8",
-    gmail: "M4 7v11h16V7l-8 6-8-6Z",
-    outlook: "M4 5h10v14H4zM14 8h6v8h-6M7 9c2-2 4 0 4 3s-2 5-4 3-2-4 0-6Z",
-    googlecalendar: "M4 6h16v14H4zM8 3v6M16 3v6M4 10h16M8 14h3v3H8z",
-    googledrive: "M9 4h6l6 11-3 5H6l-3-5L9 4Zm0 0 6 11m6 0H9m-3 5 6-10",
-  };
-  return <svg viewBox="0 0 24 24" aria-hidden><path d={paths[slug] ?? "M5 12h14M12 5v14"} /></svg>;
-}
 
 export function IntegrationHub({ mode = "full" }: { mode?: "full" | "onboarding" }) {
   const [data, setData] = useState<IntegrationResponse | null>(null);
@@ -137,7 +128,9 @@ export function IntegrationHub({ mode = "full" }: { mode?: "full" | "onboarding"
         <div className="integration-grid">
           {items.map((item) => <article className={`integration-card ${item.active ? "is-connected" : ""}`} key={item.slug}>
             <div className="integration-card-top">
-              <span className="integration-glyph"><IntegrationGlyph slug={item.slug}/></span>
+              <span className="integration-glyph">
+                <Image src={item.icon} alt="" width={28} height={28} aria-hidden />
+              </span>
               <span className={`integration-state ${item.active ? "is-active" : ""}`}><i/>{item.active ? "Conectado" : "Sin conectar"}</span>
             </div>
             <p className="integration-eyebrow">{item.eyebrow}{item.recommended ? " · Recomendado" : ""}</p>
@@ -145,6 +138,10 @@ export function IntegrationHub({ mode = "full" }: { mode?: "full" | "onboarding"
             <p>{item.description}</p>
             <div className="integration-permission"><span aria-hidden>✓</span>{item.permission}</div>
             {(item.slug === "supabase" || item.slug === "neon") && <p className="integration-caveat">Conectar prepara el acceso; no mueve tu memoria actual. Cualquier migración requerirá tu aprobación explícita.</p>}
+            <a className="integration-official-link" href={item.website} target="_blank" rel="noopener noreferrer" aria-label={`Abrir sitio oficial de ${item.name} en una pestaña nueva`}>
+              <span>Sitio oficial</span>
+              <svg viewBox="0 0 24 24" aria-hidden><path d="M14 5h5v5M19 5l-9 9M19 14v5H5V5h5" /></svg>
+            </a>
             <div className="integration-actions">
               {item.active
                 ? <button type="button" className="integration-secondary" disabled={busy === item.slug} onClick={() => void pause(item.slug, item.name)}>{busy === item.slug ? "Pausando…" : "Pausar acceso"}</button>
