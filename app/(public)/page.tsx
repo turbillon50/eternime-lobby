@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { EonSignal } from "@/components/visual/VisualArtifacts";
+import { OfficialVideo } from "@/components/public/official-video";
 import { isClerkConfigured } from "@/lib/clerk";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,16 @@ export default async function HomePage() {
       <article><small>MEMORIA</small><h2>No vuelvas a empezar de cero.</h2><p>Eon organiza lo que dices, guardas y decides para devolvértelo con contexto cuando importa.</p></article>
       <article><small>RED</small><h2>Recuerda quién sabe qué.</h2><p>Personas, capacidades, proyectos y relaciones se conectan en un grafo vivo de tu mundo.</p></article>
       <article><small>VIDA</small><h2>Tu historia se construye sola.</h2><p>El legado deja de ser una tarea futura: aparece naturalmente porque Eternime te acompaña hoy.</p></article>
+    </section>
+
+    <section className="eon-official-video-section">
+      <div className="eon-official-video-copy">
+        <small>VIDEO OFICIAL</small>
+        <h2>Tu hogar de memoria.</h2>
+        <p>Una historia sobre lo que recuerdas, las personas que te acompañan y el legado que construyes cada día.</p>
+        <Link href="/videos">Videos y redes →</Link>
+      </div>
+      <OfficialVideo />
     </section>
 
     <section className="eon-mcp-public va-crystal">

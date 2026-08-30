@@ -13,6 +13,7 @@ export function SiteFooter() {
           <Link href="/como-funciona" className="transition hover:text-[var(--et-text)]">Cómo funciona</Link>
           <Link href="/manifiesto" className="transition hover:text-[var(--et-text)]">Manifiesto</Link>
           <Link href="/precios" className="transition hover:text-[var(--et-text)]">Precios</Link>
+          <Link href="/videos" className="transition hover:text-[var(--et-text)]">Videos y redes</Link>
           <Link href="/privacidad" className="transition hover:text-[var(--et-text)]">Privacidad</Link>
           <Link href="/terminos" className="transition hover:text-[var(--et-text)]">Términos</Link>
           <Link href="/cookies" className="transition hover:text-[var(--et-text)]">Cookies</Link>
