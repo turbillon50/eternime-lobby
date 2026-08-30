@@ -37,7 +37,7 @@ function Menu({ user, close, nav, brand }: { user: ShellUser | null; close: () =
   const { signOut } = useClerk();
   return <div className="flex h-full flex-col p-5 sm:p-6">
     <div className="mb-7 flex items-center justify-between">
-      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} onClick={close} className="eon-sidebar-brand"><span className="eon-mini-orb" /><span><b>{brand}</b><small>Memoria viva</small></span></Link>
+      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} onClick={close} className="eon-sidebar-brand"><span className="eon-mark" /><span><b>{brand}</b><small>Memoria viva</small></span></Link>
       <button onClick={close} className="crystal-icon eon-menu-close" aria-label="Cerrar menú">×</button>
     </div>
     <nav className="space-y-1">
@@ -87,12 +87,12 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
     <header className="eon-topbar">
       <div className="eon-topbar-mobile">
         <button ref={triggerRef} className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
-        <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-.02em] text-slate-800"><span className="eon-mini-orb"/>{brand}</Link>
+        <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-.02em] text-slate-800"><span className="eon-mark"/>{brand}</Link>
         <Link href="/app/perfil" className="crystal-avatar" aria-label="Perfil">{user?.name?.[0] || "·"}</Link>
       </div>
       <div className="eon-desktop-header">
         <div className="eon-desktop-context"><small>Estás en</small><b>{activeLabel}</b></div>
-        <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="eon-desktop-brand"><span className="eon-mini-orb"/><span><b>{brand}</b><small>Tu segunda memoria</small></span></Link>
+        <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="eon-desktop-brand"><span className="eon-mark"/><span><b>{brand}</b><small>Tu segunda memoria</small></span></Link>
         {!brand.includes("ADMIN") && <nav className="eon-desktop-nav" aria-label="Navegación de Eternime">
           <Link href="/app" className={pathname==="/app"?"active":""}>Eon</Link>
           <Link href="/app/recuerdos" className={pathname.startsWith("/app/recuerdos")?"active":""}>Memoria</Link>
@@ -101,7 +101,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
           <Link href="/app/ias" className={pathname.startsWith("/app/ias")?"active":""}>Mis IAs</Link>
         </nav>}
         <div className="eon-desktop-actions">
-          {!brand.includes("ADMIN") && <Link href="/app/hablar" className="eon-desktop-voice"><span className="eon-mini-orb"/>Hablar con Eon</Link>}
+          {!brand.includes("ADMIN") && <Link href="/app/hablar" className="eon-desktop-voice"><span className="eon-mark"/>Hablar con Eon</Link>}
           <button className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
           <Link href="/app/perfil" className="crystal-avatar" aria-label="Perfil">{user?.name?.[0] || "·"}</Link>
         </div>
@@ -114,7 +114,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
 
     {!brand.includes("ADMIN") && <footer className="eon-app-footer">
       <div className="eon-app-footer-inner">
-        <div className="eon-app-footer-brand"><span className="eon-mini-orb"/><div><b>Eternime</b><small>Tu memoria permanece contigo, aunque cambie la IA.</small></div></div>
+        <div className="eon-app-footer-brand"><span className="eon-mark"/><div><b>Eternime</b><small>Tu memoria permanece contigo, aunque cambie la IA.</small></div></div>
         <nav><Link href="/privacidad">Privacidad</Link><Link href="/terminos">Términos</Link><Link href="/app/cuenta">Cuenta</Link><Link href="/app/ias">MCP / Mis IAs</Link></nav>
         <small>© {new Date().getFullYear()} Eternime · All Global Holding LLC</small>
       </div>

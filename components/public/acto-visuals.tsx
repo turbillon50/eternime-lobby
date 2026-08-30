@@ -1,132 +1,62 @@
 "use client";
 
-function GoldDefs({ id }: { id: string }) {
-  return (
-    <defs>
-      <radialGradient id={id} cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="var(--et-gold-bright)" stopOpacity="0.9" />
-        <stop offset="100%" stopColor="var(--et-gold)" stopOpacity="0" />
-      </radialGradient>
-    </defs>
-  );
+type Phase = "capture" | "learn" | "future" | "legacy";
+
+const phaseData: Record<Phase, { step: string; label: string; focus: number }> = {
+  capture: { step: "01", label: "CAPTURA", focus: 74 },
+  learn: { step: "02", label: "CONTEXTO", focus: 146 },
+  future: { step: "03", label: "TIEMPO", focus: 220 },
+  legacy: { step: "04", label: "CONTINUIDAD", focus: 292 },
+};
+
+function ContinuumVisual({ phase }: { phase: Phase }) {
+  const data = phaseData[phase];
+  return <div className={`et-continuum-visual is-${phase}`} aria-hidden="true">
+    <div className="et-continuum-meta"><span>{data.step}</span><b>{data.label}</b></div>
+    <svg viewBox="0 0 360 220" className="h-full w-full" focusable="false">
+      <defs>
+        <linearGradient id={`flow-${phase}`} x1="0" y1="0" x2="1" y2="0">
+          <stop stopColor="#79e7ff" stopOpacity=".08"/>
+          <stop offset=".28" stopColor="#8b5cff"/>
+          <stop offset=".62" stopColor="#d653ff"/>
+          <stop offset=".83" stopColor="#f4efe8"/>
+          <stop offset="1" stopColor="#ffa851" stopOpacity=".14"/>
+        </linearGradient>
+        <filter id={`flow-glow-${phase}`} x="-30%" y="-80%" width="160%" height="260%">
+          <feGaussianBlur stdDeviation="3.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <path className="et-continuum-guide" d="M22 111H338"/>
+      <path className="et-continuum-thread t1" d="M20 116C70 69 105 151 154 101S250 76 340 114" stroke={`url(#flow-${phase})`} filter={`url(#flow-glow-${phase})`}/>
+      <path className="et-continuum-thread t2" d="M20 126C77 153 111 72 166 119S260 145 340 91" stroke={`url(#flow-${phase})`}/>
+      <path className="et-continuum-thread t3" d="M20 96C79 127 118 78 174 123S270 82 340 127" stroke="#cfc2ff"/>
+      {[74,146,220,292].map((x, index) => <g key={x} className={x === data.focus ? "is-focus" : ""}>
+        <path className="et-continuum-slice" d={`M${x} 68V154`}/>
+        <rect className="et-continuum-node" x={x - 4} y={104 + (index % 2 ? 9 : -5)} width="8" height="8" rx="1.5"/>
+      </g>)}
+      {phase === "capture" ? <g className="et-continuum-detail capture-bars">{[0,1,2,3,4,5].map(i=><rect key={i} x={46+i*10} y={174-(i%3)*6} width="3" height={10+(i%3)*6} rx="1.5"/>)}</g> : null}
+      {phase === "learn" ? <g className="et-continuum-detail learn-branches"><path d="M146 112L116 172M146 112L176 172M146 112V182"/><rect x="112" y="170" width="7" height="7" rx="1"/><rect x="172" y="170" width="7" height="7" rx="1"/><rect x="142.5" y="179" width="7" height="7" rx="1"/></g> : null}
+      {phase === "future" ? <g className="et-continuum-detail future-ticks">{[0,1,2,3,4].map(i=><path key={i} d={`M${190+i*16} 174V${184+(i%2)*7}`}/>)}</g> : null}
+      {phase === "legacy" ? <g className="et-continuum-detail legacy-stream"><path d="M292 112C315 98 329 88 344 72"/><path d="M292 112C318 118 331 131 345 147"/><path d="M292 112H348"/></g> : null}
+    </svg>
+    <div className="et-continuum-caption"><span>ETERNIME</span><i/><span>MEMORIA EN MOVIMIENTO</span></div>
+  </div>;
 }
 
-/** Acto 1 - Cuenta tu historia. */
-export function VisualHistoria() {
-  return (
-    <div className="et-acto-visual">
-      <svg viewBox="0 0 240 240" className="h-full w-full" aria-hidden="true">
-        <GoldDefs id="g-historia" />
-        {[0, 1, 2].map((i) => (
-          <circle key={i} cx="120" cy="120" r="30" fill="none" stroke="var(--et-gold)" strokeWidth="1" className="et-anim-ripple" style={{ animationDelay: i * 1.3 + "s" }} />
-        ))}
-        <circle cx="120" cy="120" r="40" fill="url(#g-historia)" className="et-anim-breathe" />
-        <circle cx="120" cy="120" r="6" fill="var(--et-gold-bright)" />
-        {[-28, -14, 0, 14, 28].map((x, i) => (
-          <rect key={x} x={120 + x - 2} y="166" width="4" rx="2" height="14" fill="var(--et-gold)" opacity="0.7" className="et-anim-wave" style={{ animationDelay: i * 0.15 + "s" }} />
-        ))}
-      </svg>
-    </div>
-  );
-}
+export function VisualHistoria(){return <ContinuumVisual phase="capture"/>}
+export function VisualGuia(){return <ContinuumVisual phase="learn"/>}
+export function VisualCartas(){return <ContinuumVisual phase="future"/>}
+export function VisualTrasciende(){return <ContinuumVisual phase="legacy"/>}
 
-/** Acto 2 - Tu guía aprende de ti. */
-export function VisualGuia() {
-  return (
-    <div className="et-acto-visual">
-      <svg viewBox="0 0 240 240" className="h-full w-full" aria-hidden="true">
-        <GoldDefs id="g-guia" />
-        <circle cx="120" cy="120" r="34" fill="url(#g-guia)" className="et-anim-breathe" />
-        <g className="et-anim-spin-slow" style={{ transformOrigin: "120px 120px" }}>
-          <circle cx="120" cy="120" r="78" fill="none" stroke="var(--et-border)" strokeWidth="1" />
-          <circle cx="198" cy="120" r="4" fill="var(--et-gold-bright)" />
-        </g>
-        <g className="et-anim-spin-reverse" style={{ transformOrigin: "120px 120px" }}>
-          <circle cx="120" cy="120" r="56" fill="none" stroke="var(--et-border)" strokeWidth="1" strokeDasharray="3 6" />
-          <circle cx="64" cy="120" r="3" fill="var(--et-gold)" />
-          <circle cx="176" cy="120" r="3" fill="var(--et-gold)" />
-        </g>
-        <circle cx="120" cy="120" r="10" fill="none" stroke="var(--et-gold-bright)" strokeWidth="1.5" className="et-anim-breathe" />
-        <circle cx="120" cy="120" r="4" fill="var(--et-gold-bright)" />
-      </svg>
-    </div>
-  );
-}
+const CSS = `
+.et-continuum-visual{position:relative;width:100%;max-width:380px;aspect-ratio:1.28;margin-inline:auto;overflow:hidden;border:1px solid rgba(255,255,255,.1);border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.012) 42%,rgba(103,48,255,.035)),#050507;box-shadow:0 26px 80px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.1);isolation:isolate}
+.et-continuum-visual:before{content:"";position:absolute;inset:-30%;background:radial-gradient(circle at 35% 45%,rgba(139,92,255,.14),transparent 34%),radial-gradient(circle at 78% 54%,rgba(121,231,255,.055),transparent 30%);filter:blur(18px)}
+.et-continuum-meta{position:absolute;z-index:2;top:20px;left:22px;right:22px;display:flex;align-items:center;justify-content:space-between;font-size:9px;letter-spacing:.2em}.et-continuum-meta span{color:#f4efe8}.et-continuum-meta b{color:#8d8497;font-weight:600}
+.et-continuum-guide{fill:none;stroke:rgba(255,255,255,.055);stroke-width:1}.et-continuum-thread{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-dasharray:9 10;animation:etContinuum 9s linear infinite}.et-continuum-thread.t2{opacity:.64;animation-duration:13s;animation-direction:reverse}.et-continuum-thread.t3{opacity:.24;stroke-width:.8;animation-duration:17s}
+.et-continuum-slice{stroke:rgba(255,255,255,.065);stroke-width:1;stroke-dasharray:2 6}.et-continuum-node{fill:#777181;transition:fill .3s ease,filter .3s ease}.et-continuum-visual g.is-focus .et-continuum-slice{stroke:rgba(139,92,255,.5)}.et-continuum-visual g.is-focus .et-continuum-node{fill:#f4efe8;filter:drop-shadow(0 0 8px #8b5cff)}
+.et-continuum-detail{fill:#a98cff;stroke:#a98cff;stroke-width:1;opacity:.72}.et-continuum-detail path{fill:none}.legacy-stream path{animation:etLegacy 3.8s ease-in-out infinite alternate}.et-continuum-caption{position:absolute;z-index:2;left:22px;right:22px;bottom:18px;display:flex;align-items:center;gap:9px;color:#615b68;font-size:7px;letter-spacing:.15em}.et-continuum-caption i{height:1px;flex:1;background:linear-gradient(90deg,rgba(139,92,255,.45),rgba(121,231,255,.08))}
+@keyframes etContinuum{to{stroke-dashoffset:-190}}@keyframes etLegacy{to{transform:translateX(5px);opacity:.35}}
+@media(prefers-reduced-motion:reduce){.et-continuum-thread,.legacy-stream path{animation:none}}
+`;
 
-/** Acto 3 - Cartas al futuro: linea de tiempo con sobres. */
-export function VisualCartas() {
-  const hitos = [40, 95, 150, 205];
-  return (
-    <div className="et-acto-visual">
-      <svg viewBox="0 0 240 240" className="h-full w-full" aria-hidden="true">
-        <GoldDefs id="g-cartas" />
-        <line x1="20" y1="120" x2="220" y2="120" stroke="var(--et-border)" strokeWidth="1.5" />
-        {hitos.map((x, i) => (
-          <g key={x}>
-            <circle cx={x} cy="120" r="6" fill="var(--et-bg)" stroke="var(--et-gold)" strokeWidth="1.5" className="et-anim-glowpulse" style={{ animationDelay: i * 0.9 + "s" }} />
-            <g className="et-anim-float" style={{ animationDelay: i * 0.9 + "s" }}>
-              <Sobre x={x} y={i % 2 === 0 ? 78 : 140} />
-            </g>
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-function Sobre({ x, y }: { x: number; y: number }) {
-  const d = "M " + (x - 11) + " " + (y + 2) + " L " + x + " " + (y + 10) + " L " + (x + 11) + " " + (y + 2);
-  return (
-    <g>
-      <rect x={x - 11} y={y} width="22" height="15" rx="2" fill="none" stroke="var(--et-gold)" strokeWidth="1.2" />
-      <path d={d} fill="none" stroke="var(--et-gold)" strokeWidth="1.2" />
-    </g>
-  );
-}
-
-/** Acto 4 - Trasciende: constelacion que asciende hacia la luz. */
-export function VisualTrasciende() {
-  const particulas: Array<[number, number]> = [
-    [60, 200], [180, 195], [95, 175], [150, 160], [70, 145],
-    [170, 130], [110, 120], [140, 95], [100, 80], [125, 55],
-  ];
-  return (
-    <div className="et-acto-visual">
-      <svg viewBox="0 0 240 240" className="h-full w-full" aria-hidden="true">
-        <GoldDefs id="g-tras" />
-        <circle cx="120" cy="40" r="34" fill="url(#g-tras)" className="et-anim-breathe" />
-        <circle cx="120" cy="40" r="5" fill="var(--et-gold-bright)" />
-        <path d="M 60 200 L 95 175 L 110 120 L 140 95 L 125 55 L 120 40" fill="none" stroke="var(--et-border)" strokeWidth="0.8" />
-        <path d="M 180 195 L 170 130 L 140 95" fill="none" stroke="var(--et-border)" strokeWidth="0.8" />
-        {particulas.map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r={i % 3 === 0 ? 3 : 2} fill={i % 2 === 0 ? "var(--et-gold-bright)" : "var(--et-gold)"} className="et-anim-ascend" style={{ animationDelay: i * 0.55 + "s" }} />
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-const CSS = [
-  ".et-acto-visual { width: 100%; max-width: 320px; aspect-ratio: 1; margin-inline: auto; border-radius: var(--et-radius); border: 1px solid var(--et-border-soft); background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), transparent 70%), var(--et-bg-elevated); box-shadow: var(--et-glow); }",
-  "@keyframes et-ripple { 0% { r: 30; opacity: 0.8; } 100% { r: 95; opacity: 0; } }",
-  ".et-anim-ripple { animation: et-ripple 4s ease-out infinite; }",
-  "@keyframes et-breathe { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }",
-  ".et-anim-breathe { animation: et-breathe 3.5s ease-in-out infinite; }",
-  "@keyframes et-wave { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1.4); } }",
-  ".et-anim-wave { transform-box: fill-box; transform-origin: center; animation: et-wave 1.2s ease-in-out infinite; }",
-  "@keyframes et-spin { to { transform: rotate(360deg); } }",
-  ".et-anim-spin-slow { animation: et-spin 18s linear infinite; }",
-  ".et-anim-spin-reverse { animation: et-spin 12s linear infinite reverse; }",
-  "@keyframes et-glowpulse { 0%, 100% { fill: var(--et-bg); } 50% { fill: var(--et-gold-bright); } }",
-  ".et-anim-glowpulse { animation: et-glowpulse 3.6s ease-in-out infinite; }",
-  "@keyframes et-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }",
-  ".et-anim-float { animation: et-float 4s ease-in-out infinite; }",
-  "@keyframes et-ascend { 0% { transform: translateY(0); opacity: 0.2; } 50% { opacity: 1; } 100% { transform: translateY(-26px); opacity: 0; } }",
-  ".et-anim-ascend { animation: et-ascend 5.5s ease-in-out infinite; }",
-  "@media (prefers-reduced-motion: reduce) { .et-anim-ripple, .et-anim-breathe, .et-anim-wave, .et-anim-spin-slow, .et-anim-spin-reverse, .et-anim-glowpulse, .et-anim-float, .et-anim-ascend { animation: none; } }",
-].join(" ");
-
-/** Estilos de animacion compartidos (inyectar una vez por pagina). */
-export function ActoVisualStyles() {
-  return <style dangerouslySetInnerHTML={{ __html: CSS }} />;
-}
+export function ActoVisualStyles(){return <style dangerouslySetInnerHTML={{__html:CSS}}/>}

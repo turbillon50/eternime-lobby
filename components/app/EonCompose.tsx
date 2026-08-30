@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { GuideMessage } from "@/lib/data/types";
-import { EonOrb, LivingMesh, LightSweep } from "@/components/visual/VisualArtifacts";
+import { EonSignal, LivingMesh, LightSweep } from "@/components/visual/VisualArtifacts";
 
 type Citation = { id: string; title: string };
 type ApiResponse = { messages?: GuideMessage[]; reply?: string; error?: string; cited?: Citation[]; assistantMessage?: GuideMessage | null };
@@ -68,7 +68,7 @@ export function EonCompose({ firstName = "" }: { firstName?: string }) {
   const hasChat = loaded && messages.length > 0;
   return <div className={`eon-chat va-crystal ${hasChat ? "has-chat" : ""}`} data-eon-state={loading ? "thinking" : error ? "error" : "idle"}><LivingMesh/><LightSweep/>
     {!hasChat && <section className="eon-welcome">
-      <EonOrb state={loading ? "thinking" : error ? "error" : "idle"} />
+      <EonSignal state={loading ? "thinking" : error ? "error" : "idle"} />
       <p className="eon-kicker"><i /> EON está presente</p>
       <h1>¿En qué puedo ayudarte{firstName ? `, ${firstName}` : ""}?</h1>
       <p className="eon-sub">Tu memoria, tus proyectos y tus personas, unidos en una sola conversación.</p>

@@ -1207,3 +1207,40 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 .eon-public-shell>footer{border-color:rgba(255,255,255,.075)!important;background:rgba(0,0,0,.72)}.eon-public-shell>footer nav a{color:#817b89!important}.eon-public-shell>footer nav a:hover{color:#fff!important}.eon-public-shell>footer p{color:#65606d!important}.public-footer-lockup{display:flex;align-items:center;gap:10px}.public-footer-lockup>span:last-child{display:grid}.public-footer-lockup b{color:#fff;font-size:12px;letter-spacing:.11em}.public-footer-lockup small{color:#77717f;font-size:7px;letter-spacing:.18em}
 @media(max-width:760px){.eon-public-hero{padding-top:46px!important}.eon-public-orb{width:138px!important}.eon-public-hero .actions{width:min(100%,340px);flex-direction:column}.eon-public-hero .actions a{width:100%}.prompt-preview{margin-top:36px!important;padding:14px 14px 14px 17px!important}.eon-public-grid article{min-height:auto!important}.eon-public-statement{padding-bottom:96px!important}}
 @media(prefers-reduced-motion:reduce){.eon-public-orb,.eon-public-orb *{animation:none!important}}
+
+/* EON Continuum — one identity across public, app, voice and system states. */
+.eon-signal{position:relative;width:min(100%,420px);height:auto;aspect-ratio:3.18/1;margin-inline:auto;isolation:isolate;overflow:visible}
+.eon-signal svg{position:relative;z-index:2;display:block;width:100%;height:100%;overflow:visible}
+.eon-signal__field{position:absolute;z-index:0;inset:14% -5%;background:radial-gradient(ellipse at 48% 52%,rgba(139,92,255,.19),rgba(121,231,255,.045) 38%,transparent 72%);filter:blur(24px);animation:eonSignalField 5.8s ease-in-out infinite}
+.eon-signal__ghost{fill:none;stroke:rgba(255,255,255,.05);stroke-width:11;filter:blur(9px)}
+.eon-signal__current{fill:none;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:10 11;animation:eonSignalFlow 9s linear infinite}
+.eon-signal__current--two{opacity:.62;stroke-width:1.15;animation-duration:13s;animation-direction:reverse}
+.eon-signal__current--three{opacity:.28;stroke-width:.7;animation-duration:17s}
+.eon-signal__memory{filter:drop-shadow(0 0 7px rgba(139,92,255,.72));animation:eonMemoryPulse 4.6s ease-in-out infinite}
+.eon-signal__scan{fill:none;stroke:rgba(244,239,232,.22);stroke-width:.7;stroke-dasharray:2 5;animation:eonSignalScan 7.5s cubic-bezier(.22,1,.36,1) infinite}
+.eon-signal--thinking .eon-signal__current{animation-duration:2.8s;stroke-dasharray:5 6}.eon-signal--thinking .eon-signal__field{opacity:1;animation-duration:2.2s}
+.eon-signal--listening .eon-signal__current--two{animation-duration:4.2s}.eon-signal--acting .eon-signal__current{animation-duration:2.2s}
+.eon-signal--success .eon-signal__field{background:radial-gradient(ellipse,rgba(121,231,255,.17),rgba(139,92,255,.06) 46%,transparent 72%)}
+.eon-signal--error .eon-signal__current--two{stroke:#ff8b77}.eon-signal--offline{filter:grayscale(.9);opacity:.48}.eon-signal--offline *{animation-play-state:paused!important}
+@keyframes eonSignalFlow{to{stroke-dashoffset:-210}}@keyframes eonSignalField{0%,100%{opacity:.45;transform:scaleX(.88)}50%{opacity:1;transform:scaleX(1.08)}}@keyframes eonMemoryPulse{50%{opacity:.45;transform:translateY(2px)}}@keyframes eonSignalScan{0%{transform:translateX(-130px);opacity:0}18%,76%{opacity:.7}100%{transform:translateX(300px);opacity:0}}
+
+/* Compact brand signature: three filaments, never a sphere. */
+.eon-mark{position:relative;display:inline-block!important;flex:0 0 auto;width:31px!important;height:16px!important;border:0!important;border-radius:0!important;background:linear-gradient(165deg,transparent 0 22%,#79e7ff 23% 27%,transparent 28% 42%,#8b5cff 43% 50%,transparent 51% 64%,#d653ff 65% 70%,transparent 71%)!important;box-shadow:none!important;filter:drop-shadow(0 0 7px rgba(139,92,255,.42));overflow:visible!important}
+.eon-mark::before{content:"";position:absolute;left:4px;right:2px;top:7px;height:1px;background:linear-gradient(90deg,transparent,#a98cff 22%,#f4efe8 56%,rgba(121,231,255,.1));transform:skewX(-28deg)}
+.eon-mark::after{content:"";position:absolute;width:4px;height:4px;left:16px;top:5px;border-radius:1px;background:#f4efe8;box-shadow:0 0 9px #8b5cff;animation:eonMarkPulse 3.8s ease-in-out infinite}
+@keyframes eonMarkPulse{50%{opacity:.42;transform:translateX(6px)}}
+
+.eon-page-mark{position:relative;display:block;width:54px;height:12px;flex:0 0 auto;background:linear-gradient(90deg,#79e7ff10,#8b5cff 45%,#f4efe8 72%,transparent);clip-path:polygon(0 42%,36% 42%,46% 0,54% 100%,64% 42%,100% 42%,100% 58%,62% 58%,54% 100%,46% 18%,38% 58%,0 58%);filter:drop-shadow(0 0 9px rgba(139,92,255,.5))}
+.eon-page-head{align-items:center!important}
+.eon-public-signal{width:clamp(250px,32vw,430px)!important;margin-bottom:0!important}.eon-chat .eon-signal{width:min(76vw,390px);margin-bottom:2px}.eon-splash-signal{width:min(72vw,330px)}.eon-voice-signal{width:min(82vw,420px);margin-bottom:12px}.onboard-signal{width:min(80vw,360px);margin-bottom:2px}
+
+.public-account-btn{display:inline-flex;height:38px;align-items:center;justify-content:center;gap:7px;padding:0 13px;border:1px solid rgba(255,255,255,.1);border-radius:13px;background:rgba(255,255,255,.035);color:#b8b1c1;font-size:11px;font-weight:650;box-shadow:inset 0 1px rgba(255,255,255,.07);transition:color .18s ease,border-color .18s ease,background .18s ease,transform .14s ease}.public-account-btn:hover{color:#fff;border-color:rgba(139,92,255,.25);background:rgba(139,92,255,.07);transform:translateY(-1px)}.public-account-btn.is-loading{min-width:72px;color:#5f5967;background:linear-gradient(100deg,rgba(255,255,255,.025),rgba(255,255,255,.06),rgba(255,255,255,.025));background-size:220% 100%;animation:eonAccountLoad 1.8s linear infinite}@keyframes eonAccountLoad{to{background-position:-220% 0}}
+
+.calendar-signal,.network-signal,.mcp-signal{position:relative;overflow:hidden}
+.calendar-signal{width:138px;height:40px;margin-bottom:18px}.calendar-signal i,.network-signal i,.mcp-signal i{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#8b5cff 30%,#f4efe8 58%,rgba(121,231,255,.08));filter:drop-shadow(0 0 5px rgba(139,92,255,.48));transform-origin:center;animation:eonLineBreathe 4.8s ease-in-out infinite}.calendar-signal i:nth-child(1),.network-signal i:nth-child(1),.mcp-signal i:nth-child(1){top:10px;transform:skewY(-5deg)}.calendar-signal i:nth-child(2),.network-signal i:nth-child(2),.mcp-signal i:nth-child(2){top:20px;animation-delay:-1.4s}.calendar-signal i:nth-child(3),.network-signal i:nth-child(3),.mcp-signal i:nth-child(3){top:30px;transform:skewY(4deg);animation-delay:-2.8s}@keyframes eonLineBreathe{50%{opacity:.34;transform:translateX(9px) scaleX(.9)}}
+.network-signal{position:absolute;right:24px;top:18px;width:170px;height:42px;opacity:.62}.mcp-signal{position:absolute;right:6%;top:50%;width:190px;height:52px;transform:translateY(-50%);opacity:.7}.mcp-signal i:nth-child(1){top:11px}.mcp-signal i:nth-child(2){top:25px}.mcp-signal i:nth-child(3){top:39px}
+.guia-context-signal{position:relative;z-index:2;display:grid;width:70px;height:40px;place-items:center;margin-bottom:24px;border-left:1px solid rgba(139,92,255,.28);background:linear-gradient(90deg,rgba(139,92,255,.07),transparent)}
+.ops-project-mark{width:38px;height:18px;margin-top:7px;flex:0 0 auto;background:linear-gradient(165deg,transparent 0 25%,#8b5cff 26% 31%,transparent 32% 48%,#d653ff 49% 54%,transparent 55%);filter:drop-shadow(0 0 7px rgba(139,92,255,.28))}
+
+@media(max-width:760px){.eon-public-signal{width:min(88vw,350px)!important}.network-signal,.mcp-signal{width:120px;opacity:.38}.public-account-btn{padding-inline:10px}.public-account-btn span{display:none}}
+@media(prefers-reduced-motion:reduce){.eon-signal *,.eon-mark::after,.calendar-signal i,.network-signal i,.mcp-signal i,.public-account-btn.is-loading{animation:none!important}.eon-signal__scan{display:none}}

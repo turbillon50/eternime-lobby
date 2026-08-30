@@ -59,9 +59,9 @@ export default function ComoFuncionaPage() {
     <div className="mx-auto w-full max-w-5xl px-5 pb-24 pt-16 sm:px-8">
       <ActoVisualStyles />
       <FadeInOnScroll>
-        <p className="text-center text-xs uppercase tracking-[0.3em] text-[var(--et-gold)]">Cómo funciona</p>
+        <p className="text-center text-xs uppercase tracking-[0.3em] text-[#a98cff]">Cómo funciona</p>
         <h1 className="et-serif mt-4 text-center text-3xl leading-tight sm:text-5xl">
-          Tu historia, contada en <span className="text-[var(--et-gold-bright)]">cuatro actos</span>
+          Tu historia, contada en <span className="text-[#c7b6ff]">cuatro actos</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-center text-[var(--et-text-muted)]">
           Eternime convierte tus recuerdos en un legado vivo. Así es el camino, paso a paso.
@@ -79,7 +79,7 @@ export default function ComoFuncionaPage() {
               </FadeInOnScroll>
               <StaggerContainer className={invertido ? "md:order-1" : ""}>
                 <StaggerItem>
-                  <p className="text-xs uppercase tracking-[0.3em] text-[var(--et-gold)]">{acto.numero}</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-[#a98cff]">{acto.numero}</p>
                 </StaggerItem>
                 <StaggerItem>
                   <h2 className="et-serif mt-3 text-2xl sm:text-3xl">{acto.titulo}</h2>
@@ -91,7 +91,7 @@ export default function ComoFuncionaPage() {
                   <ul className="mt-6 flex flex-col gap-2">
                     {acto.detalles.map((d) => (
                       <li key={d} className="flex items-start gap-3 text-sm text-[var(--et-text-muted)]">
-                        <span aria-hidden="true" className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--et-gold-bright)]" />
+                        <span aria-hidden="true" className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-[2px] bg-[#a98cff]" />
                         {d}
                       </li>
                     ))}
@@ -104,7 +104,7 @@ export default function ComoFuncionaPage() {
       </div>
 
       <FadeInOnScroll className="mt-28">
-        <div className="et-card et-glow-ring mx-auto max-w-2xl rounded-[var(--et-radius)] p-10 text-center">
+        <div className="et-card va-crystal mx-auto max-w-2xl rounded-[var(--et-radius)] p-10 text-center">
           <h2 className="et-serif text-2xl sm:text-3xl">Tu historia merece ser eterna</h2>
           <p className="mt-3 text-[var(--et-text-muted)]">Empieza hoy. Tu primer recuerdo es gratis, y para siempre.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
