@@ -15,8 +15,8 @@ export default function PerfilPage() {
         <p className="eon-screen-sub">Tu información, preferencias y archivos personales, bajo tu control.</p>
       </FadeInOnScroll>
       <Link href="/app/integraciones" className="integration-entry">
-        <span><b>Tu ecosistema conectado</b><small>Administra Neon, correo, calendario y documentos sin compartir tus credenciales con Eternime.</small></span>
-        <strong>Ver integraciones <span aria-hidden>→</span></strong>
+        <span><b>Conexiones y privacidad</b><small>Administra Neon, correo, calendario y documentos sin compartir tus credenciales con Eternime.</small></span>
+        <strong>Administrar <span aria-hidden>→</span></strong>
       </Link>
       <PerfilClient />
     </div>

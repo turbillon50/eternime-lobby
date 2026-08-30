@@ -113,9 +113,9 @@ export function IntegrationHub({ mode = "full" }: { mode?: "full" | "onboarding"
   return <section className={`integration-hub ${mode === "onboarding" ? "is-onboarding" : ""}`} aria-busy={!data}>
     <div className="integration-summary">
       <div>
-        <p className="integration-overline">Centro de control</p>
-        <h2>Conecta lo esencial. Tú decides hasta dónde.</h2>
-        <p>Las credenciales se guardan cifradas por Composio y no pasan por Eternime. Puedes pausar cada acceso cuando quieras.</p>
+        <p className="integration-overline">{mode === "onboarding" ? "Conexión privada" : "Centro de control"}</p>
+        <h2>{mode === "onboarding" ? "Elige una base para comenzar." : "Conecta lo esencial. Tú decides hasta dónde."}</h2>
+        <p>{mode === "onboarding" ? "Neon te da propiedad sobre tu memoria; tu correo aporta contexto cotidiano. Puedes conectar una, ambas o continuar sin hacerlo ahora." : "Las credenciales se guardan cifradas por Composio y no pasan por Eternime. Puedes pausar cada acceso cuando quieras."}</p>
       </div>
       <div className="integration-meter" aria-label={`${progress.foundations} de 2 bases recomendadas conectadas`}>
         <strong>{progress.foundations}<span>/2</span></strong>
