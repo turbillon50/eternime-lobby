@@ -30,19 +30,24 @@ export default function VideosPage() {
         </p>
       </section>
 
-      <OfficialVideo className="official-media-page__video" />
-
       <nav className="official-media-paths" aria-label="Explorar Eternime">
+        <Link href="/videos#video-oficial">
+          <span>01</span><b>Video oficial</b><small>La historia de Eternime</small>
+        </Link>
         <Link href="/app/red">
-          <span>01</span><b>Cómo crece Mi Red</b><small>Personas, vínculos y contexto</small>
+          <span>02</span><b>Cómo crece Mi Red</b><small>Personas, vínculos y contexto</small>
         </Link>
         <Link href="/app/integraciones">
-          <span>02</span><b>Conexiones</b><small>Servicios bajo tu autorización</small>
+          <span>03</span><b>Conexiones</b><small>Servicios bajo tu autorización</small>
         </Link>
         <Link href="/precios">
-          <span>03</span><b>Planes y costos</b><small>{semilla?.nombre} ${semilla?.precio} · {legado?.nombre} ${legado?.precio} {legado?.periodo}</small>
+          <span>04</span><b>Planes y costos</b><small>{semilla?.nombre} ${semilla?.precio} · {legado?.nombre} ${legado?.precio} {legado?.periodo}</small>
         </Link>
       </nav>
+
+      <div id="video-oficial" className="official-media-video-anchor">
+        <OfficialVideo className="official-media-page__video" />
+      </div>
 
       <section className="official-social-panel va-crystal">
         <div>
