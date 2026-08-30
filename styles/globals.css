@@ -1174,3 +1174,36 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 .eon-splash-orb{width:132px}.eon-splash-word{margin-top:4px!important;color:#fff!important;font-size:14px!important;font-weight:680!important;letter-spacing:.32em!important}
 .eon-splash p{margin-top:8px!important;color:#8e8798!important;font-size:8px!important;letter-spacing:.2em!important}
 .public-brand>span:last-child{display:grid}.public-brand b{font-size:12px;letter-spacing:.11em}.public-brand small{font-size:7px;letter-spacing:.18em;opacity:.55}
+
+/* Public EON surface — the same OLED / Crystal language as the authenticated app. */
+.eon-public-shell{
+  --eon-public-text:#f7f5fb;
+  --eon-public-muted:#9a96a6;
+  --eon-public-line:rgba(255,255,255,.1);
+  position:relative;
+  overflow-x:hidden;
+  background:#000!important;
+  color:var(--eon-public-text)!important;
+}
+.eon-public-shell::before{opacity:.27!important;mix-blend-mode:screen!important}
+.eon-public-shell::after{top:-48vh!important;height:94vh!important;opacity:.7!important;background:conic-gradient(from 215deg at 50% 50%,rgba(71,39,179,.3),rgba(139,92,255,.22),rgba(213,83,255,.09),rgba(121,231,255,.1),rgba(255,168,81,.055),rgba(71,39,179,.3))!important;filter:blur(112px)!important}
+.eon-public-shell>header,.eon-public-shell>main,.eon-public-shell>footer{position:relative;z-index:1}
+.public-crystal-header{height:70px!important;padding-inline:clamp(18px,3vw,42px)!important;border-color:rgba(255,255,255,.085)!important;background:rgba(0,0,0,.66)!important;box-shadow:inset 0 -1px 0 rgba(139,92,255,.045)!important;-webkit-backdrop-filter:blur(28px) saturate(145%)!important;backdrop-filter:blur(28px) saturate(145%)!important}
+.public-brand{color:#fff!important}.public-crystal-header nav>a{color:#918b9b!important}.public-crystal-header nav>a:hover{color:#fff!important;background:rgba(255,255,255,.05)!important;box-shadow:inset 0 1px rgba(255,255,255,.06)!important}
+.eon-public-home{position:relative}.eon-public-hero{min-height:calc(100svh - 70px);padding:clamp(54px,8vh,92px) 20px 82px!important;background:radial-gradient(45% 38% at 50% 18%,rgba(120,65,255,.12),transparent 72%)}
+.eon-public-mesh{opacity:.68!important;background:radial-gradient(34% 28% at 25% 22%,rgba(94,48,255,.23),transparent 72%),radial-gradient(32% 26% at 77% 28%,rgba(213,83,255,.14),transparent 72%),radial-gradient(30% 22% at 52% 70%,rgba(121,231,255,.07),transparent 74%)!important;filter:blur(28px) saturate(145%)!important}
+.eon-public-orb{width:clamp(138px,18vw,190px)!important;margin-bottom:7px!important}
+.eon-public-hero .eon-kicker{position:relative;color:#b7a3ff!important;font-size:10px;letter-spacing:.2em}
+.eon-public-hero h1{background:linear-gradient(108deg,#fff 0%,#e5ddf5 31%,#a98cff 53%,#f5efff 76%,#fff 100%)!important;background-size:220% 100%!important;color:transparent!important;-webkit-background-clip:text!important;background-clip:text!important;text-wrap:balance}
+.eon-public-hero .lead{color:var(--eon-public-muted)!important}
+.eon-public-hero .primary{background:linear-gradient(135deg,#6735ef,#8b5cff 56%,#c452ef)!important;box-shadow:0 13px 36px rgba(104,48,255,.3),inset 0 1px rgba(255,255,255,.3)!important}
+.eon-public-hero .secondary{border:1px solid rgba(255,255,255,.1)!important;background:rgba(255,255,255,.04)!important;color:#d4cede!important;box-shadow:inset 0 1px rgba(255,255,255,.075),0 12px 34px rgba(0,0,0,.24)!important;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.prompt-preview{border-color:rgba(255,255,255,.12)!important;background:linear-gradient(145deg,rgba(19,16,29,.84),rgba(4,4,8,.8))!important;color:#77717f!important;box-shadow:0 26px 80px rgba(0,0,0,.56),inset 0 1px rgba(255,255,255,.13)!important;-webkit-backdrop-filter:blur(30px) saturate(155%)!important;backdrop-filter:blur(30px) saturate(155%)!important}
+.prompt-preview:hover{border-color:rgba(139,92,255,.26)!important;box-shadow:0 30px 90px rgba(0,0,0,.64),0 0 48px rgba(104,48,255,.08),inset 0 1px rgba(255,255,255,.14)!important}.prompt-preview b{background:linear-gradient(135deg,#6c36f4,#945fff 58%,#c354ed)!important;box-shadow:0 10px 28px rgba(104,48,255,.28),inset 0 1px rgba(255,255,255,.28)}
+.eon-public-grid{gap:16px!important}.eon-public-grid article,.eon-mcp-public{border-color:var(--eon-public-line)!important;background:linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.012) 40%,rgba(103,48,255,.024)),rgba(7,6,11,.76)!important;box-shadow:0 24px 70px rgba(0,0,0,.44),inset 0 1px rgba(255,255,255,.1)!important;-webkit-backdrop-filter:blur(24px) saturate(145%)!important;backdrop-filter:blur(24px) saturate(145%)!important}
+.eon-public-grid article{position:relative;overflow:hidden}.eon-public-grid article::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(125deg,rgba(255,255,255,.08),transparent 30%,rgba(139,92,255,.035) 76%,rgba(255,255,255,.045));mix-blend-mode:screen}.eon-public-grid small,.eon-mcp-public small{color:#af98ff!important}.eon-public-grid h2,.eon-mcp-public h2{color:#f5f2f8!important}.eon-public-grid p,.eon-mcp-public>div>p{color:var(--eon-public-muted)!important}
+.eon-mcp-flow{border:1px solid rgba(255,255,255,.065);background:rgba(0,0,0,.3)!important}.eon-mcp-flow span,.eon-mcp-flow b{background:rgba(255,255,255,.045)!important;color:#c7c1cf!important}.eon-mcp-flow b{color:#d7caff!important;background:rgba(139,92,255,.11)!important}.eon-mcp-flow i{color:#5f5969!important}.eon-mcp-public ul{color:#aaa4b4!important}.eon-mcp-public li{border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.026)!important}.eon-mcp-public>a,.eon-public-statement a{color:#aa8cff!important}
+.eon-public-statement{background:radial-gradient(48% 58% at 50% 68%,rgba(104,48,255,.18),rgba(121,231,255,.025) 44%,transparent 76%)!important}.eon-public-statement p{color:var(--eon-public-muted)!important}.eon-public-statement h2{color:#f5f2f8!important}
+.eon-public-shell>footer{border-color:rgba(255,255,255,.075)!important;background:rgba(0,0,0,.72)}.eon-public-shell>footer nav a{color:#817b89!important}.eon-public-shell>footer nav a:hover{color:#fff!important}.eon-public-shell>footer p{color:#65606d!important}.public-footer-lockup{display:flex;align-items:center;gap:10px}.public-footer-lockup>span:last-child{display:grid}.public-footer-lockup b{color:#fff;font-size:12px;letter-spacing:.11em}.public-footer-lockup small{color:#77717f;font-size:7px;letter-spacing:.18em}
+@media(max-width:760px){.eon-public-hero{padding-top:46px!important}.eon-public-orb{width:138px!important}.eon-public-hero .actions{width:min(100%,340px);flex-direction:column}.eon-public-hero .actions a{width:100%}.prompt-preview{margin-top:36px!important;padding:14px 14px 14px 17px!important}.eon-public-grid article{min-height:auto!important}.eon-public-statement{padding-bottom:96px!important}}
+@media(prefers-reduced-motion:reduce){.eon-public-orb,.eon-public-orb *{animation:none!important}}
