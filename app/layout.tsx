@@ -12,6 +12,12 @@ import { Splash } from "@/components/splash";
 import { AuroraBackground } from "@/components/aurora-background";
 import { I18nProvider } from "@/components/i18n";
 
+const clerkEsES = {
+  ...esES,
+  // Clerk deja este placeholder sin traducir en su paquete es-ES actual.
+  formFieldInputPlaceholder__signUpPassword: "Crea una contraseña",
+};
+
 export const metadata: Metadata = {
   title: { default: "Eternime — Tu segunda memoria", template: "%s · Eternime" },
   description:
@@ -67,5 +73,5 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     </html>
   );
 
-  return isClerkConfigured() ? <ClerkProvider localization={esES}>{tree}</ClerkProvider> : tree;
+  return isClerkConfigured() ? <ClerkProvider localization={clerkEsES}>{tree}</ClerkProvider> : tree;
 }
