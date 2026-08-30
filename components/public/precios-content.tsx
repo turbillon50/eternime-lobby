@@ -147,7 +147,7 @@ export function PreciosContent() {
                     {plan.cta}
                   </span>
                 ) : (
-                  <Link href="/crear" className="et-btn et-btn-ghost mt-8 w-full text-center">
+                  <Link href="/sign-up" className="et-btn et-btn-ghost mt-8 w-full text-center">
                     {plan.cta}
                   </Link>
                 )}
@@ -168,7 +168,7 @@ export function PreciosContent() {
 
       <FadeInOnScroll className="mt-20 text-center">
         <p className="text-[var(--et-text-muted)]">Tu primer recuerdo no cuesta nada.</p>
-        <Link href="/crear" className="et-btn et-btn-primary mt-5 inline-flex px-8">
+        <Link href="/sign-up" className="et-btn et-btn-primary mt-5 inline-flex px-8">
           Crear mi legado
         </Link>
       </FadeInOnScroll>

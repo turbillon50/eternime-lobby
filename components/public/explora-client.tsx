@@ -86,7 +86,7 @@ export function ExploraClient() {
         <p className="mx-auto max-w-md text-[var(--et-text-muted)]">
           {lang === "en" ? "Your story deserves to outlive you." : "Tu historia merece vivir más que tú."}
         </p>
-        <Link href="/crear" className="et-btn et-btn-primary mt-6 inline-flex px-8">
+        <Link href="/sign-up" className="et-btn et-btn-primary mt-6 inline-flex px-8">
           {lang === "en" ? "Start my legacy" : "Comenzar mi legado"}
         </Link>
       </section>

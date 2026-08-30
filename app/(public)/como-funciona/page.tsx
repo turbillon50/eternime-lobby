@@ -108,7 +108,7 @@ export default function ComoFuncionaPage() {
           <h2 className="et-serif text-2xl sm:text-3xl">Tu historia merece ser eterna</h2>
           <p className="mt-3 text-[var(--et-text-muted)]">Empieza hoy. Tu primer recuerdo es gratis, y para siempre.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/crear" className="et-btn et-btn-primary px-6">Crear mi legado</Link>
+            <Link href="/sign-up" className="et-btn et-btn-primary px-6">Crear mi legado</Link>
             <Link href="/precios" className="et-btn et-btn-ghost px-6">Ver precios</Link>
           </div>
         </div>
