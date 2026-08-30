@@ -1463,3 +1463,91 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
   .eon-app.eon-app .guia-conversation-shell{min-height:calc(100dvh - 238px)!important}
   .eon-app.eon-app .guia-conversation-body{height:auto!important;min-height:calc(100dvh - 238px)!important;padding-bottom:8px!important}
 }
+
+/* Native shell law — server paint and hydrated paint share one geometry. */
+.eon-app.eon-app>.eon-app-main{min-width:0}
+.eon-app.eon-app>.eon-app-main>div{min-width:0}
+.eon-app.eon-app>.eon-tabbar .compose{gap:2px}
+
+@media(max-width:1023px){
+  body:has(.eon-app){position:fixed;inset:0}
+  .eon-app.eon-app{
+    grid-template-rows:calc(64px + env(safe-area-inset-top)) minmax(0,1fr)!important;
+    height:100svh!important;
+  }
+  .eon-app.eon-app>.eon-topbar{
+    height:calc(64px + env(safe-area-inset-top))!important;
+    min-height:calc(64px + env(safe-area-inset-top))!important;
+    padding-top:env(safe-area-inset-top)!important;
+  }
+  .eon-app.eon-app>.eon-app-main{
+    width:100%;
+    max-width:none!important;
+    padding-bottom:calc(136px + env(safe-area-inset-bottom))!important;
+  }
+  .eon-app.eon-app>.eon-tabbar .compose-core{width:46px!important;height:46px!important}
+  .eon-app.eon-app>.eon-tabbar .compose>span:last-child{display:block;line-height:1}
+
+  .eon-app.eon-app .guia-page{min-width:0;transform:none!important}
+  .eon-app.eon-app .guia-scene{height:auto!important;min-height:0!important;overflow:visible!important}
+  .eon-app.eon-app .guia-conversation-shell{height:auto!important;min-height:0!important;overflow:visible!important}
+  .eon-app.eon-app .guia-conversation-body{
+    height:auto!important;
+    min-height:max(470px,calc(100svh - 250px))!important;
+    overflow:visible!important;
+  }
+}
+
+@media(min-width:1024px){
+  .eon-app.eon-app{
+    display:grid;
+    grid-template-columns:280px minmax(0,1fr);
+    grid-template-rows:64px minmax(0,auto) auto;
+    min-height:100dvh;
+    overflow-x:clip;
+  }
+  .eon-app.eon-app>.eon-desktop-sidebar{
+    position:sticky!important;
+    inset:auto!important;
+    top:0!important;
+    grid-column:1;
+    grid-row:1 / -1;
+    width:280px;
+    height:100dvh;
+    align-self:start;
+  }
+  .eon-app.eon-app>.eon-topbar{
+    position:sticky!important;
+    top:0!important;
+    grid-column:2;
+    grid-row:1;
+    width:100%;
+    margin-left:0!important;
+  }
+  .eon-app.eon-app>.eon-app-main{
+    grid-column:2;
+    grid-row:2;
+    width:100%;
+    margin:0!important;
+    padding-left:clamp(24px,3vw,48px)!important;
+    padding-right:clamp(24px,3vw,48px)!important;
+  }
+  .eon-app.eon-app>.eon-app-footer{
+    grid-column:2;
+    grid-row:3;
+    margin-left:0!important;
+  }
+
+  .eon-app.eon-app .guia-page{grid-template-rows:auto minmax(0,1fr);min-width:0;transform:none!important}
+  .eon-app.eon-app .guia-scene{
+    grid-template-columns:280px minmax(0,1fr);
+    min-width:0;
+    min-height:620px!important;
+    height:max(620px,calc(100svh - 220px));
+    align-items:stretch;
+  }
+  .eon-app.eon-app .guia-context-rail{min-width:0;height:100%}
+  .eon-app.eon-app .guia-context-card{position:relative!important;top:auto!important;height:100%;min-height:0!important}
+  .eon-app.eon-app .guia-conversation-shell{height:100%!important;min-height:0!important;overflow:hidden!important}
+  .eon-app.eon-app .guia-conversation-body{height:calc(100% - 78px)!important;min-height:0!important;overflow:hidden!important}
+}

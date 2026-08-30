@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type KeyboardEvent, type PropsWithChildren, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PropsWithChildren, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useClerk } from "@clerk/nextjs";
 import { PageTransition } from "@/components/motion";
@@ -59,6 +59,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
   const pathname = usePathname();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   useEffect(() => {
     document.documentElement.classList.add("eon-app-active");
     document.body.classList.add("eon-app-active");
@@ -68,6 +69,13 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
     };
   }, []);
   useEffect(() => { fetch("/api/auth/me").then(r=>r.json()).then(d=>setUser(d.user ?? null)).catch(()=>{}); }, []);
+  useLayoutEffect(() => {
+    const previousRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    return () => { window.history.scrollRestoration = previousRestoration; };
+  }, [pathname]);
   useEffect(() => {
     if (!open) return;
     const trigger = triggerRef.current;
@@ -118,7 +126,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
 
     <AnimatePresence>{open && <><motion.button aria-label="Cerrar menú" className="eon-drawer-backdrop fixed inset-0 z-40" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside ref={drawerRef} onKeyDown={trapDrawerFocus} className="eon-drawer" role="dialog" aria-modal="true" aria-label="Menú de Eternime" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
 
-    <main className={`relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}><PageTransition>{children}</PageTransition></main>
+    <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}><PageTransition stable>{children}</PageTransition></main>
 
     {!brand.includes("ADMIN") && <footer className="eon-app-footer">
       <div className="eon-app-footer-inner">
@@ -129,11 +137,11 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
     </footer>}
 
     {!brand.includes("ADMIN") && <nav className="eon-tabbar" aria-label="Navegación principal">
-      <Link href="/app" className={pathname==="/app" ? "active" : ""}><Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z"/><span>Chat</span></Link>
-      <Link href="/app/recuerdos" className={pathname.startsWith("/app/recuerdos") ? "active" : ""}><Icon d="M12 3v18M7 5a4 4 0 0 0 0 8 4 4 0 0 0 0 6M17 5a4 4 0 0 1 0 8 4 4 0 0 1 0 6"/><span>Memoria</span></Link>
-      <Link href="/app/hablar" className={`compose ${pathname.startsWith("/app/hablar") ? "active" : ""}`} aria-label="Hablar con Eon" aria-current={pathname.startsWith("/app/hablar") ? "page" : undefined}><span className="compose-core"><Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3"/></span></Link>
-      <Link href="/app/red" className={pathname.startsWith("/app/red") ? "active" : ""}><Icon d="M5 18c2-3 4-4 7-4s5 1 7 4M8 9a4 4 0 1 0 8 0"/><span>Mi Red</span></Link>
-      <Link href="/app/perfil" className={pathname.startsWith("/app/perfil") ? "active" : ""}><Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0"/><span>Yo</span></Link>
+      <Link href="/app" className={pathname==="/app" ? "active" : ""} aria-current={pathname==="/app" ? "page" : undefined}><Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z"/><span>Chat</span></Link>
+      <Link href="/app/recuerdos" className={pathname.startsWith("/app/recuerdos") ? "active" : ""} aria-current={pathname.startsWith("/app/recuerdos") ? "page" : undefined}><Icon d="M12 3v18M7 5a4 4 0 0 0 0 8 4 4 0 0 0 0 6M17 5a4 4 0 0 1 0 8 4 4 0 0 1 0 6"/><span>Memoria</span></Link>
+      <Link href="/app/hablar" className={`compose ${pathname.startsWith("/app/hablar") ? "active" : ""}`} aria-label="Compose con Eon" aria-current={pathname.startsWith("/app/hablar") ? "page" : undefined}><span className="compose-core"><Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3"/></span><span>Compose</span></Link>
+      <Link href="/app/red" className={pathname.startsWith("/app/red") ? "active" : ""} aria-current={pathname.startsWith("/app/red") ? "page" : undefined}><Icon d="M5 18c2-3 4-4 7-4s5 1 7 4M8 9a4 4 0 1 0 8 0"/><span>Mi Red</span></Link>
+      <Link href="/app/perfil" className={pathname.startsWith("/app/perfil") || pathname.startsWith("/app/cuenta") ? "active" : ""} aria-current={pathname.startsWith("/app/perfil") || pathname.startsWith("/app/cuenta") ? "page" : undefined}><Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0"/><span>Yo</span></Link>
     </nav>}
   </div>;
 }
