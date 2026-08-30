@@ -1,16 +1,23 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { SignUp } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
 import { isClerkConfigured } from "@/lib/clerk";
 import { eternimeClerkAppearance } from "@/lib/clerk-appearance";
 
 export const dynamic = "force-dynamic";
 
-export default function SignUpPage() {
+export default async function SignUpPage() {
+  if (isClerkConfigured()) {
+    const { userId } = await auth();
+    if (userId) redirect("/app");
+  }
+
   return (
     <main className="flex min-h-dvh items-center justify-center bg-[#08080c] px-6 py-16">
       {isClerkConfigured() ? (
-        <SignUp appearance={eternimeClerkAppearance} forceRedirectUrl="/app/perfil?welcome=1" signInUrl="/sign-in" />
+        <SignUp appearance={eternimeClerkAppearance} forceRedirectUrl="/app/bienvenida" signInUrl="/sign-in" />
       ) : (
         <div className="max-w-sm text-center">
           <p className="font-serif text-2xl text-[#e8d9a8]">Crear mi Eternime</p>

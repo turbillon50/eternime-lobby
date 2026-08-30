@@ -17,7 +17,7 @@ function mxn(cents: number) {
 
 export default async function SocioPage() {
   const session = await getSession();
-  if (!session) redirect("/entrar");
+  if (!session) redirect("/sign-in?redirect_url=/app/socio");
 
   const db = getControlDb();
   let [u] = await db

@@ -91,7 +91,7 @@ export default function EonPage() {
 
       <FadeInOnScroll className="text-center">
         <p className="et-serif text-2xl">Habla con Eon. Cuenta tu primera memoria.</p>
-        <Link href="/crear" className="et-btn et-btn-primary mt-6 inline-flex px-8">
+        <Link href="/sign-up" className="et-btn et-btn-primary mt-6 inline-flex px-8">
           Crear mi legado
         </Link>
       </FadeInOnScroll>
