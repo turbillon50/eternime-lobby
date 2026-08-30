@@ -75,7 +75,9 @@ export function RecuerdosClient() {
     else if (err) setSocialMsg(SOCIAL_ERROR_FEEDBACK[err] ?? "Algo no salio bien con la conexion.");
   }, [searchParams]);
 
-  const [memories, setMemories] = useState<Memory[] | null>(null);
+  const [memories, setMemories] = useState<Memory[]>([]);
+  const [loadingMemories, setLoadingMemories] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [tab, setTab] = useState<Tab>("todos");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Memory | null>(null);
@@ -88,16 +90,26 @@ export function RecuerdosClient() {
   const photoInput = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10000);
+    setLoadingMemories(true);
+    setLoadError(false);
     try {
-      const res = await fetch("/api/memories");
+      const res = await fetch("/api/memories", { cache: "no-store", signal: controller.signal });
+      if (!res.ok) throw new Error("memory-load-failed");
       const data = await res.json();
       setMemories(Array.isArray(data.memories) ? data.memories : []);
-    } catch { setMemories([]); }
+    } catch {
+      setMemories([]);
+      setLoadError(true);
+    } finally {
+      window.clearTimeout(timeout);
+      setLoadingMemories(false);
+    }
   }, []);
   useEffect(() => { load(); }, [load]);
 
   const filtered = useMemo(() => {
-    if (!memories) return [];
     return tab === "todos" ? memories : memories.filter((m) => m.kind === tab);
   }, [memories, tab]);
 
@@ -139,7 +151,7 @@ export function RecuerdosClient() {
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "No se pudo guardar"); return; }
       const saved: Memory = data.memory;
-      setMemories((prev) => (!prev ? [saved] : editing ? prev.map((m) => (m.id === saved.id ? saved : m)) : [saved, ...prev]));
+      setMemories((prev) => editing ? prev.map((m) => (m.id === saved.id ? saved : m)) : [saved, ...prev]);
       setModalOpen(false);
     } catch { setError("Error de conexión"); }
     finally { setSaving(false); }
@@ -148,9 +160,9 @@ export function RecuerdosClient() {
   const remove = async () => {
     if (!confirmDelete) return;
     const target = confirmDelete; setDeleting(true);
-    setMemories((prev) => (prev ? prev.filter((m) => m.id !== target.id) : prev)); setConfirmDelete(null);
-    try { const res = await fetch(`/api/memories/${target.id}`, { method: "DELETE" }); if (!res.ok) setMemories((prev) => (prev ? [target, ...prev] : [target])); }
-    catch { setMemories((prev) => (prev ? [target, ...prev] : [target])); }
+    setMemories((prev) => prev.filter((m) => m.id !== target.id)); setConfirmDelete(null);
+    try { const res = await fetch(`/api/memories/${target.id}`, { method: "DELETE" }); if (!res.ok) setMemories((prev) => [target, ...prev]); }
+    catch { setMemories((prev) => [target, ...prev]); }
     finally { setDeleting(false); }
   };
 
@@ -180,8 +192,10 @@ export function RecuerdosClient() {
         <Button onClick={openCreate}>{t("vault.new")}</Button>
       </div>
 
-      {memories === null ? (
+      {loadingMemories ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
+      ) : loadError ? (
+        <EmptyState title="No pudimos leer tu memoria" description="Tu contenido sigue protegido. Intenta cargarlo de nuevo." action={<Button onClick={load}>Reintentar</Button>} />
       ) : filtered.length === 0 ? (
         <EmptyState
           title={tab === "todos" ? t("vault.emptyTitle") : t("vault.emptyTitle")}
