@@ -22,6 +22,7 @@ export const APP_NAV: NavItem[] = [
   { href: "/app/boveda", label: "Bóveda", icon: <Icon d="M5 5h14v14H5zM5 9h14M9 5v4M9 13h6" /> },
   { href: "/app/guia", label: "Mi historia", icon: <Icon d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13ZM20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z" /> },
   { href: "/app/cartas", label: "Cartas futuras", icon: <Icon d="M3 6h18v12H3zM3 7l9 6 9-6" /> },
+  { href: "/app/integraciones", label: "Integraciones", icon: <Icon d="M8 3v5M16 3v5M6 8h12v3a6 6 0 0 1-12 0V8ZM12 17v4" /> },
   { href: "/app/ias", label: "Mis IAs", icon: <Icon d="M7 7h10v10H7zM3 12h4M17 12h4M12 3v4M12 17v4M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" /> },
   { href: "/app/red", label: "Mi Red", icon: <Icon d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM5 20a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM19 20a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM9 10l-2 3M15 10l2 3" /> },
   { href: "/app/beneficiarios", label: "Personas", icon: <Icon d="M16 11a4 4 0 1 0-8 0M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /> },
