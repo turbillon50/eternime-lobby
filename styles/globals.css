@@ -1852,3 +1852,33 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
   .eon-app.eon-app .eon-home-dashboard .eon-compose-card.eon-compose-real{border-radius:25px!important}
   .eon-app.eon-app .eon-home-dashboard .eon-suggestions{width:100%;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}
 }
+
+/* Contextual memory capture dock — replaces navigation tabs outside Chat. */
+.eon-memory-dock-wrap{display:none}
+@media(max-width:1023px){
+  .eon-app.eon-app>.eon-app-main:not([data-route="/app"]):not([data-route="/app/hablar"]){padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
+  .eon-memory-dock-wrap{position:fixed;z-index:36;right:0;bottom:0;left:0;display:block;pointer-events:none}
+  .eon-memory-dock{
+    position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:end;
+    width:min(calc(100% - 18px),470px);min-height:72px;margin:0 auto max(8px,env(safe-area-inset-bottom));padding:7px 7px 6px;
+    border:1px solid rgba(255,255,255,.12);border-radius:27px;
+    background:linear-gradient(155deg,rgba(22,18,32,.94),rgba(3,3,7,.96));
+    box-shadow:0 22px 62px rgba(0,0,0,.68),inset 0 1px 0 rgba(255,255,255,.13),inset 0 -1px 0 rgba(132,83,255,.07);
+    backdrop-filter:blur(30px) saturate(150%);-webkit-backdrop-filter:blur(30px) saturate(150%);pointer-events:auto
+  }
+  .eon-memory-dock::before{content:"";position:absolute;inset:auto 22% -14px;width:56%;height:34px;background:rgba(111,55,255,.26);filter:blur(24px);pointer-events:none}
+  .eon-memory-dock>a,.eon-memory-dock>button{position:relative;z-index:1;display:flex;min-width:0;min-height:57px;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:18px;color:#817a89;font-size:8px;letter-spacing:.01em;transition:transform .18s cubic-bezier(.22,1,.36,1),color .18s ease,background .18s ease}
+  .eon-memory-dock>a svg,.eon-memory-dock>button svg{width:21px;height:21px}.eon-memory-dock>a:active,.eon-memory-dock>button:active{transform:scale(.9)}.eon-memory-dock>a:hover,.eon-memory-dock>button:hover{color:#e8e1ee;background:rgba(255,255,255,.04)}.eon-memory-dock>button:disabled{opacity:.35}
+  .eon-memory-dock>button.is-active{color:#ff9da9;background:rgba(255,76,103,.08)}.eon-memory-dock.is-recording{border-color:rgba(255,91,119,.25);box-shadow:0 22px 62px rgba(0,0,0,.68),0 0 36px rgba(255,61,103,.09),inset 0 1px rgba(255,255,255,.13)}
+  .eon-memory-dock>.eon-memory-dock__primary{align-self:center;min-height:66px;margin:-20px 2px 0;color:#fff;background:radial-gradient(circle at 32% 24%,#c2a8ff,#7d48ff 38%,#32106b 72%,#09020f);border:1px solid rgba(255,255,255,.25);border-radius:22px;box-shadow:0 12px 34px rgba(104,48,255,.38),inset 0 1px rgba(255,255,255,.44),inset -7px -8px 16px rgba(0,0,0,.42)}
+  .eon-memory-dock>.eon-memory-dock__primary>span{font-size:29px;font-weight:260;line-height:.8}.eon-memory-dock>.eon-memory-dock__primary>small{font-size:7px;color:#e8dcff}.eon-memory-dock>.eon-memory-dock__primary:active{transform:translateY(2px) scale(.94)}
+  .eon-memory-quick{position:relative;display:grid;width:min(calc(100% - 22px),520px);gap:12px;margin:0 auto 12px;padding:16px;border:1px solid rgba(183,153,255,.22);border-radius:25px;background:linear-gradient(155deg,rgba(25,20,36,.98),rgba(4,4,8,.98));box-shadow:0 30px 80px rgba(0,0,0,.75),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(34px);pointer-events:auto;animation:eonQuickRise .3s cubic-bezier(.22,1,.36,1)}
+  .eon-memory-quick::after{content:"";position:absolute;inset:auto 18% 0;height:1px;background:linear-gradient(90deg,transparent,#9c73ff,transparent)}
+  .eon-memory-quick>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.eon-memory-quick>header>div{display:grid;gap:3px}.eon-memory-quick>header small{color:#aa8bff;font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.eon-memory-quick>header b{color:#fff;font-size:15px;font-weight:580}.eon-memory-quick>header>button{display:grid;width:32px;height:32px;place-items:center;border-radius:11px;background:rgba(255,255,255,.045);color:#918a98;font-size:20px}
+  .eon-app.eon-app .eon-memory-quick>textarea{width:100%;min-height:92px;max-height:190px;padding:14px!important;resize:none;border:1px solid rgba(255,255,255,.09)!important;border-radius:17px!important;background:rgba(0,0,0,.28)!important;box-shadow:inset 0 1px 8px rgba(0,0,0,.35)!important;color:#f4eff7!important;font-size:16px!important;line-height:1.5!important}.eon-memory-quick>textarea::placeholder{color:#736d7a!important}.eon-memory-quick>textarea:focus{border-color:rgba(160,119,255,.42)!important;outline:0!important}
+  .eon-memory-quick>footer{display:flex;align-items:center;justify-content:space-between;gap:8px}.eon-memory-quick>footer>button{display:flex;min-height:40px;align-items:center;justify-content:center;gap:7px;padding:0 13px;border:1px solid rgba(255,255,255,.1);border-radius:13px;color:#aaa3b0;font-size:10px}.eon-memory-quick>footer>button svg{width:16px;height:16px}.eon-memory-quick>footer>button.is-listening{color:#ffacb6;border-color:rgba(255,93,119,.24);background:rgba(255,74,102,.07)}.eon-memory-quick>footer>button.is-listening i{width:7px;height:7px;border-radius:50%;background:#ff5c78;box-shadow:0 0 14px #ff4668;animation:eonRecordPulse 1s ease-in-out infinite}.eon-memory-quick>footer>button.is-primary{flex:1;border-color:rgba(255,255,255,.16);background:linear-gradient(135deg,#6330e8,#9e47f0);color:#fff;box-shadow:0 8px 24px rgba(101,47,226,.24)}.eon-memory-quick>footer>button:disabled{opacity:.4}
+  .eon-memory-notice{display:flex;width:max-content;max-width:calc(100% - 28px);align-items:center;gap:9px;margin:0 auto 10px;padding:10px 14px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(11,9,16,.96);box-shadow:0 16px 40px rgba(0,0,0,.5);color:#d9d3df;font-size:10px;pointer-events:auto}.eon-memory-notice>span:first-child,.eon-memory-notice:not(:has(span:first-child)){color:inherit}.eon-memory-notice.is-success{border-color:rgba(112,255,194,.18);color:#a9f3d4}.eon-memory-notice.is-error{border-color:rgba(255,112,130,.2);color:#ffb1bc}
+}
+@keyframes eonQuickRise{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes eonRecordPulse{50%{opacity:.45;transform:scale(.72)}}
+@media(prefers-reduced-motion:reduce){.eon-memory-quick{animation:none}.eon-memory-dock>a,.eon-memory-dock>button{transition:none}.eon-memory-quick>footer>button.is-listening i{animation:none}}

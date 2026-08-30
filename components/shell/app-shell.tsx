@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useClerk } from "@clerk/nextjs";
 import { PageTransition } from "@/components/motion";
 import { EonChatHistory } from "@/components/shell/EonChatHistory";
+import { EonMemoryDock } from "@/components/shell/EonMemoryDock";
 
 export type NavItem = { href: string; label: string; icon: ReactNode };
 
@@ -143,6 +144,8 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
         <small>© {new Date().getFullYear()} Eternime · All Global Holding LLC</small>
       </div>
     </footer>}
+
+    {!brand.includes("ADMIN")&&!isChat&&<EonMemoryDock/>}
 
   </div>;
 }

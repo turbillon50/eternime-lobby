@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
     // Visión: describe hasta 2 fotos para que Eon "vea" y aprenda de ellas.
     let aiContext: string | null = null;
-    if (photos.length) {
+    if (photos.length && kind === "foto") {
       const descs = await Promise.all(photos.slice(0, 2).map((u) => describeImage(u).catch(() => null)));
       const joined = descs.filter(Boolean).join(" ");
       aiContext = joined || null;
