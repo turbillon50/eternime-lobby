@@ -20,7 +20,7 @@ function ContinuumVisual({ phase }: { phase: Phase }) {
           <stop offset=".28" stopColor="#8b5cff"/>
           <stop offset=".62" stopColor="#d653ff"/>
           <stop offset=".83" stopColor="#f4efe8"/>
-          <stop offset="1" stopColor="#ffa851" stopOpacity=".14"/>
+          <stop offset="1" stopColor="#79e7ff" stopOpacity=".14"/>
         </linearGradient>
         <filter id={`flow-glow-${phase}`} x="-30%" y="-80%" width="160%" height="260%">
           <feGaussianBlur stdDeviation="3.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>

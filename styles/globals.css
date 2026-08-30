@@ -42,13 +42,13 @@ button {
   width: clamp(14rem, 41vw, 35rem);
   aspect-ratio: 1;
   border-radius: 9999px;
-  border: 1px solid rgba(201, 169, 97, 0.14);
+  border: 1px solid rgba(155, 116, 255, 0.2);
   background:
-    radial-gradient(circle at 50% 50%, transparent 52%, rgba(201, 169, 97, 0.16) 64%, transparent 72%),
-    radial-gradient(circle at 50% 50%, rgba(201, 169, 97, 0.1), transparent 60%);
+    radial-gradient(circle at 50% 50%, transparent 52%, rgba(155, 116, 255, 0.2) 64%, transparent 72%),
+    radial-gradient(circle at 50% 50%, rgba(105, 73, 255, 0.12), transparent 60%);
   box-shadow:
-    0 0 70px rgba(201, 169, 97, 0.14),
-    inset 0 0 90px rgba(201, 169, 97, 0.05);
+    0 0 70px rgba(124, 78, 255, 0.18),
+    inset 0 0 90px rgba(121, 231, 255, 0.05);
   animation: ring-breathe 5.8s ease-in-out infinite;
 }
 
@@ -428,23 +428,23 @@ button {
 
 /* ─────────────────────────────────────────────────────────────
    Eternime Design System — tokens (factory-eternime)
-   Dark premium + acentos dorado/ámbar etéreo
+   Dark premium + acentos violeta/cian
    ───────────────────────────────────────────────────────────── */
 :root {
-  /* ── Marca "La luz que se queda" — obsidiana + oro único ── */
+  /* ── Marca EON — obsidiana + energía violeta ── */
   --et-bg: #0a0a0c;
   --et-bg-elevated: #121216;
   --et-bg-overlay: rgba(18, 18, 22, 0.86);
-  --et-gold: #c9a961;
-  --et-gold-bright: #dbbc78;
-  --et-gold-dim: rgba(201, 169, 97, 0.55);
+  --et-gold: #9874ff;
+  --et-gold-bright: #d6c8ff;
+  --et-gold-dim: rgba(152, 116, 255, 0.58);
   --et-border: #1e1e24;
-  --et-border-soft: rgba(201, 169, 97, 0.14);
-  --et-text: #f4efe6;
-  --et-text-muted: #9b958a;
-  --et-text-faint: rgba(155, 149, 138, 0.62);
-  --et-glow: 0 0 24px rgba(201, 169, 97, 0.18);
-  --et-glow-strong: 0 0 42px rgba(201, 169, 97, 0.3);
+  --et-border-soft: rgba(166, 140, 255, 0.18);
+  --et-text: #f7f5fb;
+  --et-text-muted: #aaa4b2;
+  --et-text-faint: rgba(170, 164, 178, 0.64);
+  --et-glow: 0 0 24px rgba(126, 78, 255, 0.2);
+  --et-glow-strong: 0 0 42px rgba(126, 78, 255, 0.32);
   --et-danger: #d98f7a;
   --et-success: #9bbf88;
   --et-radius: 14px;
@@ -475,7 +475,7 @@ html, body { background: var(--et-bg); }
 .et-card {
   border: 1px solid var(--et-border);
   border-radius: var(--et-radius);
-  background: linear-gradient(180deg, rgba(201, 169, 97, 0.045), rgba(201, 169, 97, 0.012)), var(--et-bg-elevated);
+  background: linear-gradient(180deg, rgba(152, 116, 255, 0.05), rgba(121, 231, 255, 0.01)), var(--et-bg-elevated);
   backdrop-filter: blur(16px) saturate(1.15);
   -webkit-backdrop-filter: blur(16px) saturate(1.15);
   transition: border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
@@ -530,7 +530,7 @@ html, body { background: var(--et-bg); }
 .et-btn-primary {
   border: 1px solid var(--et-gold);
   background: linear-gradient(135deg, var(--et-gold), var(--et-gold-bright));
-  color: #16120a;
+  color: #fff;
   box-shadow: var(--et-glow);
 }
 
@@ -713,7 +713,7 @@ html[data-theme="light"] .et-btn-ghost:hover:not(:disabled) { background: rgba(9
   display: flex; align-items: center; justify-content: center;
   width: 3.4rem; height: 3.4rem; margin-top: -1.5rem;
   border-radius: 999px; border: 1px solid var(--et-gold);
-  background: radial-gradient(circle at 50% 38%, rgba(201,169,97,0.42), var(--et-bg-elevated) 72%);
+  background: radial-gradient(circle at 50% 38%, rgba(152,116,255,0.46), var(--et-bg-elevated) 72%);
   color: var(--et-gold-bright);
 }
 
@@ -734,13 +734,13 @@ html[data-theme="light"] .et-btn-ghost:hover:not(:disabled) { background: rgba(9
   mix-blend-mode: screen; will-change: transform;
 }
 .et-aurora .b1 { width: 46vw; height: 46vw; left: -8vw; top: -6vw;
-  background: radial-gradient(circle, rgba(201,169,97,0.28), transparent 65%);
+  background: radial-gradient(circle, rgba(119,72,255,0.3), transparent 65%);
   animation: et-drift1 22s ease-in-out infinite; }
 .et-aurora .b2 { width: 40vw; height: 40vw; right: -10vw; top: 18vh;
-  background: radial-gradient(circle, rgba(219,188,120,0.2), transparent 64%);
+  background: radial-gradient(circle, rgba(202,76,239,0.18), transparent 64%);
   animation: et-drift2 28s ease-in-out infinite; }
 .et-aurora .b3 { width: 38vw; height: 38vw; left: 24vw; bottom: -14vh;
-  background: radial-gradient(circle, rgba(201,169,97,0.22), transparent 66%);
+  background: radial-gradient(circle, rgba(94,190,255,0.16), transparent 66%);
   animation: et-drift3 26s ease-in-out infinite; }
 .et-aurora .veil { position: absolute; inset: 0;
   background: radial-gradient(120% 90% at 50% 0%, transparent 40%, var(--et-bg) 92%); }
@@ -753,8 +753,8 @@ html[data-theme="light"] .et-aurora .b2 { background: radial-gradient(circle, rg
 html[data-theme="light"] .et-aurora .b3 { background: radial-gradient(circle, rgba(110,140,200,0.32), transparent 66%); }
 @media (prefers-reduced-motion: reduce) { .et-aurora .blob { animation: none; } }
 
-/* halo del logo (anillo de luz dorada viva) */
-.et-glow-ring { border: 1px solid rgba(201,169,97,0.32); box-shadow: 0 0 24px rgba(201,169,97,0.2), inset 0 0 30px rgba(201,169,97,0.06); }
+/* Halo de energía violeta. */
+.et-glow-ring { border: 1px solid rgba(152,116,255,0.34); box-shadow: 0 0 24px rgba(126,78,255,0.22), inset 0 0 30px rgba(121,231,255,0.05); }
 
 /* Carrusel deslizable: oculta scrollbar, snap suave */
 .et-snap { -ms-overflow-style: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
@@ -1213,14 +1213,14 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
   --eon-violet:#8b5cff;
   --eon-ultraviolet:#6830ff;
   --eon-magenta:#d653ff;
-  --eon-amber:#ffa851;
+  --eon-amber:#b89cff;
   --eon-cyan:#79e7ff;
   min-height:100dvh;
   background:#000!important;
   color:var(--eon-text)!important;
 }
 .eon-app::before{opacity:.28!important;mix-blend-mode:screen!important}
-.eon-app::after{top:-50vh!important;height:92vh!important;opacity:.72;background:conic-gradient(from 215deg at 50% 50%,rgba(71,39,179,.25),rgba(136,61,255,.2),rgba(213,83,255,.08),rgba(121,231,255,.09),rgba(255,168,81,.06),rgba(71,39,179,.25))!important;filter:blur(110px)!important}
+.eon-app::after{top:-50vh!important;height:92vh!important;opacity:.72;background:conic-gradient(from 215deg at 50% 50%,rgba(71,39,179,.25),rgba(136,61,255,.2),rgba(213,83,255,.08),rgba(121,231,255,.09),rgba(154,116,255,.06),rgba(71,39,179,.25))!important;filter:blur(110px)!important}
 .eon-mesh{opacity:.62!important;background:radial-gradient(44% 32% at 20% 8%,rgba(94,48,255,.19),transparent 72%),radial-gradient(36% 29% at 86% 12%,rgba(213,83,255,.12),transparent 72%),radial-gradient(35% 25% at 52% 74%,rgba(121,231,255,.055),transparent 75%)!important;filter:blur(28px) saturate(135%)!important}
 
 .eon-app :where(h1,h2,h3,h4,b,strong){color:var(--eon-text)}
@@ -1257,7 +1257,7 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 .crystal-icon,.crystal-avatar{border-color:rgba(255,255,255,.1)!important;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018))!important;color:#d8d3e0!important;box-shadow:0 10px 30px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.12)!important}
 .eon-mini-orb{position:relative;overflow:hidden;background:radial-gradient(circle at 34% 28%,#fff 0 5%,#b4a0ff 12%,#713dff 32%,#170b35 67%,#010104 100%)!important;border:1px solid rgba(255,255,255,.26);box-shadow:0 0 18px rgba(119,66,255,.24),inset -5px -6px 10px #000,inset 3px 3px 7px rgba(255,255,255,.28)!important}
 .eon-mini-orb::after{content:"";position:absolute;inset:20%;border-radius:42% 58% 48% 52%;border:1px solid rgba(121,231,255,.7);filter:drop-shadow(0 0 3px #8b5cff);animation:eonMiniCurrent 4.6s ease-in-out infinite alternate}
-@keyframes eonMiniCurrent{to{transform:rotate(210deg) scale(1.35);border-color:rgba(255,168,81,.66)}}
+@keyframes eonMiniCurrent{to{transform:rotate(210deg) scale(1.35);border-color:rgba(121,231,255,.58)}}
 .eon-drawer-backdrop{background:rgba(0,0,0,.68);backdrop-filter:blur(6px)}
 .eon-drawer{background:linear-gradient(155deg,rgba(13,11,21,.98),rgba(2,2,5,.96))!important;border-color:rgba(255,255,255,.1)!important;box-shadow:32px 0 100px rgba(0,0,0,.7),inset -1px 0 rgba(139,92,255,.05)!important}
 .eon-sidebar-brand{display:flex;align-items:center;gap:11px;color:var(--eon-text)!important}
@@ -1297,7 +1297,7 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 .eon-orb__current--two{animation-duration:12s;animation-direction:reverse;opacity:.8}.eon-orb__current--three{animation-duration:15s;opacity:.62}
 .eon-orb__core{opacity:.34;animation:eonCore 4.4s ease-in-out infinite}
 .eon-orb__spark{transform-origin:90px 90px;animation:eonSpark 6s ease-in-out infinite}.eon-orb__spark.s2{animation-delay:-1.4s}.eon-orb__spark.s3{animation-delay:-2.8s}.eon-orb__spark.s4{animation-delay:-4.1s}
-.eon-orb__ring{position:absolute;z-index:1;inset:7%;border:1px solid rgba(185,158,255,.18);border-left-color:rgba(121,231,255,.55);border-right-color:rgba(255,168,81,.34);border-radius:50%;filter:drop-shadow(0 0 8px rgba(139,92,255,.22));animation:eonRing 16s linear infinite}
+.eon-orb__ring{position:absolute;z-index:1;inset:7%;border:1px solid rgba(185,158,255,.18);border-left-color:rgba(121,231,255,.55);border-right-color:rgba(199,160,255,.38);border-radius:50%;filter:drop-shadow(0 0 8px rgba(139,92,255,.22));animation:eonRing 16s linear infinite}
 .eon-orb--thinking{filter:drop-shadow(0 24px 48px rgba(128,65,255,.38));animation-duration:3.6s}.eon-orb--thinking .eon-orb__current{animation-duration:3.4s;stroke-dasharray:4 4}.eon-orb--thinking .eon-orb__core{opacity:.62;animation-duration:1.7s}
 .eon-orb--listening .eon-orb__ring{animation-duration:5s;transform:scale(1.05)}
 .eon-orb--error{filter:drop-shadow(0 20px 38px rgba(255,120,93,.18));transform:scale(.98)}.eon-orb--error .eon-orb__ring{border-right-color:rgba(255,132,92,.65);animation-duration:28s}
@@ -1428,7 +1428,7 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
   color:var(--eon-public-text)!important;
 }
 .eon-public-shell::before{opacity:.27!important;mix-blend-mode:screen!important}
-.eon-public-shell::after{top:-48vh!important;height:94vh!important;opacity:.7!important;background:conic-gradient(from 215deg at 50% 50%,rgba(71,39,179,.3),rgba(139,92,255,.22),rgba(213,83,255,.09),rgba(121,231,255,.1),rgba(255,168,81,.055),rgba(71,39,179,.3))!important;filter:blur(112px)!important}
+.eon-public-shell::after{top:-48vh!important;height:94vh!important;opacity:.7!important;background:conic-gradient(from 215deg at 50% 50%,rgba(71,39,179,.3),rgba(139,92,255,.22),rgba(213,83,255,.09),rgba(121,231,255,.1),rgba(154,116,255,.055),rgba(71,39,179,.3))!important;filter:blur(112px)!important}
 .eon-public-shell>header,.eon-public-shell>main,.eon-public-shell>footer{position:relative;z-index:1}
 .public-crystal-header{height:70px!important;padding-inline:clamp(18px,3vw,42px)!important;border-color:rgba(255,255,255,.085)!important;background:rgba(0,0,0,.66)!important;box-shadow:inset 0 -1px 0 rgba(139,92,255,.045)!important;-webkit-backdrop-filter:blur(28px) saturate(145%)!important;backdrop-filter:blur(28px) saturate(145%)!important}
 .public-brand{color:#fff!important}.public-crystal-header nav>a{color:#918b9b!important}.public-crystal-header nav>a:hover{color:#fff!important;background:rgba(255,255,255,.05)!important;box-shadow:inset 0 1px rgba(255,255,255,.06)!important}
@@ -1727,3 +1727,31 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
   .eon-app.eon-app .guia-conversation-shell{height:100%!important;min-height:0!important;overflow:hidden!important}
   .eon-app.eon-app .guia-conversation-body{height:calc(100% - 78px)!important;min-height:0!important;overflow:hidden!important}
 }
+
+/* Videos, red y crecimiento — navegación jerárquica sin salir del shell privado. */
+.eon-growth-hub{display:grid;min-width:0;gap:26px;color:#fff}
+.eon-growth-feature{position:relative;display:grid;grid-template-columns:minmax(230px,.7fr) minmax(0,1.3fr);gap:clamp(22px,4vw,48px);align-items:center;overflow:hidden;padding:clamp(22px,4vw,42px);border:1px solid rgba(184,158,255,.2);border-radius:30px;background:radial-gradient(circle at 12% 18%,rgba(112,57,255,.2),transparent 38%),linear-gradient(145deg,rgba(14,10,25,.98),rgba(1,1,4,.99));box-shadow:inset 0 1px rgba(255,255,255,.1),0 30px 86px rgba(0,0,0,.46)}
+.eon-growth-feature::after{content:"";position:absolute;right:-10%;bottom:-80px;width:58%;height:170px;background:linear-gradient(90deg,transparent,rgba(126,65,255,.22),rgba(121,231,255,.11),transparent);filter:blur(42px);pointer-events:none}
+.eon-growth-feature__copy{position:relative;z-index:2}.eon-growth-feature__copy h2{margin:9px 0 0;font-size:clamp(30px,4.5vw,54px);font-weight:540;line-height:.98;letter-spacing:-.055em}.eon-growth-feature__copy>p:last-child{max-width:430px;margin:16px 0 0;color:#bcb6c5;line-height:1.7}
+.eon-growth-video{position:relative;z-index:2;width:100%;border-radius:24px}.eon-growth-share{position:relative;z-index:2;grid-column:1/-1;display:flex;justify-content:flex-end}.eon-growth-share .official-social-share{justify-content:flex-end}
+.eon-growth-priority{display:grid;gap:20px;padding:clamp(22px,3.5vw,38px);border:1px solid rgba(255,255,255,.11);border-radius:30px;background:rgba(5,4,9,.9);box-shadow:inset 0 1px rgba(255,255,255,.075),0 28px 74px rgba(0,0,0,.38)}
+.eon-growth-priority__head{display:grid;grid-template-columns:minmax(0,.7fr) minmax(280px,1.3fr);column-gap:36px;align-items:end}.eon-growth-priority__head .eon-page-kicker{grid-column:1/-1}.eon-growth-priority__head h2{font-size:clamp(27px,3.7vw,43px);font-weight:550;letter-spacing:-.045em}.eon-growth-priority__head>p:last-child{color:#aaa4b2;line-height:1.6}
+.eon-growth-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.eon-growth-card{position:relative;display:flex;min-width:0;min-height:300px;flex-direction:column;padding:23px;border:1px solid rgba(255,255,255,.11);border-radius:23px;background:linear-gradient(150deg,rgba(255,255,255,.05),rgba(255,255,255,.012));color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.075);transition:transform .24s cubic-bezier(.22,1,.36,1),border-color .24s ease,background .24s ease,box-shadow .24s ease}
+.eon-growth-card.is-primary{border-color:rgba(173,143,255,.3);background:radial-gradient(circle at 80% 10%,rgba(139,92,255,.16),transparent 42%),rgba(255,255,255,.025)}
+.eon-growth-card:hover{transform:translateY(-3px);border-color:rgba(190,166,255,.36);background-color:rgba(139,92,255,.07);box-shadow:inset 0 1px rgba(255,255,255,.12),0 20px 42px rgba(0,0,0,.34)}.eon-growth-card:active{transform:translateY(1px) scale(.99)}
+.eon-growth-card__icon{display:grid;width:44px;height:44px;place-items:center;border:1px solid rgba(188,161,255,.25);border-radius:15px;background:rgba(139,92,255,.09);color:#c7b3ff;box-shadow:inset 0 1px rgba(255,255,255,.1)}.eon-growth-card__icon svg{width:22px;height:22px}
+.eon-growth-card small{margin-top:28px!important;color:#bda8ff!important;font-size:10px!important;font-weight:720;letter-spacing:.15em;text-transform:uppercase}.eon-growth-card h3{margin-top:9px;font-size:22px;font-weight:570;line-height:1.12;letter-spacing:-.035em}.eon-growth-card p{margin-top:12px;color:#aaa4b2!important;font-size:13px;line-height:1.62}.eon-growth-card>b{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:24px;color:#e3dcf0!important;font-size:12px}.eon-growth-card>b span{color:#aa8aff;font-size:18px}
+.eon-network-method{display:grid;grid-template-columns:minmax(250px,.75fr) minmax(0,1.25fr);gap:clamp(24px,5vw,68px);padding:clamp(24px,4vw,44px);border-top:1px solid rgba(255,255,255,.11);border-bottom:1px solid rgba(255,255,255,.11);background:radial-gradient(circle at 0 50%,rgba(87,45,203,.13),transparent 38%)}.eon-network-method h2{margin-top:8px;font-size:clamp(26px,3.5vw,40px);font-weight:550;line-height:1.05;letter-spacing:-.045em}.eon-network-method ol{display:grid;gap:0}.eon-network-method li{display:grid;grid-template-columns:40px 1fr;gap:15px;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.09)}.eon-network-method li:first-child{padding-top:0}.eon-network-method li:last-child{border:0;padding-bottom:0}.eon-network-method li>span{color:#a98cff;font-size:10px;letter-spacing:.12em}.eon-network-method li b{color:#fff;font-size:15px}.eon-network-method li p{margin-top:5px;color:#a8a2af!important;font-size:12px;line-height:1.55}
+
+.official-media-paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:28px}.official-media-paths>a{display:grid;min-width:0;padding:20px;border:1px solid rgba(255,255,255,.11);border-radius:20px;background:rgba(255,255,255,.025);box-shadow:inset 0 1px rgba(255,255,255,.075);transition:transform .22s ease,border-color .22s ease,background .22s ease}.official-media-paths>a:hover{transform:translateY(-2px);border-color:rgba(187,155,255,.34);background:rgba(139,92,255,.08)}.official-media-paths span{color:#a98cff;font-size:9px;letter-spacing:.14em}.official-media-paths b{margin-top:18px;color:#fff;font-size:17px}.official-media-paths small{margin-top:6px;color:#aaa4b2;font-size:11px;line-height:1.45}
+
+.eon-public-shell{overflow-x:clip}.public-crystal-header{max-width:100vw;min-width:0}.public-header-actions,.public-desktop-nav{min-width:0}
+
+@media(max-width:820px){
+  .eon-growth-feature{grid-template-columns:1fr}.eon-growth-feature__copy{text-align:center}.eon-growth-feature__copy>p:last-child{margin-inline:auto}.eon-growth-share{justify-content:flex-start}.eon-growth-share .official-social-share{justify-content:flex-start;width:100%}
+  .eon-growth-priority__head{grid-template-columns:1fr;gap:10px}.eon-growth-grid{grid-template-columns:1fr}.eon-growth-card{min-height:230px}
+  .eon-network-method{grid-template-columns:1fr}.official-media-paths{grid-template-columns:1fr}
+}
+@media(max-width:520px){.eon-growth-feature,.eon-growth-priority{padding:18px;border-radius:24px}.eon-growth-share .official-social-share :is(a,button){flex:1 1 calc(50% - 5px)}.eon-network-method{padding-inline:8px}.official-media-paths>a{padding:17px}}
+@media(prefers-reduced-motion:reduce){.eon-growth-card,.official-media-paths>a{transition:none}.eon-growth-card:hover,.eon-growth-card:active,.official-media-paths>a:hover{transform:none}}

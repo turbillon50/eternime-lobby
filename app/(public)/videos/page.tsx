@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { OfficialVideo } from "@/components/public/official-video";
 import { SocialShare } from "@/components/public/social-share";
+import { ETERNIME_PLANS } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "Videos y redes | Eternime",
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
 };
 
 export default function VideosPage() {
+  const semilla = ETERNIME_PLANS.find((plan) => plan.nombre === "Semilla");
+  const legado = ETERNIME_PLANS.find((plan) => plan.nombre === "Legado");
+
   return (
     <main className="official-media-page">
       <section className="official-media-hero">
@@ -27,6 +31,18 @@ export default function VideosPage() {
       </section>
 
       <OfficialVideo className="official-media-page__video" />
+
+      <nav className="official-media-paths" aria-label="Explorar Eternime">
+        <Link href="/app/red">
+          <span>01</span><b>Cómo crece Mi Red</b><small>Personas, vínculos y contexto</small>
+        </Link>
+        <Link href="/app/integraciones">
+          <span>02</span><b>Conexiones</b><small>Servicios bajo tu autorización</small>
+        </Link>
+        <Link href="/precios">
+          <span>03</span><b>Planes y costos</b><small>{semilla?.nombre} ${semilla?.precio} · {legado?.nombre} ${legado?.precio} {legado?.periodo}</small>
+        </Link>
+      </nav>
 
       <section className="official-social-panel va-crystal">
         <div>

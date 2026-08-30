@@ -25,7 +25,7 @@ export function EonSignal({ state = "idle", className = "", label = "EON, inteli
           <stop offset=".28" stopColor="#8b5cff" />
           <stop offset=".62" stopColor="#d653ff" />
           <stop offset=".86" stopColor="#f4efe8" />
-          <stop offset="1" stopColor="#ffa851" stopOpacity=".16" />
+          <stop offset="1" stopColor="#79e7ff" stopOpacity=".16" />
         </linearGradient>
         <filter id={glow} x="-60%" y="-60%" width="220%" height="220%">
           <feGaussianBlur stdDeviation="4.2" result="blur" />
@@ -40,7 +40,7 @@ export function EonSignal({ state = "idle", className = "", label = "EON, inteli
         <rect x="77" y="41" width="5" height="5" rx="1" fill="#79e7ff" />
         <rect x="169" y="57" width="7" height="7" rx="1.5" fill="#f4efe8" />
         <rect x="272" y="50" width="5" height="5" rx="1" fill="#d653ff" />
-        <rect x="353" y="68" width="4" height="4" rx="1" fill="#ffa851" />
+        <rect x="353" y="68" width="4" height="4" rx="1" fill="#79e7ff" />
       </g>
       <path className="eon-signal__scan" d="M126 8V124" />
     </svg>
