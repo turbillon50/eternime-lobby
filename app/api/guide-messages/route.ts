@@ -65,6 +65,7 @@ async function captureConversationAsMemory(userId: string, userText: string): Pr
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /** Guía local (fallback cálido) cuando la IA no responde. */
 function localGuideReply(userText: string, memoryCount: number): string {
@@ -78,17 +79,20 @@ function localGuideReply(userText: string, memoryCount: number): string {
   return `Gracias por compartirlo conmigo. Cada cosa que me cuentas me ayuda a entender quién eres. ¿Qué historia te gustaría que tu familia pudiera preguntarte algún día?`;
 }
 
-export async function GET() {
+export async function GET(request:Request) {
   try {
     const session = await requireUser();
+    const requestedId = new URL(request.url).searchParams.get("conversationId");
+    if (requestedId && requestedId !== "legacy" && !UUID.test(requestedId)) return NextResponse.json({ error:"Conversación inválida" }, { status:400 });
     await ensureTenantForUser({clerkId:session.clerkId,email:session.email,name:session.name}).catch(()=>null);
     try {
-      const messages = await listTenantEonMessages(session.clerkId);
-      return NextResponse.json({ messages, store: "tenant" });
+      const selected = await listTenantEonMessages(session.clerkId, requestedId === "legacy" ? null : requestedId);
+      if (requestedId && requestedId !== "legacy" && !selected.conversationId) return NextResponse.json({ error:"La conversación ya no existe" }, { status:404 });
+      return NextResponse.json({ messages:selected.messages, conversationId:selected.conversationId, store:"tenant" });
     } catch (e) {
       if (!(e instanceof TenantNotReadyError)) console.warn("[guide] tenant read fallback", e);
       const messages = await listGuideMessages(session.sub);
-      return NextResponse.json({ messages, store: "legacy" });
+      return NextResponse.json({ messages, conversationId:"legacy", store:"legacy" });
     }
   } catch (e) {
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
@@ -100,12 +104,14 @@ export async function POST(request: Request) {
   try {
     const session = await requireUser();
     await ensureTenantForUser({clerkId:session.clerkId,email:session.email,name:session.name}).catch(()=>null);
-    const body = (await request.json()) as { content?: string };
+    const body = (await request.json()) as { content?: string; conversationId?: string | null };
     const content = (body.content ?? "").trim();
     if (!content) return NextResponse.json({ error: "El mensaje no puede estar vacío" }, { status: 400 });
+    const conversationId = body.conversationId ?? null;
+    if (conversationId && conversationId !== "legacy" && !UUID.test(conversationId)) return NextResponse.json({ error:"Conversación inválida" }, { status:400 });
 
     let history;
-    try { history = await listTenantEonMessages(session.clerkId); }
+    try { history = (await listTenantEonMessages(session.clerkId, conversationId === "legacy" ? null : conversationId)).messages; }
     catch { history = await listGuideMessages(session.sub); }
     const userMessage = { id:`local-${Date.now()}`, user_id:session.sub, role:"user" as const, content, created_at:new Date().toISOString() };
 
@@ -127,8 +133,10 @@ export async function POST(request: Request) {
 
     let assistantMessage = null;
     let store = "tenant";
+    let resolvedConversationId = conversationId;
     try {
-      const saved = await appendTenantEonExchange(session.clerkId, content, reply);
+      const saved = await appendTenantEonExchange(session.clerkId, content, reply, conversationId === "legacy" ? null : conversationId);
+      resolvedConversationId = saved.conversationId;
       assistantMessage = saved.assistantMessage;
       await storeEonLearnedContext(session.clerkId, `Usuario: ${content}\nEon: ${reply}`, assistantMessage?.id ?? undefined, .75).catch(()=>{});
     } catch {
@@ -139,7 +147,7 @@ export async function POST(request: Request) {
 
     await captureConversationAsMemory(session.sub, content);
 
-    return NextResponse.json({ userMessage, assistantMessage, reply, cited, store }, { status: 201 });
+    return NextResponse.json({ userMessage, assistantMessage, reply, cited, store, conversationId:resolvedConversationId }, { status: 201 });
   } catch (e) {
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
     return NextResponse.json({ error: "Error interno" }, { status: 500 });

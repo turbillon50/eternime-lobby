@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type 
 import { AnimatePresence, motion } from "framer-motion";
 import { useClerk } from "@clerk/nextjs";
 import { PageTransition } from "@/components/motion";
+import { EonChatHistory } from "@/components/shell/EonChatHistory";
 
 export type NavItem = { href: string; label: string; icon: ReactNode };
 
@@ -43,13 +44,17 @@ function Menu({ user, close, nav, brand }: { user: ShellUser | null; close: () =
       <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} onClick={close} className="eon-sidebar-brand"><span className="eon-mark" /><span><b>{brand}</b><small>Memoria viva</small></span></Link>
       <button onClick={close} className="crystal-icon eon-menu-close" aria-label="Cerrar menú">×</button>
     </div>
-    <nav className="space-y-1">
-      {nav.map((item) => { const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href); return <Link key={item.href} href={item.href} onClick={close} className={`eon-menu-item ${active ? "is-active" : ""}`}>{item.icon}<span>{item.label}</span></Link>; })}
-    </nav>
-    <div className="my-5 h-px bg-slate-900/8" />
-    <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.18em] text-slate-400">Tu universo</p>
-    <div className="space-y-1">{FUTURE.map(x => <div key={x} className="eon-menu-item opacity-60"><span className="h-5 w-5 rounded-md border border-current/30"/><span>{x}</span><span className="ml-auto text-[9px] uppercase tracking-wider">pronto</span></div>)}</div>
-    <div className="mt-auto pt-6">
+    <div className="eon-menu-scroll">
+      {!brand.includes("ADMIN")&&<EonChatHistory close={close}/>}
+      <p className="eon-menu-section-label">Eternime</p>
+      <nav className="space-y-1">
+        {nav.map((item) => { const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href); return <Link key={item.href} href={item.href} onClick={close} className={`eon-menu-item ${active ? "is-active" : ""}`}>{item.icon}<span>{item.label}</span></Link>; })}
+      </nav>
+      <div className="my-5 h-px bg-slate-900/8" />
+      <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.18em] text-slate-400">Tu universo</p>
+      <div className="space-y-1">{FUTURE.map(x => <div key={x} className="eon-menu-item opacity-60"><span className="h-5 w-5 rounded-md border border-current/30"/><span>{x}</span><span className="ml-auto text-[9px] uppercase tracking-wider">pronto</span></div>)}</div>
+    </div>
+    <div className="eon-menu-account">
       <Link href="/app/perfil" onClick={close} className="mb-2 flex items-center gap-3 rounded-2xl p-3 hover:bg-white/50"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">{user?.name?.[0] || "·"}</span><span className="min-w-0"><b className="block truncate text-sm text-slate-800">{user?.name || "Tu perfil"}</b><span className="block truncate text-xs text-slate-500">{user?.email || "Eternime"}</span></span></Link>
       <button onClick={() => signOut({ redirectUrl: "/" })} className="w-full rounded-xl px-3 py-2 text-left text-xs text-slate-500 hover:bg-white/50">Cerrar sesión</button>
     </div>
