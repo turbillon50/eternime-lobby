@@ -11,6 +11,25 @@ import { NextResponse } from "next/server";
 const isProtectedRoute = createRouteMatcher(["/app(.*)", "/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  if (req.nextUrl.hostname === "www.eternime.org") {
+    const canonical = req.nextUrl.clone();
+    canonical.protocol = "https";
+    canonical.hostname = "eternime.org";
+    canonical.port = "";
+    return NextResponse.redirect(canonical, 301);
+  }
+
+  const aliases: Record<string, string> = {
+    "/login": "/sign-in",
+    "/pricing": "/precios",
+  };
+  const alias = aliases[req.nextUrl.pathname];
+  if (alias) {
+    const destination = req.nextUrl.clone();
+    destination.pathname = alias;
+    return NextResponse.redirect(destination, 301);
+  }
+
   if (isProtectedRoute(req)) {
     const { userId } = await auth();
     if (!userId) {

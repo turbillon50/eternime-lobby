@@ -3,11 +3,12 @@ import { requireUser, AuthError } from "@/lib/auth";
 import { listMemories, createMemory } from "@/lib/data/memories";
 import { storeMemoryEmbedding } from "@/lib/ai/rag";
 import { describeImage } from "@/lib/ai/gemini";
-import { getSql } from "@/lib/db";
 import type { MemoryKind } from "@/lib/data/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const KINDS: MemoryKind[] = ["texto", "carta", "voz", "foto", "video"];
 
@@ -15,7 +16,10 @@ export async function GET() {
   try {
     const session = await requireUser();
     const memories = await listMemories(session.sub);
-    return NextResponse.json({ memories });
+    return NextResponse.json(
+      { memories },
+      { headers: { "Cache-Control": "private, no-store, max-age=0" } },
+    );
   } catch (e) {
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
     return NextResponse.json({ error: "Error interno" }, { status: 500 });

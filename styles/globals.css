@@ -1166,7 +1166,9 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 /* Mobile native shell: the viewport never scrolls; only the content plane does. */
 @media(max-width:1023px){
   html.eon-app-active,
-  body.eon-app-active{
+  body.eon-app-active,
+  html:has(.eon-app),
+  body:has(.eon-app){
     width:100%;
     height:100%;
     overflow:hidden!important;
@@ -1207,7 +1209,7 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
     overscroll-behavior-y:contain;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
-    padding-bottom:calc(104px + env(safe-area-inset-bottom))!important;
+    padding-bottom:calc(136px + env(safe-area-inset-bottom))!important;
     touch-action:pan-y;
   }
   .eon-app.eon-app>main::-webkit-scrollbar{display:none}
@@ -1428,3 +1430,36 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 }
 .eon-app.eon-app button:not(:disabled):active{filter:brightness(.94);transform:translateY(1px) scale(.975)}
 @media(prefers-reduced-motion:reduce){.eon-app.eon-app :is(.et-card,.va-crystal,.network-panel,.mcp-card,.guia-context-card),.eon-app.eon-app button{transition:none!important;transform:none!important}}
+
+/* Production fixes — keep the current design, close contrast and shell gaps. */
+.public-header-actions{display:flex;align-items:center;gap:8px}.public-mobile-menu{display:none;position:relative}.public-mobile-menu summary{display:grid;width:38px;height:38px;place-content:center;gap:4px;border:1px solid rgba(255,255,255,.1);border-radius:13px;background:rgba(255,255,255,.035);cursor:pointer;list-style:none}.public-mobile-menu summary::-webkit-details-marker{display:none}.public-mobile-menu summary span{display:block;width:17px;height:1px;background:#d8d1df}.public-mobile-menu>div{position:absolute;z-index:80;right:0;top:46px;display:grid;min-width:190px;padding:7px;border:1px solid rgba(255,255,255,.12);border-radius:17px;background:rgba(8,7,13,.97);box-shadow:0 24px 70px rgba(0,0,0,.72),inset 0 1px rgba(255,255,255,.1);backdrop-filter:blur(24px)}.public-mobile-menu>div a{padding:12px 13px;border-radius:11px;color:#d8d2df;font-size:13px}.public-mobile-menu>div a:hover,.public-mobile-menu>div a:focus-visible{background:rgba(139,92,255,.12);color:#fff}
+
+@media(max-width:760px){
+  .public-crystal-header{padding-inline:16px!important}
+  .public-desktop-nav{display:none!important}
+  .public-mobile-menu{display:block}
+  .public-header-actions{gap:7px}
+}
+
+/* Calendar: remove the remaining light cards and status chips. */
+.eon-app.eon-app :is(.calendar-now,.calendar-list){border-color:rgba(255,255,255,.12)!important;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.014)),#050409!important;box-shadow:inset 0 1px rgba(255,255,255,.1),0 22px 60px rgba(0,0,0,.46)!important}
+.eon-app.eon-app .calendar-day h3{color:#bcb5c5!important}.eon-app.eon-app .calendar-day time{color:#aaa3b2!important}.eon-app.eon-app .calendar-day small{color:#958f9d!important}.eon-app.eon-app .calendar-day article>span{border:1px solid rgba(185,158,255,.22)!important;background:rgba(139,92,255,.1)!important;color:#d6c8ff!important}.eon-app.eon-app .calendar-day article>span.done{border-color:rgba(125,211,165,.22)!important;background:rgba(91,178,133,.1)!important;color:#a8dfbf!important}
+
+/* Mis IAs: every chip and provider uses the OLED material. */
+.eon-app.eon-app .mcp-hero{border-color:rgba(255,255,255,.13)!important;background:radial-gradient(55% 90% at 90% 15%,rgba(104,48,255,.13),transparent 68%),linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.014)),#050409!important;box-shadow:inset 0 1px rgba(255,255,255,.12),0 26px 72px rgba(0,0,0,.5)!important}.eon-app.eon-app .mcp-principles span,.eon-app.eon-app :is(.mcp-provider-row,.mcp-scope-grid) button,.eon-app.eon-app .mcp-item{border:1px solid rgba(255,255,255,.1)!important;background:rgba(255,255,255,.04)!important;color:#bdb6c5!important}.eon-app.eon-app :is(.mcp-provider-row,.mcp-scope-grid) button.active{border-color:rgba(190,165,255,.38)!important;background:linear-gradient(135deg,rgba(104,48,255,.23),rgba(181,74,226,.12))!important;color:#f3edff!important}.eon-app.eon-app :is(.mcp-step>b,.mcp-count){border:1px solid rgba(191,166,255,.26)!important;background:rgba(139,92,255,.13)!important;color:#dccfff!important}.eon-app.eon-app .mcp-guide ol{color:#b5aebe!important}.eon-app.eon-app .mcp-item button{color:#e49aaa!important}
+
+/* Mi Red: dark graph, nodes, search field and source chips. */
+.eon-app.eon-app :is(.network-search,.network-panel,.network-canvas,.network-import){border-color:rgba(255,255,255,.12)!important;background:linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.012)),#040307!important;box-shadow:inset 0 1px rgba(255,255,255,.1),0 24px 68px rgba(0,0,0,.48)!important}.eon-app.eon-app .network-canvas{background:radial-gradient(circle at 50% 50%,rgba(104,48,255,.16),transparent 28%),#030205!important}.eon-app.eon-app .network-search label{border-color:rgba(255,255,255,.11)!important;background:rgba(0,0,0,.42)!important;color:#aaa3b2!important}.eon-app.eon-app .network-skills button,.eon-app.eon-app .network-source{border:1px solid rgba(255,255,255,.085)!important;background:rgba(255,255,255,.04)!important;color:#b8b1c0!important}.eon-app.eon-app .network-center{border:1px solid rgba(190,165,255,.22)!important;background:rgba(13,9,24,.94)!important;box-shadow:0 14px 42px rgba(0,0,0,.55),0 0 38px rgba(104,48,255,.12)!important}.eon-app.eon-app .network-node>span,.eon-app.eon-app .network-source>span{border:1px solid rgba(190,165,255,.25)!important;background:radial-gradient(circle at 35% 28%,rgba(205,187,255,.34),rgba(104,48,255,.18) 38%,#090611 74%)!important;color:#e6dcff!important;box-shadow:inset 0 1px rgba(255,255,255,.18),0 10px 28px rgba(0,0,0,.45)!important}.eon-app.eon-app :is(.network-center,.network-node,.network-source) :is(b,strong){color:#fff!important}.eon-app.eon-app :is(.network-node,.network-source) small{color:#aaa3b2!important}.eon-app.eon-app .network-notice{background:rgba(139,92,255,.1)!important;color:#d8caff!important}
+
+.eon-app.eon-app .ops-list-head>span{border:1px solid rgba(190,165,255,.24)!important;background:rgba(139,92,255,.12)!important;color:#d9ccff!important}.eon-app.eon-app .ops-date-error{margin:-2px 2px 2px;color:#ffb09b!important;font-size:11px!important}
+
+/* Account readiness must remain dark even when an item is complete. */
+.eon-app.eon-app .readiness-ring::after{background:#07050c!important}.eon-app.eon-app .readiness-ring span{color:#fff!important}.eon-app.eon-app .readiness-grid a.done{border-color:rgba(121,231,255,.16)!important;background:rgba(89,171,197,.075)!important;color:#bfeaf2!important}
+
+/* Mi historia: stable first paint and content-sized conversation plane. */
+.eon-app.eon-app .guia-page{transform:none!important}.eon-app.eon-app .guia-conversation-body{height:auto!important;min-height:calc(100dvh - 305px)}
+@media(max-width:1023px){
+  .eon-app.eon-app .guia-scene{min-height:0!important}
+  .eon-app.eon-app .guia-conversation-shell{min-height:calc(100dvh - 238px)!important}
+  .eon-app.eon-app .guia-conversation-body{height:auto!important;min-height:calc(100dvh - 238px)!important;padding-bottom:8px!important}
+}

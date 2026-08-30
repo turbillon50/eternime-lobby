@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { esES } from "@clerk/localizations";
 import "@/styles/globals.css";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-eternime", display: "swap" });
@@ -66,5 +67,5 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     </html>
   );
 
-  return isClerkConfigured() ? <ClerkProvider>{tree}</ClerkProvider> : tree;
+  return isClerkConfigured() ? <ClerkProvider localization={esES}>{tree}</ClerkProvider> : tree;
 }
