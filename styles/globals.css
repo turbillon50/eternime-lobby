@@ -1244,3 +1244,123 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 
 @media(max-width:760px){.eon-public-signal{width:min(88vw,350px)!important}.network-signal,.mcp-signal{width:120px;opacity:.38}.public-account-btn{padding-inline:10px}.public-account-btn span{display:none}}
 @media(prefers-reduced-motion:reduce){.eon-signal *,.eon-mark::after,.calendar-signal i,.network-signal i,.mcp-signal i,.public-account-btn.is-loading{animation:none!important}.eon-signal__scan{display:none}}
+
+/* EON Contrast 4K — final cascade authority for OLED, legibility and Craft states. */
+.eon-app.eon-app{
+  --eon-text:#fff;
+  --eon-muted:#bcb6c5;
+  --eon-faint:#8d8795;
+  --eon-line:rgba(255,255,255,.145);
+  --eon-line-hot:rgba(201,184,255,.42);
+  --eon-crystal:rgba(8,7,13,.82);
+  --eon-crystal-strong:rgba(12,10,20,.94);
+  --et-bg:#000;
+  --et-bg-elevated:#0d0c13;
+  --et-bg-overlay:rgba(8,7,13,.94);
+  --et-gold:#a98cff;
+  --et-gold-bright:#d8caff;
+  --et-gold-dim:#bda9ff;
+  --et-border:rgba(255,255,255,.15);
+  --et-border-soft:rgba(190,168,255,.24);
+  --et-text:#fff;
+  --et-text-muted:#bcb6c5;
+  --et-text-faint:#928b9a;
+  color-scheme:dark;
+  background:#000!important;
+  color:#fff!important;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.eon-app.eon-app :is(h1,h2,h3,h4,h5,h6,strong,b){color:#fff!important}
+.eon-app.eon-app :is(p,small,label){color:var(--eon-muted)}
+.eon-app.eon-app :is(.eon-page-kicker,.eon-screen-kicker,.eon-kicker){color:#c4afff!important;text-shadow:0 0 24px rgba(139,92,255,.24)}
+.eon-app.eon-app :is(.eon-sub,.eon-screen-sub){color:#c1bbc9!important}
+
+.eon-app.eon-app :is(.et-card,.va-crystal,.network-panel,.network-search,.network-canvas,.mcp-card,.calendar-shell,.ops-create,.ops-list,.guia-conversation-shell,.guia-context-card,.readiness-card,.voice-recorder,.identity-shot,.identity-done){
+  border-color:var(--eon-line)!important;
+  background:linear-gradient(142deg,rgba(255,255,255,.072),rgba(255,255,255,.018) 32%,rgba(139,92,255,.04) 74%,rgba(121,231,255,.018)),rgba(5,4,9,.9)!important;
+  color:#fff!important;
+  box-shadow:0 28px 84px rgba(0,0,0,.66),inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(139,92,255,.055)!important;
+  -webkit-backdrop-filter:blur(26px) saturate(150%)!important;
+  backdrop-filter:blur(26px) saturate(150%)!important;
+}
+.eon-app.eon-app :is(.ops-card,.task-row,.calendar-day article,.network-node,.mcp-provider-row,.mcp-token,.account-stat,.readiness-grid a,.identity-checks span,.voice-turns p,.tenant-row){
+  border-color:rgba(255,255,255,.115)!important;
+  background:rgba(255,255,255,.042)!important;
+  color:#c2bcc9!important;
+}
+
+.eon-app.eon-app :is(.et-input,input:not([type="file"]),textarea,select){
+  border:1px solid rgba(255,255,255,.16)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012)),#020204!important;
+  color:#fff!important;
+  caret-color:#cbb8ff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 12px 34px rgba(0,0,0,.28)!important;
+}
+.eon-app.eon-app :is(input,textarea)::placeholder{color:#9f98a8!important;opacity:1}
+.eon-app.eon-app :is(.et-input,input,textarea,select):focus-visible{
+  outline:none!important;
+  border-color:rgba(183,153,255,.72)!important;
+  background:#050309!important;
+  box-shadow:0 0 0 3px rgba(139,92,255,.18),0 0 42px rgba(104,48,255,.15),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.eon-app.eon-app [class*="bg-[var(--et-bg-elevated"]{background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.018)),#0a0910!important}
+.eon-app.eon-app [class*="text-[var(--et-text"]{color:#fff!important}
+.eon-app.eon-app [class*="text-[var(--et-gold"]{color:#cdbbff!important}
+.eon-app.eon-app [class*="border-[var(--et-border"]{border-color:rgba(255,255,255,.15)!important}
+
+.eon-app.eon-app .et-btn-primary{
+  border:1px solid rgba(222,207,255,.26)!important;
+  background:linear-gradient(135deg,#713cff,#955fff 54%,#cf55ed)!important;
+  color:#fff!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.28);
+  box-shadow:0 14px 38px rgba(104,48,255,.36),inset 0 1px 0 rgba(255,255,255,.38),inset 0 -1px 0 rgba(0,0,0,.3)!important;
+}
+.eon-app.eon-app :is(.et-btn-secondary,.et-btn-ghost){border-color:rgba(255,255,255,.15)!important;background:rgba(255,255,255,.055)!important;color:#e2dce8!important}
+.eon-app.eon-app button:disabled{opacity:.68!important;filter:saturate(.72);color:#ddd6e4!important;cursor:not-allowed}
+.eon-app.eon-app button:not(:disabled):focus-visible,.eon-app.eon-app a:focus-visible{outline:2px solid #c3aaff!important;outline-offset:3px!important}
+
+.eon-app.eon-app .eon-menu-item{color:#aaa4b2!important}
+.eon-app.eon-app .eon-menu-item:hover{color:#fff!important;background:rgba(255,255,255,.06)!important}
+.eon-app.eon-app .eon-menu-item.is-active{color:#fff!important;background:linear-gradient(90deg,rgba(139,92,255,.24),rgba(139,92,255,.075))!important;box-shadow:inset 2px 0 0 #ad8aff,0 0 32px rgba(104,48,255,.08)!important}
+.eon-app.eon-app .eon-app-footer a{color:#aaa4b2!important}.eon-app.eon-app .eon-app-footer a:hover{color:#fff!important}
+
+/* Mi Historia: exact surfaces shown in the contrast audit. */
+.eon-app.eon-app .guia-context-card{background:linear-gradient(150deg,rgba(20,15,35,.92),rgba(2,2,5,.96) 58%,rgba(10,5,20,.94))!important}
+.eon-app.eon-app .guia-context-card h2{color:#fff!important;text-shadow:0 2px 24px rgba(0,0,0,.52)}
+.eon-app.eon-app .guia-context-card>p:not(.eon-page-kicker){color:#c2bcc9!important}
+.eon-app.eon-app .guia-context-stats span{border-color:rgba(255,255,255,.12)!important;color:#aaa3b1!important}
+.eon-app.eon-app .guia-context-stats b{color:#fff!important}
+.eon-app.eon-app .guia-conversation-shell{background:radial-gradient(70% 48% at 55% 18%,rgba(91,48,190,.13),transparent 70%),#020204!important}
+.eon-app.eon-app .guia-conversation-head h1{color:#fff!important}
+.eon-app.eon-app .guia-live-status{border-color:rgba(182,151,255,.25)!important;background:rgba(139,92,255,.08)!important;color:#d6caff!important}
+.eon-app.eon-app .guia-live-status i{background:#b897ff;box-shadow:0 0 0 5px rgba(139,92,255,.12),0 0 18px rgba(139,92,255,.72)}
+.eon-app.eon-app .guia-bubble>div{border:1px solid rgba(255,255,255,.13)!important;box-shadow:0 18px 44px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.1)!important}
+.eon-app.eon-app .guia-bubble.is-assistant>div{background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025)),#0a0910!important;color:#fff!important}
+.eon-app.eon-app .guia-bubble.is-user>div{border-color:rgba(220,202,255,.25)!important;background:linear-gradient(135deg,#5524d2,#7b3fe9 58%,#a846d1)!important;color:#fff!important}
+.eon-app.eon-app .guia-bubble-label{color:#cbb7ff!important}
+.eon-app.eon-app .guia-bubble-copy{color:#f9f7fb!important}
+.eon-app.eon-app .guia-bubble button{border-color:rgba(255,255,255,.28)!important;color:#e7dfff!important;background:rgba(255,255,255,.045)}
+.eon-app.eon-app .guia-compose{border-color:rgba(255,255,255,.16)!important;background:linear-gradient(145deg,rgba(18,14,28,.96),rgba(2,2,5,.96))!important;box-shadow:0 22px 60px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.15)!important}
+.eon-app.eon-app .guia-compose-input{background:#020204!important;color:#fff!important}
+.eon-app.eon-app .guia-send-btn:disabled{border-color:rgba(190,168,255,.16)!important;background:linear-gradient(135deg,#2b1b4b,#3c245d)!important;color:#c9c1d2!important}
+
+/* Bóveda: a protected optical chamber, never a white drop-zone. */
+.eon-app.eon-app .eon-vault{background:radial-gradient(75% 60% at 14% 0,rgba(104,48,255,.14),transparent 58%),linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.014) 38%,rgba(121,231,255,.018)),#030305!important}
+.eon-app.eon-app .eon-vault :is(h2,h3){color:#fff!important}.eon-app.eon-app .eon-vault p{color:#bcb6c5!important}
+.eon-app.eon-app .eon-vault-empty>div{border-color:rgba(196,172,255,.2)!important;background:linear-gradient(145deg,rgba(139,92,255,.06),rgba(255,255,255,.018) 42%,rgba(0,0,0,.18))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 24px 72px rgba(0,0,0,.38)}
+.eon-app.eon-app .eon-vault-empty .et-glow-ring{border-color:rgba(195,169,255,.3)!important;background:radial-gradient(circle at 38% 28%,#d7c8ff,#8b5cff 18%,#241044 48%,#030106 76%)!important;color:#fff!important;box-shadow:0 0 38px rgba(104,48,255,.28),inset 0 1px 0 rgba(255,255,255,.48),inset -8px -9px 16px rgba(0,0,0,.66)!important}
+.eon-app.eon-app .eon-vault-empty .et-btn-ghost{background:rgba(139,92,255,.09)!important;border-color:rgba(190,165,255,.26)!important;color:#f0eaff!important}
+
+.eon-public-shell.eon-public-shell{--eon-public-text:#fff;--eon-public-muted:#bcb6c5;--eon-public-line:rgba(255,255,255,.145);background:#000!important;color:#fff!important;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.eon-public-shell.eon-public-shell :is(.eon-public-hero .lead,.eon-public-grid p,.eon-mcp-public>div>p,.eon-public-statement p){color:#bbb5c3!important}
+.eon-public-shell.eon-public-shell .public-crystal-header nav>a{color:#aaa4b2!important}.eon-public-shell.eon-public-shell .public-crystal-header nav>a:hover{color:#fff!important}
+.eon-public-shell.eon-public-shell .prompt-preview{color:#aaa4b2!important}
+.eon-public-shell.eon-public-shell>footer nav a,.eon-public-shell.eon-public-shell>footer p{color:#9d96a5!important}
+
+@media(hover:hover) and (pointer:fine){
+  .eon-app.eon-app :is(.et-card,.va-crystal,.network-panel,.mcp-card,.guia-context-card):hover{border-color:rgba(190,165,255,.3)!important;box-shadow:0 34px 96px rgba(0,0,0,.72),0 0 48px rgba(104,48,255,.08),inset 0 1px 0 rgba(255,255,255,.2)!important;transform:translate3d(0,-2px,0)}
+  .eon-app.eon-app button:not(:disabled):hover{filter:brightness(1.12) saturate(1.08);transform:translateY(-1px)}
+}
+.eon-app.eon-app button:not(:disabled):active{filter:brightness(.94);transform:translateY(1px) scale(.975)}
+@media(prefers-reduced-motion:reduce){.eon-app.eon-app :is(.et-card,.va-crystal,.network-panel,.mcp-card,.guia-context-card),.eon-app.eon-app button{transition:none!important;transform:none!important}}
