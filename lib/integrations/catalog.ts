@@ -1,4 +1,4 @@
-export type IntegrationSlug = "neon" | "gmail" | "outlook" | "googlecalendar" | "googledrive";
+export type IntegrationSlug = "supabase" | "neon" | "gmail" | "outlook" | "googlecalendar" | "googledrive";
 
 export type IntegrationDefinition = {
   slug: IntegrationSlug;
@@ -12,13 +12,21 @@ export type IntegrationDefinition = {
 
 export const INTEGRATION_CATALOG: readonly IntegrationDefinition[] = [
   {
-    slug: "neon",
-    name: "Mi Neon",
-    eyebrow: "Propiedad de memoria",
-    description: "Conecta una cuenta Neon que esté a tu nombre y prepara tu infraestructura privada.",
-    permission: "Eternime sólo habilitará operaciones de configuración autorizadas. Nunca borrar proyectos.",
+    slug: "supabase",
+    name: "Supabase",
+    eyebrow: "Memoria propia · conexión sencilla",
+    description: "Autoriza tu cuenta con un flujo seguro, sin copiar llaves técnicas en Eternime.",
+    permission: "Eternime sólo verá los proyectos y permisos que autorices. Sin borrados automáticos.",
     group: "ownership",
     recommended: true,
+  },
+  {
+    slug: "neon",
+    name: "Mi Neon",
+    eyebrow: "Opción avanzada",
+    description: "Si ya usas Neon, conecta tu cuenta mediante una API key creada por ti.",
+    permission: "Eternime sólo habilitará operaciones de configuración autorizadas. Nunca borrar proyectos.",
+    group: "ownership",
   },
   {
     slug: "gmail",
