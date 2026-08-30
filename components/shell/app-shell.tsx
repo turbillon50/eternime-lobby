@@ -59,6 +59,14 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
   const pathname = usePathname();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    document.documentElement.classList.add("eon-app-active");
+    document.body.classList.add("eon-app-active");
+    return () => {
+      document.documentElement.classList.remove("eon-app-active");
+      document.body.classList.remove("eon-app-active");
+    };
+  }, []);
   useEffect(() => { fetch("/api/auth/me").then(r=>r.json()).then(d=>setUser(d.user ?? null)).catch(()=>{}); }, []);
   useEffect(() => {
     if (!open) return;

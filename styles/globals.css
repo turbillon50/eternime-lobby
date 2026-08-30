@@ -1163,6 +1163,70 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 
 @media(max-width:430px){.eon-suggestions{max-width:360px;gap:6px}.eon-suggestions button{font-size:10px;padding:8px 10px}.eon-kicker{margin-top:8px!important}.eon-sub{font-size:13px!important;max-width:330px!important}.eon-tabbar{grid-template-columns:repeat(5,minmax(48px,1fr))!important}.eon-tabbar>a{font-size:8px!important}}
 
+/* Mobile native shell: the viewport never scrolls; only the content plane does. */
+@media(max-width:1023px){
+  html.eon-app-active,
+  body.eon-app-active{
+    width:100%;
+    height:100%;
+    overflow:hidden!important;
+    overscroll-behavior:none;
+    background:#000!important;
+  }
+  body.eon-app-active{
+    position:fixed;
+    inset:0;
+  }
+  .eon-app.eon-app{
+    position:fixed;
+    inset:0;
+    display:grid;
+    grid-template-rows:64px minmax(0,1fr);
+    width:100%;
+    height:100vh;
+    height:100svh;
+    height:100dvh;
+    min-height:0;
+    overflow:hidden;
+    overscroll-behavior:none;
+  }
+  .eon-app.eon-app>.eon-topbar{
+    position:relative!important;
+    top:auto!important;
+    grid-row:1;
+    min-height:64px;
+    flex:none;
+  }
+  .eon-app.eon-app>main{
+    grid-row:2;
+    min-width:0;
+    min-height:0!important;
+    max-height:none;
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding-bottom:calc(104px + env(safe-area-inset-bottom))!important;
+    touch-action:pan-y;
+  }
+  .eon-app.eon-app>main::-webkit-scrollbar{display:none}
+  .eon-app.eon-app>.eon-tabbar{
+    position:fixed!important;
+    z-index:70!important;
+    left:50%!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+    transform:translate3d(-50%,0,0)!important;
+    margin:0!important;
+    overflow:hidden;
+    contain:layout paint;
+    isolation:isolate;
+  }
+  .eon-app.eon-app>.eon-tabbar::before{z-index:-1}
+}
+
 @media(prefers-reduced-motion:reduce){
   .eon-orb,.eon-orb *,.eon-mini-orb::after{animation:none!important}
   .eon-orb__aura{opacity:.66;transform:none}.eon-orb__current{stroke-dasharray:none}
