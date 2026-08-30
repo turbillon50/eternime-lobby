@@ -99,3 +99,10 @@ export type GuideMessage = {
   content: string;
   created_at: string;
 };
+
+export type EonConversation = {
+  id: string;
+  title: string;
+  started_at: string;
+  message_count: number;
+};
