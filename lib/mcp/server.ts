@@ -218,7 +218,7 @@ export async function handleMcpPost(request: Request, access: McpAccess) {
       await auditMcp(access, method, name, true);
       return rpc(body.id, {
         content: [{ type: "text", text: JSON.stringify(result) }],
-        structuredContent: result,
+        structuredContent: { data: result },
       });
     }
     if (method === "ping") return rpc(body.id, {});
