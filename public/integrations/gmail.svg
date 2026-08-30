@@ -1,7 +1,0 @@
-<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M6 40h7V22.9L3 15.4V37a3 3 0 0 0 3 3Z" fill="#4285F4"/>
-  <path d="M35 40h7a3 3 0 0 0 3-3V15.4l-10 7.5V40Z" fill="#34A853"/>
-  <path d="M35 10.5v12.4l10-7.5V12c0-3.7-4.2-5.8-7.2-3.6L35 10.5Z" fill="#FBBC04"/>
-  <path d="M13 22.9V10.5L24 18.8l11-8.3v12.4l-11 8.2-11-8.2Z" fill="#EA4335"/>
-  <path d="M3 12v3.4l10 7.5V10.5l-2.8-2.1C7.2 6.2 3 8.3 3 12Z" fill="#C5221F"/>
-</svg>
