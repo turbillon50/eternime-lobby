@@ -8,7 +8,7 @@ export default function NetworkPage() {
   return (
     <div className="grid gap-6">
       <header className="eon-page-head">
-        <span className="eon-page-orb" />
+        <span className="eon-page-mark" />
         <div>
           <p className="eon-page-kicker">Inteligencia relacional</p>
           <h1>Mi Red</h1>

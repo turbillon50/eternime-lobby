@@ -242,7 +242,7 @@ export function GuiaClient() {
         <CrystalSurface className="guia-context-card">
           <LivingMesh />
           <PresenceHalo />
-          <div className="guia-context-orb"><span className="eon-mini-orb" /></div>
+          <div className="guia-context-signal"><span className="eon-mark" /></div>
           <p className="eon-page-kicker">Eon · Mi historia</p>
           <h2>Una conversación que se vuelve memoria.</h2>
           <p>Eon conecta lo que cuentas con personas, proyectos, decisiones y recuerdos. No necesitas ordenar nada antes de hablar.</p>

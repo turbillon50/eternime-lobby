@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EonSignal } from "@/components/visual/VisualArtifacts";
 
 export const metadata: Metadata = {
   title: "Eternime — Tu segunda memoria",
@@ -11,7 +12,7 @@ export default function HomePage() {
   return <div className="eon-public-home">
     <section className="eon-public-hero va-crystal va-spatial">
       <div className="eon-public-mesh" aria-hidden />
-      <div className="eon-public-presence" aria-hidden><span/><span/><span/></div>
+      <EonSignal className="eon-public-signal" label="EON, inteligencia de memoria activa" />
       <p className="eon-kicker">Eternime · Personal memory intelligence</p>
       <h1>Tu segunda memoria.</h1>
       <p className="lead">Habla con Eon. Guarda lo importante. Recupera ideas, personas, proyectos y decisiones cuando las necesites.</p>

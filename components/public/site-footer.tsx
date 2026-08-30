@@ -6,8 +6,8 @@ export function SiteFooter() {
     <footer className="border-t border-[var(--et-border-soft)] px-5 py-10 sm:px-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="et-serif text-base tracking-[0.18em] text-[var(--et-gold-bright)]">ETERNIME</p>
-          <p className="mt-1 text-xs text-[var(--et-text-faint)]">Tu legado vive para siempre.</p>
+          <p className="public-footer-lockup"><span className="eon-mark" aria-hidden="true"/><span><b>EON</b><small>ETERNIME</small></span></p>
+          <p className="mt-2 text-xs text-[var(--et-text-faint)]">Tu memoria permanece contigo.</p>
         </div>
         <nav className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-[var(--et-text-muted)] sm:grid-cols-3">
           <Link href="/como-funciona" className="transition hover:text-[var(--et-text)]">Cómo funciona</Link>
