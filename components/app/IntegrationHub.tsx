@@ -29,6 +29,7 @@ const GROUPS: { key: IntegrationGroup; title: string; copy: string }[] = [
 
 function IntegrationGlyph({ slug }: { slug: string }) {
   const paths: Record<string, string> = {
+    supabase: "M5 4h10l-4 7h8L8 21l3-7H5V4Z",
     neon: "M5 18V6l7 7 7-7v12M8 9h8",
     gmail: "M4 7v11h16V7l-8 6-8-6Z",
     outlook: "M4 5h10v14H4zM14 8h6v8h-6M7 9c2-2 4 0 4 3s-2 5-4 3-2-4 0-6Z",
@@ -71,7 +72,7 @@ export function IntegrationHub({ mode = "full" }: { mode?: "full" | "onboarding"
 
   const progress = useMemo(() => {
     const connected = data?.integrations.filter((item) => item.active) ?? [];
-    const memoryReady = connected.some((item) => item.slug === "neon");
+    const memoryReady = connected.some((item) => item.slug === "supabase" || item.slug === "neon");
     const dailyReady = connected.some((item) => item.slug === "gmail" || item.slug === "outlook");
     return { connected: connected.length, foundations: Number(memoryReady) + Number(dailyReady) };
   }, [data]);
@@ -115,7 +116,7 @@ export function IntegrationHub({ mode = "full" }: { mode?: "full" | "onboarding"
       <div>
         <p className="integration-overline">{mode === "onboarding" ? "Conexión privada" : "Centro de control"}</p>
         <h2>{mode === "onboarding" ? "Elige una base para comenzar." : "Conecta lo esencial. Tú decides hasta dónde."}</h2>
-        <p>{mode === "onboarding" ? "Neon te da propiedad sobre tu memoria; tu correo aporta contexto cotidiano. Puedes conectar una, ambas o continuar sin hacerlo ahora." : "Las credenciales se guardan cifradas por Composio y no pasan por Eternime. Puedes pausar cada acceso cuando quieras."}</p>
+        <p>{mode === "onboarding" ? "Supabase es la opción sencilla para preparar una base a tu nombre; Neon queda disponible si ya lo usas. Tu correo aporta contexto cotidiano y todo es opcional." : "Las credenciales se guardan cifradas por Composio y no pasan por Eternime. Puedes pausar cada acceso cuando quieras."}</p>
       </div>
       <div className="integration-meter" aria-label={`${progress.foundations} de 2 bases recomendadas conectadas`}>
         <strong>{progress.foundations}<span>/2</span></strong>
@@ -143,7 +144,7 @@ export function IntegrationHub({ mode = "full" }: { mode?: "full" | "onboarding"
             <h4>{item.name}</h4>
             <p>{item.description}</p>
             <div className="integration-permission"><span aria-hidden>✓</span>{item.permission}</div>
-            {item.slug === "neon" && <p className="integration-caveat">Conectar no mueve tu memoria actual. Cualquier migración requerirá tu aprobación explícita.</p>}
+            {(item.slug === "supabase" || item.slug === "neon") && <p className="integration-caveat">Conectar prepara el acceso; no mueve tu memoria actual. Cualquier migración requerirá tu aprobación explícita.</p>}
             <div className="integration-actions">
               {item.active
                 ? <button type="button" className="integration-secondary" disabled={busy === item.slug} onClick={() => void pause(item.slug, item.name)}>{busy === item.slug ? "Pausando…" : "Pausar acceso"}</button>
