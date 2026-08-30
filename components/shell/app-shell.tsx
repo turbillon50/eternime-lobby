@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type PropsWithChildren, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PropsWithChildren, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useClerk } from "@clerk/nextjs";
 import { PageTransition } from "@/components/motion";
@@ -37,8 +37,8 @@ function Menu({ user, close, nav, brand }: { user: ShellUser | null; close: () =
   const { signOut } = useClerk();
   return <div className="flex h-full flex-col p-5 sm:p-6">
     <div className="mb-7 flex items-center justify-between">
-      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} onClick={close} className="flex items-center gap-3 font-semibold tracking-[-.02em] text-slate-900"><span className="eon-mini-orb" /> {brand}</Link>
-      <button onClick={close} className="crystal-icon" aria-label="Cerrar menú">×</button>
+      <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} onClick={close} className="eon-sidebar-brand"><span className="eon-mini-orb" /><span><b>{brand}</b><small>Memoria viva</small></span></Link>
+      <button onClick={close} className="crystal-icon eon-menu-close" aria-label="Cerrar menú">×</button>
     </div>
     <nav className="space-y-1">
       {nav.map((item) => { const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href); return <Link key={item.href} href={item.href} onClick={close} className={`eon-menu-item ${active ? "is-active" : ""}`}>{item.icon}<span>{item.label}</span></Link>; })}
@@ -53,21 +53,45 @@ function Menu({ user, close, nav, brand }: { user: ShellUser | null; close: () =
   </div>;
 }
 
-export function AppShell({ children, nav = APP_NAV, brand = "Eternime" }: PropsWithChildren<{ nav?: NavItem[]; brand?: string }>) {
+export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithChildren<{ nav?: NavItem[]; brand?: string }>) {
   const [user, setUser] = useState<ShellUser | null>(null);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
   useEffect(() => { fetch("/api/auth/me").then(r=>r.json()).then(d=>setUser(d.user ?? null)).catch(()=>{}); }, []);
+  useEffect(() => {
+    if (!open) return;
+    const trigger = triggerRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => drawerRef.current?.querySelector<HTMLElement>("a,button")?.focus());
+    const onEscape = (event: globalThis.KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onEscape);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onEscape); trigger?.focus(); };
+  }, [open]);
+  function trapDrawerFocus(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Tab") return;
+    const focusable = [...(drawerRef.current?.querySelectorAll<HTMLElement>('a,button:not([disabled]),input,textarea,select,[tabindex]:not([tabindex="-1"])') ?? [])];
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
   const isChat = pathname === "/app" || pathname === "/app/hablar";
+  const activeLabel = nav.find(item => item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href))?.label ?? "Eon";
   return <div className="eon-app min-h-svh">
     <div className="eon-mesh" aria-hidden />
+    {!brand.includes("ADMIN") && <aside className="eon-desktop-sidebar" aria-label="Navegación de Eternime"><Menu user={user} close={()=>{}} nav={nav} brand={brand}/></aside>}
     <header className="eon-topbar">
       <div className="eon-topbar-mobile">
-        <button className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
+        <button ref={triggerRef} className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
         <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-.02em] text-slate-800"><span className="eon-mini-orb"/>{brand}</Link>
         <Link href="/app/perfil" className="crystal-avatar" aria-label="Perfil">{user?.name?.[0] || "·"}</Link>
       </div>
       <div className="eon-desktop-header">
+        <div className="eon-desktop-context"><small>Estás en</small><b>{activeLabel}</b></div>
         <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="eon-desktop-brand"><span className="eon-mini-orb"/><span><b>{brand}</b><small>Tu segunda memoria</small></span></Link>
         {!brand.includes("ADMIN") && <nav className="eon-desktop-nav" aria-label="Navegación de Eternime">
           <Link href="/app" className={pathname==="/app"?"active":""}>Eon</Link>
@@ -84,7 +108,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "Eternime" }: PropsW
       </div>
     </header>
 
-    <AnimatePresence>{open && <><motion.button aria-label="Cerrar" className="fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-[2px]" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside className="eon-drawer" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
+    <AnimatePresence>{open && <><motion.button aria-label="Cerrar menú" className="eon-drawer-backdrop fixed inset-0 z-40" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside ref={drawerRef} onKeyDown={trapDrawerFocus} className="eon-drawer" role="dialog" aria-modal="true" aria-label="Menú de Eternime" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
 
     <main className={`relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}><PageTransition>{children}</PageTransition></main>
 
@@ -99,7 +123,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "Eternime" }: PropsW
     {!brand.includes("ADMIN") && <nav className="eon-tabbar" aria-label="Navegación principal">
       <Link href="/app" className={pathname==="/app" ? "active" : ""}><Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z"/><span>Chat</span></Link>
       <Link href="/app/recuerdos" className={pathname.startsWith("/app/recuerdos") ? "active" : ""}><Icon d="M12 3v18M7 5a4 4 0 0 0 0 8 4 4 0 0 0 0 6M17 5a4 4 0 0 1 0 8 4 4 0 0 1 0 6"/><span>Memoria</span></Link>
-      <Link href="/app/hablar" className="compose" aria-label="Hablar con Eon"><span className="compose-core"><Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3"/></span></Link>
+      <Link href="/app/hablar" className={`compose ${pathname.startsWith("/app/hablar") ? "active" : ""}`} aria-label="Hablar con Eon" aria-current={pathname.startsWith("/app/hablar") ? "page" : undefined}><span className="compose-core"><Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3"/></span></Link>
       <Link href="/app/red" className={pathname.startsWith("/app/red") ? "active" : ""}><Icon d="M5 18c2-3 4-4 7-4s5 1 7 4M8 9a4 4 0 1 0 8 0"/><span>Mi Red</span></Link>
       <Link href="/app/perfil" className={pathname.startsWith("/app/perfil") ? "active" : ""}><Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0"/><span>Yo</span></Link>
     </nav>}
