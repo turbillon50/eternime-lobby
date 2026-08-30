@@ -20,12 +20,12 @@ export default async function SignUpPage() {
         <SignUp appearance={eternimeClerkAppearance} forceRedirectUrl="/app/bienvenida" signInUrl="/sign-in" />
       ) : (
         <div className="max-w-sm text-center">
-          <p className="font-serif text-2xl text-[#e8d9a8]">Crear mi Eternime</p>
-          <p className="mt-4 text-sm leading-relaxed text-[#d8d2c4]/80">
+          <p className="text-2xl font-semibold text-[#f7f5ff]">Crear mi Eternime</p>
+          <p className="mt-4 text-sm leading-relaxed text-[#aaa5b6]">
             El registro se activa en producción con Clerk. Esta es la vista de
             demostración.
           </p>
-          <Link href="/" className="mt-8 inline-block text-sm text-[#e8d9a8] underline-offset-4 hover:underline">
+          <Link href="/" className="mt-8 inline-block text-sm text-[#bda9ff] underline-offset-4 hover:underline">
             Volver al inicio
           </Link>
         </div>
