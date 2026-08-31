@@ -45,10 +45,10 @@ REGLAS DE MEMORIA Y ACCIÓN:
       tools: [{ functionDeclarations: [...EON_LIVE_TOOLS] }],
       inputAudioTranscription: {},
       outputAudioTranscription: {},
-      enableAffectiveDialog: true,
     };
     const now = Date.now();
-    const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: "v1alpha" } });
+    // Los tokens efímeros de Gemini Live sólo son compatibles con v1beta.
+    const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: "v1beta" } });
     const token = await ai.authTokens.create({
       config: {
         uses: 1,
