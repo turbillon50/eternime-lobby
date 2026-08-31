@@ -130,6 +130,11 @@ export function HablarConEon() {
     setTurns([]);
     setStatus("connecting");
     try {
+      // Pedimos el micrófono antes del token: así el diálogo de permisos del
+      // navegador no consume la ventana de 60 segundos del token temporal.
+      const bridge = new LiveAudioBridge();
+      audioRef.current = bridge;
+      await bridge.start((data) => sessionRef.current?.sendRealtimeInput({ audio: { data, mimeType: "audio/pcm;rate=16000" } }));
       const response = await fetch("/api/voice/gemini/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -137,19 +142,31 @@ export function HablarConEon() {
       });
       const payload = await response.json() as SessionPayload;
       if (!response.ok) throw new Error(payload.error || "No se pudo iniciar Gemini Live.");
-      const bridge = new LiveAudioBridge();
-      audioRef.current = bridge;
-      await bridge.start((data) => sessionRef.current?.sendRealtimeInput({ audio: { data, mimeType: "audio/pcm;rate=16000" } }));
       const { GoogleGenAI } = await import("@google/genai");
-      const ai = new GoogleGenAI({ apiKey: payload.token, httpOptions: { apiVersion: "v1alpha" } });
+      const ai = new GoogleGenAI({ apiKey: payload.token, httpOptions: { apiVersion: "v1beta" } });
       const session = await ai.live.connect({
         model: payload.model,
         config: payload.config,
         callbacks: {
           onopen: () => setStatus("listening"),
           onmessage: handleMessage,
-          onerror: () => { setError("La conexión de voz tuvo un problema."); setStatus("error"); },
-          onclose: () => { if (sessionRef.current) void stop(); },
+          onerror: (event) => {
+            console.error("[gemini-live] websocket error", event.message || event.type);
+            setError("La conexión de voz tuvo un problema. Toca para intentarlo otra vez.");
+            setStatus("error");
+          },
+          onclose: (event) => {
+            // stop() nulifica la referencia antes de cerrar, por lo que sólo
+            // llegamos aquí cuando Gemini terminó la sesión inesperadamente.
+            if (!sessionRef.current) return;
+            console.error("[gemini-live] websocket closed", { code: event.code, reason: event.reason });
+            sessionRef.current = null;
+            void audioRef.current?.close();
+            audioRef.current = null;
+            flushTranscript();
+            setError("La sesión de voz terminó. Toca para volver a conectar.");
+            setStatus("error");
+          },
         },
       });
       sessionRef.current = session;
