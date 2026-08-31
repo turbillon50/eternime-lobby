@@ -8,6 +8,7 @@ import { useClerk } from "@clerk/nextjs";
 import { PageTransition } from "@/components/motion";
 import { EonChatHistory } from "@/components/shell/EonChatHistory";
 import { EonMemoryDock } from "@/components/shell/EonMemoryDock";
+import { HablarConEon } from "@/components/app/HablarConEon";
 
 export type NavItem = { href: string; label: string; icon: ReactNode };
 
@@ -135,7 +136,10 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
 
     <AnimatePresence>{open && <><motion.button aria-label="Cerrar menú" className="eon-drawer-backdrop fixed inset-0 z-40" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside ref={drawerRef} onKeyDown={trapDrawerFocus} className="eon-drawer" role="dialog" aria-modal="true" aria-label="Menú de Eternime" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
 
-    <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}><PageTransition stable>{children}</PageTransition></main>
+    <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}>
+      {!brand.includes("ADMIN") && <HablarConEon compact={pathname !== "/app/hablar"} />}
+      <PageTransition stable>{children}</PageTransition>
+    </main>
 
     {!brand.includes("ADMIN") && <footer className="eon-app-footer">
       <div className="eon-app-footer-inner">

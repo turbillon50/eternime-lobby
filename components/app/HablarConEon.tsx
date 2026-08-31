@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import type { LiveConnectConfig, LiveServerMessage, Session } from "@google/genai";
 
 import { EonSignal, LightSweep, LivingMesh, PresenceHalo } from "@/components/visual/VisualArtifacts";
@@ -19,7 +20,7 @@ function appendText(current: string, incoming?: string): string {
   return `${current}${current ? " " : ""}${text}`.trim();
 }
 
-export function HablarConEon() {
+export function HablarConEon({ compact = false }: { compact?: boolean }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [caption, setCaption] = useState("");
@@ -31,6 +32,10 @@ export function HablarConEon() {
   const turnsRef = useRef<Turn[]>([]);
   const inputTextRef = useRef("");
   const outputTextRef = useRef("");
+  const reconnectTimerRef = useRef<number | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const wantsLiveRef = useRef(false);
+  const [compactOpen, setCompactOpen] = useState(false);
 
   const finishTurn = useCallback(() => {
     const next: Turn[] = [];
@@ -56,6 +61,10 @@ export function HablarConEon() {
   }, [finishTurn]);
 
   const stop = useCallback(async () => {
+    wantsLiveRef.current = false;
+    reconnectAttemptsRef.current = 0;
+    if (reconnectTimerRef.current !== null) window.clearTimeout(reconnectTimerRef.current);
+    reconnectTimerRef.current = null;
     try { sessionRef.current?.sendRealtimeInput({ audioStreamEnd: true }); } catch { /* already closed */ }
     try { sessionRef.current?.close(); } catch { /* already closed */ }
     sessionRef.current = null;
@@ -67,6 +76,12 @@ export function HablarConEon() {
   }, [flushTranscript]);
 
   useEffect(() => () => { void stop(); }, [stop]);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      try { setConsent(window.localStorage.getItem("eon-live-consent-v1") === "yes"); } catch { /* storage disabled */ }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   const runTools = useCallback(async (message: LiveServerMessage) => {
     const calls = message.toolCall?.functionCalls ?? [];
@@ -103,7 +118,6 @@ export function HablarConEon() {
     if (inputText) {
       inputTextRef.current = appendText(inputTextRef.current, inputText);
       setCaption(inputTextRef.current);
-      audioRef.current?.stopPlayback();
     }
     const outputText = content.outputTranscription?.text;
     if (outputText) {
@@ -120,14 +134,20 @@ export function HablarConEon() {
     }
   }, [finishTurn, runTools]);
 
-  async function start() {
+  async function start(options: { reconnect?: boolean } = {}) {
+    const reconnecting = options.reconnect === true;
     if (!consent) {
       setError("Autoriza la beta de voz para comenzar.");
+      setCompactOpen(true);
       return;
     }
+    wantsLiveRef.current = true;
+    if (!reconnecting) reconnectAttemptsRef.current = 0;
     setError("");
-    setCaption("");
-    setTurns([]);
+    if (!reconnecting) {
+      setCaption("");
+      setTurns([]);
+    }
     setStatus("connecting");
     try {
       // Pedimos el micrófono antes del token: así el diálogo de permisos del
@@ -148,12 +168,12 @@ export function HablarConEon() {
         model: payload.model,
         config: payload.config,
         callbacks: {
-          onopen: () => setStatus("listening"),
+          onopen: () => { reconnectAttemptsRef.current = 0; setStatus("listening"); },
           onmessage: handleMessage,
           onerror: (event) => {
             console.error("[gemini-live] websocket error", event.message || event.type);
-            setError("La conexión de voz tuvo un problema. Toca para intentarlo otra vez.");
-            setStatus("error");
+            setError("La conexión se interrumpió. Eon está intentando volver.");
+            setStatus("connecting");
           },
           onclose: (event) => {
             // stop() nulifica la referencia antes de cerrar, por lo que sólo
@@ -164,6 +184,13 @@ export function HablarConEon() {
             void audioRef.current?.close();
             audioRef.current = null;
             flushTranscript();
+            if (wantsLiveRef.current && reconnectAttemptsRef.current < 2) {
+              reconnectAttemptsRef.current += 1;
+              setStatus("connecting");
+              reconnectTimerRef.current = window.setTimeout(() => void start({ reconnect: true }), 900);
+              return;
+            }
+            wantsLiveRef.current = false;
             setError("La sesión de voz terminó. Toca para volver a conectar.");
             setStatus("error");
           },
@@ -182,6 +209,39 @@ export function HablarConEon() {
   }
 
   const active = status !== "idle" && status !== "error";
+  const setVoiceConsent = (allowed: boolean) => {
+    setConsent(allowed);
+    setError("");
+    try {
+      if (allowed) window.localStorage.setItem("eon-live-consent-v1", "yes");
+      else window.localStorage.removeItem("eon-live-consent-v1");
+    } catch { /* storage disabled */ }
+  };
+
+  if (compact) {
+    return (
+      <aside className={`eon-live-presence is-${status} ${compactOpen ? "is-open" : ""}`} aria-live="polite">
+        {compactOpen ? <section className="eon-live-presence__panel">
+          <header><span><i /> EON</span><button type="button" onClick={() => setCompactOpen(false)} aria-label="Cerrar">×</button></header>
+          <b>{status === "speaking" ? "Estoy contigo" : status === "acting" ? "Lo estoy haciendo" : status === "listening" ? "Te escucho" : status === "connecting" ? "Volviendo contigo…" : "Sigo aquí"}</b>
+          <p>{caption || action || error || (consent ? "Habla conmigo sin salir de lo que estás haciendo." : "Autoriza la voz una vez en este dispositivo.")}</p>
+          {!consent ? <label><input type="checkbox" checked={consent} onChange={(event) => setVoiceConsent(event.target.checked)} /><span>Autorizar voz con Gemini Live</span></label> : null}
+          <footer>
+            <button type="button" className={active ? "is-stop" : "is-start"} onClick={active ? stop : () => void start()}>{active ? "Terminar" : "Hablar ahora"}</button>
+            <Link href="/app/hablar">Abrir completo</Link>
+          </footer>
+        </section> : null}
+        <button type="button" className="eon-live-presence__orb" onClick={() => {
+          if (status === "idle" && consent) void start();
+          else setCompactOpen((value) => !value);
+        }} aria-label={active ? "Eon está presente" : "Hablar con Eon"}>
+          <EonSignal state={status === "error" ? "error" : status === "acting" || status === "speaking" ? "acting" : status === "listening" ? "listening" : status === "connecting" ? "thinking" : "idle"} />
+          <span>{status === "listening" ? "Escuchando" : status === "speaking" ? "Hablando" : status === "acting" ? "Haciendo" : status === "connecting" ? "Conectando" : "Eon"}</span>
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <section className="gemini-live-shell va-crystal va-spatial" aria-live="polite">
       <LivingMesh />
@@ -194,7 +254,7 @@ export function HablarConEon() {
         <h1>{status === "connecting" ? "Abriendo la conversación…" : status === "speaking" ? "Eon está contigo" : status === "acting" ? "Haciéndolo" : active ? "Te escucho" : "Habla. Recuerda. Haz."}</h1>
         <p className="gemini-live-lede">Interrúmpelo como a una persona. Busca en tu memoria, guarda lo importante y mueve tus pendientes sin abandonar la conversación.</p>
       </div>
-      <motion.button type="button" onClick={active ? stop : start} className={`gemini-live-control is-${status}`} whileTap={{ scale: 0.96 }} aria-label={active ? "Terminar conversación" : "Comenzar conversación"}>
+      <motion.button type="button" onClick={active ? stop : () => void start()} className={`gemini-live-control is-${status}`} whileTap={{ scale: 0.96 }} aria-label={active ? "Terminar conversación" : "Comenzar conversación"}>
         {status === "connecting" ? <span className="loader" /> : active ? <span className="stop-square" /> : <span className="voice-bars"><i /><i /><i /></span>}
       </motion.button>
       <p className="gemini-live-status">
@@ -213,8 +273,8 @@ export function HablarConEon() {
       ) : null}
       {!active ? (
         <label className="gemini-live-consent">
-          <input type="checkbox" checked={consent} onChange={(event) => { setConsent(event.target.checked); setError(""); }} />
-          <span><b>Autorizar esta sesión beta</b>El audio se procesa con Gemini Free Tier y puede ayudar a Google a mejorar sus productos. Eternime no lo guarda como memoria salvo que digas “guarda esto”.</span>
+          <input type="checkbox" checked={consent} onChange={(event) => setVoiceConsent(event.target.checked)} />
+          <span><b>Autorizar voz en este dispositivo</b>El audio se procesa con Gemini Free Tier y puede ayudar a Google a mejorar sus productos. Eternime no lo guarda como memoria salvo que digas “guarda esto”.</span>
         </label>
       ) : null}
       <p className="gemini-live-safety">No puede borrar nada. Correo y acciones externas requieren confirmación.</p>
