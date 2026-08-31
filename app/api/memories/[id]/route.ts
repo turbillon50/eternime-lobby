@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser, AuthError } from "@/lib/auth";
 import { updateMemory, deleteMemory } from "@/lib/data/memories";
+import { storeMemoryEmbedding } from "@/lib/ai/rag";
 import type { MemoryKind } from "@/lib/data/types";
 
 export const runtime = "nodejs";
@@ -29,6 +30,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!memory) {
       return NextResponse.json({ error: "Recuerdo no encontrado" }, { status: 404 });
     }
+    // El vector nunca puede quedarse describiendo la versión anterior.
+    await storeMemoryEmbedding(
+      memory.id,
+      session.sub,
+      [memory.title, memory.content ?? ""].filter(Boolean).join(". "),
+    );
     return NextResponse.json({ memory });
   } catch (e) {
     if (e instanceof AuthError) {

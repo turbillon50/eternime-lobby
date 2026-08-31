@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from "@clerk/localizations";
 import "@/styles/globals.css";
+import "@/styles/gemini-live.css";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-eternime", display: "swap" });
 

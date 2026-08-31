@@ -33,10 +33,9 @@ function sanitizeTurns(raw: unknown): Turn[] {
 }
 
 /**
- * POST { turns: [{ role, content }] }
- * Persiste una conversación de voz con Eon: cada turno queda en el historial
- * de la guía, y lo que la persona contó se captura como recuerdo con
- * embedding para que Eon lo recuerde en futuras conversaciones (texto o voz).
+ * POST { turns, captureMemory? }
+ * El historial puede persistirse sin convertir automáticamente toda la charla
+ * en memoria. Gemini Live guarda recuerdos sólo mediante memory_save explícito.
  */
 export async function POST(request: Request) {
   try {
@@ -47,7 +46,7 @@ export async function POST(request: Request) {
     if (Buffer.byteLength(raw, "utf-8") > MAX_BODY_BYTES) {
       return NextResponse.json({ error: "Payload demasiado grande" }, { status: 413 });
     }
-    let parsed: { turns?: unknown } = {};
+    let parsed: { turns?: unknown; captureMemory?: unknown } = {};
     try { parsed = raw ? JSON.parse(raw) : {}; } catch { parsed = {}; }
     const turns = sanitizeTurns(parsed.turns);
     if (!turns.length) {
@@ -69,7 +68,7 @@ export async function POST(request: Request) {
       .map((t) => t.content)
       .join("\n")
       .trim();
-    if (userText.length >= MIN_CAPTURABLE_LENGTH) {
+    if (parsed.captureMemory === true && userText.length >= MIN_CAPTURABLE_LENGTH) {
       try {
         const title =
           userText.length > 60 ? userText.slice(0, 57) + "…" : userText;
