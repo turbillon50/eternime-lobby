@@ -44,7 +44,7 @@ async function main() {
       const memoryTable = await sql.query(`select to_regclass('public.eternime_memories')::text as name`);
       if (memoryTable[0]?.name) {
         await sql.query(`CREATE INDEX IF NOT EXISTS idx_eternime_memories_embedding_hnsw
-          ON eternime_memories USING hnsw (embedding vector_cosine_ops)
+          ON eternime_memories USING hnsw ((embedding::halfvec(3072)) halfvec_cosine_ops)
           WITH (m = 16, ef_construction = 64)`);
         console.log(`${MARK} vector index present: idx_eternime_memories_embedding_hnsw`);
       }

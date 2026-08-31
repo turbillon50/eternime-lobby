@@ -65,10 +65,7 @@ export const memories = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }), // soft delete by default
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
-    index("memories_created_idx").on(table.createdAt),
-    index("memories_embedding_hnsw").using("hnsw", table.embedding.op("vector_cosine_ops")),
-  ],
+  (table) => [index("memories_created_idx").on(table.createdAt)],
 );
 
 export const conversations = pgTable("conversations", {

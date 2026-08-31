@@ -52,10 +52,10 @@ export async function searchMemories(userId: string, query: string, k = 6): Prom
   try {
     const rows = await sql`
       SELECT id, title, content, kind, emotional_tone,
-             1 - (embedding <=> ${toVectorLiteral(vec)}::vector) AS score
+             1 - (embedding::halfvec(3072) <=> ${toVectorLiteral(vec)}::halfvec(3072)) AS score
       FROM eternime_memories
       WHERE user_id = ${userId} AND embedding IS NOT NULL
-      ORDER BY embedding <=> ${toVectorLiteral(vec)}::vector
+      ORDER BY embedding::halfvec(3072) <=> ${toVectorLiteral(vec)}::halfvec(3072)
       LIMIT ${k}`;
     return rows as RetrievedMemory[];
   } catch (e) {
