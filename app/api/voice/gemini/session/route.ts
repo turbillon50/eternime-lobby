@@ -55,7 +55,6 @@ REGLAS DE MEMORIA Y ACCIÓN:
         newSessionExpireTime: new Date(now + 60_000).toISOString(),
         expireTime: new Date(now + 30 * 60_000).toISOString(),
         liveConnectConstraints: { model: MODEL, config },
-        lockAdditionalFields: [],
       },
     });
     if (!token.name) throw new Error("Gemini no devolvió un token temporal.");
