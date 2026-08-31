@@ -1,36 +1,24 @@
 import { NextResponse } from "next/server";
-import type { MemoryRecord } from "@/lib/eternime/types";
-import { createLlmEmbedding } from "@/lib/eternime/llm";
-import { searchMemoriesByVector, searchSemanticMemories } from "@/lib/eternime/vector-memory";
 
+import { AuthError, requireUser } from "@/lib/auth";
+import { searchMemories } from "@/lib/ai/rag";
+
+export const runtime = "nodejs";
+
+/** Compatibilidad del prototipo antiguo, sin aceptar memorias ni ownerId del cliente. */
 export async function POST(request: Request) {
-  const body = (await request.json()) as {
-    query?: string;
-    memories?: MemoryRecord[];
-  };
-
-  const query = body.query?.trim();
-  const memories = body.memories ?? [];
-  if (!query) {
-    return NextResponse.json({ results: [], connected: false });
-  }
-
-  const canUseRemote =
-    memories.length > 0 && memories.every((memory) => memory.embeddingProvider !== "local");
-  let llmEmbedding: Awaited<ReturnType<typeof createLlmEmbedding>> = null;
-
   try {
-    llmEmbedding = canUseRemote ? await createLlmEmbedding(query) : null;
-  } catch {
-    llmEmbedding = null;
+    const user = await requireUser();
+    const body = await request.json() as { query?: unknown };
+    const query = typeof body.query === "string" ? body.query.trim().slice(0, 1000) : "";
+    if (!query) return NextResponse.json({ results: [], connected: true });
+    const memories = await searchMemories(user.sub, query, 6);
+    return NextResponse.json({
+      results: memories.map((memory) => ({ memory, score: memory.score })),
+      connected: true,
+    });
+  } catch (error) {
+    if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.status });
+    return NextResponse.json({ error: "No se pudo buscar en la memoria." }, { status: 500 });
   }
-
-  const results = llmEmbedding
-    ? searchMemoriesByVector(llmEmbedding.embedding, memories)
-    : searchSemanticMemories(query, memories);
-
-  return NextResponse.json({
-    results,
-    connected: Boolean(llmEmbedding),
-  });
 }

@@ -110,9 +110,11 @@ CREATE TABLE "voice_clones" (
 ALTER TABLE "messages" ADD CONSTRAINT "messages_conversation_id_conversations_id_fk" FOREIGN KEY ("conversation_id") REFERENCES "public"."conversations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "memories_created_idx" ON "memories" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "messages_conversation_idx" ON "messages" USING btree ("conversation_id");
-
 --> statement-breakpoint
-CREATE TABLE "eon_memory" (
+CREATE INDEX IF NOT EXISTS "memories_embedding_hnsw"
+ON "memories" USING hnsw ("embedding" vector_cosine_ops);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "eon_memory" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   "kind" text DEFAULT 'inference' NOT NULL,
   "content" text NOT NULL,

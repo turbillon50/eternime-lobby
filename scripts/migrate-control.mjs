@@ -37,6 +37,20 @@ async function main() {
        order by table_name`,
     );
     console.log(`${MARK} tables present: ${rows.map((r) => r.table_name).join(", ") || "(none)"}`);
+
+    // La tabla histórica de recuerdos precede a Drizzle. El índice se crea
+    // aquí de forma idempotente para acelerar cosine search sin bloquear el deploy.
+    try {
+      const memoryTable = await sql.query(`select to_regclass('public.eternime_memories')::text as name`);
+      if (memoryTable[0]?.name) {
+        await sql.query(`CREATE INDEX IF NOT EXISTS idx_eternime_memories_embedding_hnsw
+          ON eternime_memories USING hnsw (embedding vector_cosine_ops)
+          WITH (m = 16, ef_construction = 64)`);
+        console.log(`${MARK} vector index present: idx_eternime_memories_embedding_hnsw`);
+      }
+    } catch (error) {
+      console.warn(`${MARK} vector index skipped:`, error?.message || error);
+    }
   } catch (error) {
     // Never break the deploy — surface the error loudly instead.
     console.error(`${MARK} ERROR — migration failed:`, error?.message || error);
