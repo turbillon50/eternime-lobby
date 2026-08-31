@@ -6,11 +6,12 @@ import Link from "next/link";
 import type { LiveConnectConfig, LiveServerMessage, Session } from "@google/genai";
 
 import { EonSignal, LightSweep, LivingMesh, PresenceHalo } from "@/components/visual/VisualArtifacts";
-import { LiveAudioBridge } from "@/lib/voice/live-audio-client";
+import { LiveAudioBridge, type LiveAudioDiagnostic } from "@/lib/voice/live-audio-client";
 
 type Status = "idle" | "connecting" | "listening" | "speaking" | "acting" | "error";
 type Turn = { role: "user" | "assistant"; content: string };
 type SessionPayload = { token: string; model: string; config: LiveConnectConfig; error?: string };
+type VoiceDiagnosticEvent = LiveAudioDiagnostic | "session_request" | "session_ready" | "socket_open" | "socket_error" | "socket_close";
 
 function appendText(current: string, incoming?: string): string {
   const text = incoming?.trim();
@@ -36,6 +37,15 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
   const reconnectAttemptsRef = useRef(0);
   const wantsLiveRef = useRef(false);
   const [compactOpen, setCompactOpen] = useState(false);
+
+  const reportDiagnostic = useCallback((event: VoiceDiagnosticEvent, detail?: string) => {
+    void fetch("/api/voice/diagnostics", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, detail: detail?.slice(0, 120) }),
+      keepalive: true,
+    }).catch(() => undefined);
+  }, []);
 
   const finishTurn = useCallback(() => {
     const next: Turn[] = [];
@@ -126,13 +136,17 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
     }
     if (message.data) {
       setStatus("speaking");
-      void audioRef.current?.play(message.data);
+      void audioRef.current?.play(message.data).catch((caught) => {
+        reportDiagnostic("playback_blocked", caught instanceof Error ? caught.message : "playback_failed");
+        setError("La conversación abrió, pero el navegador bloqueó la bocina. Toca Terminar y vuelve a iniciar.");
+        setStatus("error");
+      });
     }
     if (content.turnComplete) {
       finishTurn();
       setStatus("listening");
     }
-  }, [finishTurn, runTools]);
+  }, [finishTurn, reportDiagnostic, runTools]);
 
   async function start(options: { reconnect?: boolean } = {}) {
     const reconnecting = options.reconnect === true;
@@ -152,9 +166,11 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
     try {
       // Pedimos el micrófono antes del token: así el diálogo de permisos del
       // navegador no consume la ventana de 60 segundos del token temporal.
-      const bridge = new LiveAudioBridge();
+      const bridge = new LiveAudioBridge((event) => reportDiagnostic(event));
       audioRef.current = bridge;
+      await bridge.preparePlaybackFromUserGesture();
       await bridge.start((data) => sessionRef.current?.sendRealtimeInput({ audio: { data, mimeType: "audio/pcm;rate=16000" } }));
+      reportDiagnostic("session_request");
       const response = await fetch("/api/voice/gemini/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -162,15 +178,17 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
       });
       const payload = await response.json() as SessionPayload;
       if (!response.ok) throw new Error(payload.error || "No se pudo iniciar Gemini Live.");
+      reportDiagnostic("session_ready");
       const { GoogleGenAI } = await import("@google/genai");
       const ai = new GoogleGenAI({ apiKey: payload.token, httpOptions: { apiVersion: "v1beta" } });
       const session = await ai.live.connect({
         model: payload.model,
         config: payload.config,
         callbacks: {
-          onopen: () => { reconnectAttemptsRef.current = 0; setStatus("listening"); },
+          onopen: () => { reportDiagnostic("socket_open"); reconnectAttemptsRef.current = 0; setStatus("listening"); },
           onmessage: handleMessage,
           onerror: (event) => {
+            reportDiagnostic("socket_error", event.message || event.type);
             console.error("[gemini-live] websocket error", event.message || event.type);
             setError("La conexión se interrumpió. Eon está intentando volver.");
             setStatus("connecting");
@@ -179,6 +197,7 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
             // stop() nulifica la referencia antes de cerrar, por lo que sólo
             // llegamos aquí cuando Gemini terminó la sesión inesperadamente.
             if (!sessionRef.current) return;
+            reportDiagnostic("socket_close", `${event.code}:${event.reason || "no_reason"}`);
             console.error("[gemini-live] websocket closed", { code: event.code, reason: event.reason });
             sessionRef.current = null;
             void audioRef.current?.close();
