@@ -71,3 +71,45 @@ export async function countEmbedded(userId: string): Promise<number> {
   const rows = await sql`SELECT count(*)::int AS n FROM eternime_memories WHERE user_id = ${userId} AND embedding IS NOT NULL`;
   return (rows[0]?.n as number) ?? 0;
 }
+
+export type EmbeddingCoverage = {
+  total: number;
+  embedded: number;
+  missing: number;
+};
+
+/** Cobertura real del índice semántico del usuario. */
+export async function getEmbeddingCoverage(userId: string): Promise<EmbeddingCoverage> {
+  const sql = getSql();
+  if (!sql) return { total: 0, embedded: 0, missing: 0 };
+  const rows = await sql`
+    SELECT count(*)::int AS total,
+           count(embedding)::int AS embedded
+    FROM eternime_memories
+    WHERE user_id = ${userId}`;
+  const total = Number(rows[0]?.total ?? 0);
+  const embedded = Number(rows[0]?.embedded ?? 0);
+  return { total, embedded, missing: Math.max(0, total - embedded) };
+}
+
+/**
+ * Repara recuerdos históricos que se guardaron antes del pipeline de Gemini.
+ * El lote pequeño evita picos de cuota y puede repetirse de forma idempotente.
+ */
+export async function backfillMissingMemoryEmbeddings(userId: string, limit = 24): Promise<EmbeddingCoverage & { repaired: number }> {
+  const sql = getSql();
+  if (!sql) return { total: 0, embedded: 0, missing: 0, repaired: 0 };
+  const safeLimit = Math.max(1, Math.min(50, Math.trunc(limit)));
+  const rows = await sql`
+    SELECT id, title, content, ai_context
+    FROM eternime_memories
+    WHERE user_id = ${userId} AND embedding IS NULL
+    ORDER BY created_at ASC
+    LIMIT ${safeLimit}`;
+  let repaired = 0;
+  for (const row of rows) {
+    const text = [row.title, row.content, row.ai_context].filter(Boolean).join(". ");
+    if (text && await storeMemoryEmbedding(String(row.id), userId, text)) repaired += 1;
+  }
+  return { ...(await getEmbeddingCoverage(userId)), repaired };
+}
