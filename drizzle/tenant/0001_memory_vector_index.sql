@@ -1,5 +1,5 @@
 CREATE INDEX IF NOT EXISTS "memories_embedding_hnsw"
-ON "memories" USING hnsw ("embedding" vector_cosine_ops);
+ON "memories" USING hnsw (("embedding"::halfvec(3072)) halfvec_cosine_ops);
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "eon_memory" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
