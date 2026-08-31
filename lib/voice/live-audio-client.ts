@@ -1,4 +1,10 @@
 type AudioChunkHandler = (base64Pcm16: string) => void;
+export type LiveAudioDiagnostic =
+  | "playback_ready"
+  | "playback_blocked"
+  | "mic_ready"
+  | "first_audio"
+  | "closed";
 
 function bytesToBase64(bytes: Uint8Array): string {
   let binary = "";
@@ -49,6 +55,37 @@ export class LiveAudioBridge {
   private silentGain: GainNode | null = null;
   private playbackAt = 0;
   private playing = new Set<AudioBufferSourceNode>();
+  private pendingPlayback: AudioBuffer[] = [];
+  private pendingDuration = 0;
+  private playbackStarted = false;
+  private firstAudioReported = false;
+
+  constructor(private readonly onDiagnostic?: (event: LiveAudioDiagnostic) => void) {}
+
+  private report(event: LiveAudioDiagnostic) {
+    try { this.onDiagnostic?.(event); } catch { /* diagnostics never break audio */ }
+  }
+
+  /** Must run directly from the user's click so desktop browsers allow sound. */
+  async preparePlaybackFromUserGesture() {
+    if (!this.outputContext) {
+      this.outputContext = new AudioContext({ latencyHint: "interactive", sampleRate: 24_000 });
+    }
+
+    // Starting a silent source while the click still owns user activation is
+    // more reliable than creating the context after Gemini's first response.
+    const silent = this.outputContext.createBuffer(1, 1, 24_000);
+    const source = this.outputContext.createBufferSource();
+    source.buffer = silent;
+    source.connect(this.outputContext.destination);
+    source.start();
+    await this.outputContext.resume();
+    if (this.outputContext.state !== "running") {
+      this.report("playback_blocked");
+      throw new Error("El navegador bloqueó el audio. Toca otra vez para permitir la voz de Eon.");
+    }
+    this.report("playback_ready");
+  }
 
   async start(onChunk: AudioChunkHandler) {
     this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
@@ -65,31 +102,66 @@ export class LiveAudioBridge {
     this.inputSource.connect(this.processor);
     this.processor.connect(this.silentGain);
     this.silentGain.connect(this.inputContext.destination);
+    this.report("mic_ready");
   }
 
   async play(base64Pcm16: string) {
     if (!base64Pcm16) return;
-    if (!this.outputContext) this.outputContext = new AudioContext({ latencyHint: "interactive", sampleRate: 24_000 });
+    if (!this.outputContext) {
+      this.report("playback_blocked");
+      throw new Error("El audio no fue autorizado por el navegador.");
+    }
     await this.outputContext.resume();
+    if (this.outputContext.state !== "running") {
+      this.report("playback_blocked");
+      return;
+    }
     const bytes = base64ToBytes(base64Pcm16);
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     const samples = Math.floor(bytes.byteLength / 2);
     const audio = this.outputContext.createBuffer(1, samples, 24_000);
     const channel = audio.getChannelData(0);
     for (let i = 0; i < samples; i += 1) channel[i] = view.getInt16(i * 2, true) / 0x8000;
-    const source = this.outputContext.createBufferSource();
-    source.buffer = audio;
-    source.connect(this.outputContext.destination);
-    this.playbackAt = Math.max(this.playbackAt, this.outputContext.currentTime + 0.015);
-    source.start(this.playbackAt);
-    this.playbackAt += audio.duration;
-    this.playing.add(source);
-    source.onended = () => this.playing.delete(source);
+    this.pendingPlayback.push(audio);
+    this.pendingDuration += audio.duration;
+    if (!this.firstAudioReported) {
+      this.firstAudioReported = true;
+      this.report("first_audio");
+    }
+
+    // Hold the first chunks for 100 ms. That absorbs normal WebSocket jitter
+    // instead of playing every tiny packet immediately and producing gaps.
+    if (!this.playbackStarted && this.pendingDuration < 0.1) return;
+    this.schedulePendingPlayback();
+  }
+
+  private schedulePendingPlayback() {
+    if (!this.outputContext || !this.pendingPlayback.length) return;
+    const now = this.outputContext.currentTime;
+    if (!this.playbackStarted || this.playbackAt < now + 0.02) {
+      this.playbackAt = now + 0.1;
+      this.playbackStarted = true;
+    }
+    while (this.pendingPlayback.length) {
+      const audio = this.pendingPlayback.shift()!;
+      this.pendingDuration = Math.max(0, this.pendingDuration - audio.duration);
+      const source = this.outputContext.createBufferSource();
+      source.buffer = audio;
+      source.connect(this.outputContext.destination);
+      source.start(this.playbackAt);
+      this.playbackAt += audio.duration;
+      this.playing.add(source);
+      source.onended = () => this.playing.delete(source);
+    }
   }
 
   stopPlayback() {
     for (const source of this.playing) try { source.stop(); } catch { /* already stopped */ }
     this.playing.clear();
+    this.pendingPlayback = [];
+    this.pendingDuration = 0;
+    this.playbackStarted = false;
+    this.firstAudioReported = false;
     this.playbackAt = this.outputContext?.currentTime ?? 0;
   }
 
@@ -106,5 +178,6 @@ export class LiveAudioBridge {
     this.inputSource = null;
     this.silentGain = null;
     this.stream = null;
+    this.report("closed");
   }
 }
