@@ -45,6 +45,9 @@ export function McpConnectionsClient() {
   const [url, setUrl] = useState("");
   const [creating, setCreating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editScopes, setEditScopes] = useState<Scope[]>([]);
+  const [savingScopes, setSavingScopes] = useState(false);
 
   const load = () => fetch("/api/mcp/tokens")
     .then((response) => response.json())
@@ -102,6 +105,34 @@ export function McpConnectionsClient() {
     load();
   }
 
+  function startEditing(item: Conn) {
+    if (editingId === item.id) { setEditingId(null); return; }
+    setEditingId(item.id);
+    setEditScopes(item.scopes);
+  }
+
+  const toggleEdit = (scope: Scope) => setEditScopes((current) => current.includes(scope)
+    ? current.filter((item) => item !== scope)
+    : [...current, scope]);
+
+  async function saveScopes(id: string) {
+    if (!editScopes.length) return;
+    setSavingScopes(true);
+    try {
+      const response = await fetch("/api/mcp/tokens", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "scopes", scopes: editScopes }),
+      });
+      const data = await response.json();
+      if (data.error) { alert(data.error); return; }
+      setEditingId(null);
+      load();
+    } finally {
+      setSavingScopes(false);
+    }
+  }
+
   async function revoke(id: string) {
     await fetch(`/api/mcp/tokens?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     setUrl("");
@@ -145,7 +176,12 @@ export function McpConnectionsClient() {
       <div className="flex items-center justify-between"><div><p className="eon-page-kicker">Accesos activos</p><h3>Mis IAs</h3></div><span className="mcp-count">{items.filter((item) => !item.revoked_at).length}</span></div>
       <div className="mcp-list">{items.length ? items.map((item) => <div className={`mcp-item ${item.revoked_at ? "revoked" : ""}`} key={item.id}>
         <div><strong>{item.label}</strong><small>{item.scopes.map((scope) => LABELS[scope]).join(", ")}</small><small>{item.last_used_at ? `Último uso: ${new Date(item.last_used_at).toLocaleString("es-MX")}` : "Todavía no se ha usado"}</small></div>
-        {!item.revoked_at && <div className="flex gap-1"><button onClick={() => tokenAction(item.id, "reveal")}>Copiar URL</button><button onClick={() => tokenAction(item.id, "rotate")}>Rotar URL</button><button onClick={() => revoke(item.id)}>Revocar</button></div>}
+        {!item.revoked_at && <div className="flex gap-1"><button onClick={() => startEditing(item)}>{editingId === item.id ? "Cerrar permisos" : "Permisos"}</button><button onClick={() => tokenAction(item.id, "reveal")}>Copiar URL</button><button onClick={() => tokenAction(item.id, "rotate")}>Rotar URL</button><button onClick={() => revoke(item.id)}>Revocar</button></div>}
+        {!item.revoked_at && editingId === item.id && <div className="mcp-item-scopes">
+          <p className="mcp-note">Cambia lo que esta IA puede hacer. Tu URL de conexión no cambia y las demás conexiones no se tocan.</p>
+          <div className="mcp-scope-grid">{ALL.map((scope) => <button key={scope} onClick={() => toggleEdit(scope)} className={editScopes.includes(scope) ? "active" : ""}><span>{editScopes.includes(scope) ? "✓" : "○"}</span>{LABELS[scope]}</button>)}</div>
+          <button className="mcp-create" disabled={!editScopes.length || savingScopes} onClick={() => saveScopes(item.id)}>{savingScopes ? "Guardando…" : "Guardar permisos"}</button>
+        </div>}
       </div>) : <p className="mcp-empty">Aún no has conectado otra IA.</p>}</div>
     </section>
   </div>;

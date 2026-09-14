@@ -56,6 +56,13 @@ export async function upsertMcpAccess(userId:string,input:{label:string;provider
   await sql`UPDATE eternime_mcp_access SET revoked_at=now() WHERE user_id=${userId} AND provider=${input.provider} AND revoked_at IS NULL AND id<>${keepId}`;
   return rows[0]?{access:rows[0] as McpAccess,token,reused:true}:null;
 }
+export async function updateMcpAccessScopes(userId:string,id:string,scopes:McpScope[]):Promise<McpAccess|null>{
+  const sql=await ensureMcpSchema(); if(!sql)return null;
+  const clean=Array.from(new Set(scopes.filter(s=>MCP_SCOPES.includes(s))));
+  if(!clean.length)return null;
+  const rows=await sql`UPDATE eternime_mcp_access SET scopes=${clean}::text[] WHERE id=${id} AND user_id=${userId} AND revoked_at IS NULL RETURNING id,user_id,label,provider,token_prefix,scopes,created_at,last_used_at,revoked_at,(token_encrypted IS NOT NULL) AS can_reveal`;
+  return (rows[0] as McpAccess)||null;
+}
 export async function ensureDefaultMcpAccess(userId:string){const existing=await listMcpAccess(userId); if(existing.some(x=>x.provider==="eternime-default"&&!x.revoked_at))return null; return createMcpAccess(userId,{label:"Mi IA de confianza",provider:"eternime-default",scopes:["identity.read","memory.read","projects.read","tasks.read","network.search"]});}
 export async function revealMcpToken(userId:string,id:string){const sql=await ensureMcpSchema();if(!sql)return null;const r=await sql`SELECT token_encrypted FROM eternime_mcp_access WHERE id=${id} AND user_id=${userId} AND revoked_at IS NULL LIMIT 1`;const enc=r[0]?.token_encrypted as string|undefined;if(!enc)return null;try{return decryptToken(enc)}catch{return null}}
 export async function rotateMcpAccess(userId:string,id:string){const sql=await ensureMcpSchema();if(!sql)return null;const token=`etmcp_${crypto.randomBytes(32).toString("base64url")}`;const hash=hashToken(token);const encrypted=encryptToken(token);const prefix=token.slice(0,12);const r=await sql`UPDATE eternime_mcp_access SET token_hash=${hash},token_prefix=${prefix},token_encrypted=${encrypted},last_used_at=NULL WHERE id=${id} AND user_id=${userId} AND revoked_at IS NULL RETURNING id`;return r.length?token:null}

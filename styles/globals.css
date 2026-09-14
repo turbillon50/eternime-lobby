@@ -1882,3 +1882,4 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 @keyframes eonQuickRise{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes eonRecordPulse{50%{opacity:.45;transform:scale(.72)}}
 @media(prefers-reduced-motion:reduce){.eon-memory-quick{animation:none}.eon-memory-dock>a,.eon-memory-dock>button{transition:none}.eon-memory-quick>footer>button.is-listening i{animation:none}}
+.mcp-item-scopes{width:100%;margin-top:12px;padding-top:12px;border-top:1px solid rgba(100,105,160,.12)}.mcp-item-scopes .mcp-note{margin-bottom:10px}.mcp-item-scopes .mcp-scope-grid{margin-bottom:12px}
