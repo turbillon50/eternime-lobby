@@ -9,6 +9,8 @@ import { PageTransition } from "@/components/motion";
 import { EonChatHistory } from "@/components/shell/EonChatHistory";
 import { EonMemoryDock } from "@/components/shell/EonMemoryDock";
 import { HablarConEon } from "@/components/app/HablarConEon";
+import { ContactLinks } from "@/components/public/contact-links";
+import contactStyles from "@/components/public/contact-links.module.css";
 
 export type NavItem = { href: string; label: string; icon: ReactNode };
 
@@ -33,6 +35,7 @@ export const APP_NAV: NavItem[] = [
   { href: "/app/beneficiarios", label: "Personas", icon: <Icon d="M16 11a4 4 0 1 0-8 0M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /> },
   { href: "/app/cuenta", label: "Cuenta", icon: <Icon d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" /> },
   { href: "/app/perfil", label: "Yo", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0" /> },
+  { href: "/contacto", label: "Contacto", icon: <Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z" /> },
 ];
 
 const FUTURE = ["Documentos"];
@@ -139,6 +142,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
     <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}>
       {!brand.includes("ADMIN") && <HablarConEon compact={pathname !== "/app/hablar"} />}
       <PageTransition stable>{children}</PageTransition>
+      {!brand.includes("ADMIN") && !isChat && <footer className={contactStyles.appFooter}><ContactLinks /></footer>}
     </main>
 
     {!brand.includes("ADMIN") && <footer className="eon-app-footer">
