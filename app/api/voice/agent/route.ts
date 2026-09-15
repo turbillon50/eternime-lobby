@@ -54,7 +54,7 @@ export async function POST() {
 
     const [user, memories] = await Promise.all([findUserById(session.sub), listMemories(session.sub)]);
     const context = buildContext(user, memories);
-    const voiceId = ((user?.prefs as Record<string, unknown> | null)?.eon_voice_id as string | undefined) || DEFAULT_VOICE;
+    const voiceId = DEFAULT_VOICE; // Eon keeps its voice; personal clones use /api/clone/voice.
     const firstName = user?.name?.split(" ")[0] || "";
 
     const signed = await fetch(

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { completedIdentityPoses } from "@/lib/identity";
 
 type Item = { key: string; label: string; href: string; ok: boolean; detail: string };
 
@@ -21,7 +22,7 @@ export function ReadinessScore({ memoryCount }: { memoryCount: number }) {
       { key: "projects", label: "Proyectos", href: "/app/proyectos", ok: (projects.projects || []).length > 0, detail: `${(projects.projects || []).length} activos` },
       { key: "mcp", label: "Mis IAs", href: "/app/ias", ok: (ias.connections || []).some((x: { revoked_at?: string | null }) => !x.revoked_at), detail: `${(ias.connections || []).filter((x: { revoked_at?: string | null }) => !x.revoked_at).length} conectadas` },
       { key: "voice", label: "Tu voz", href: "/app/perfil", ok: Boolean(voice.voiceId), detail: voice.voiceId ? "Clon activo" : "Pendiente" },
-      { key: "visual", label: "Identidad visual", href: "/app/perfil", ok: (identity.assets || []).length >= 6, detail: `${(identity.assets || []).length}/6 capturas` },
+      { key: "visual", label: "Identidad visual", href: "/app/perfil", ok: completedIdentityPoses(identity.assets || []).size === 6, detail: `${completedIdentityPoses(identity.assets || []).size}/6 capturas` },
     ]));
   }, [memoryCount]);
 
