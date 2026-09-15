@@ -6,13 +6,14 @@ import { consumeAllowance, latestPortrait, storeMedia } from "@/lib/clone/media-
 import { sameOrigin } from "@/lib/clone/guard";
 import { cloneErrorResponse, PRIVATE_HEADERS } from "@/lib/clone/http";
 import { CloneError } from "@/lib/clone/errors";
+import { cloneNeedsSetup, ensureCloneReady } from "@/lib/clone/setup";
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 180;
 export async function GET() {
   try {
     const session = await requireUser(); const photo = await latestPortrait(session.clerkId);
     return NextResponse.json({ portrait: photo ? { id: photo.id, url: `/api/clone/media/${photo.id}`, createdAt: photo.created_at } : null }, { headers: PRIVATE_HEADERS });
-  } catch (e) { return cloneErrorResponse(e); }
+  } catch (e) { if (cloneNeedsSetup(e)) return NextResponse.json({ portrait: null }, { headers: PRIVATE_HEADERS }); return cloneErrorResponse(e); }
 }
 export async function POST(request: Request) {
   try {
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
     const image = sharp(Buffer.from(await file.arrayBuffer()), { limitInputPixels: 25_000_000, animated: false });
     const meta = await image.metadata();
     if (!meta.width || !meta.height || Math.min(meta.width, meta.height) < 720) throw new CloneError("PHOTO_RESOLUTION", "La foto necesita al menos 720 píxeles en su lado más corto.", 400);
+    await ensureCloneReady(session);
     await consumeAllowance(session.clerkId, "portrait", 10);
     // Re-encode to remove EXIF/location and normalize orientation; never publish to Blob.
     const bytes = await image.rotate().resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 88 }).toBuffer();

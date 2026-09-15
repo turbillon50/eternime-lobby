@@ -1,4 +1,5 @@
 import "server-only";
+import { PERSONAL_VOICE_MODEL, personalVoiceSettings, type VoiceDelivery } from "./personal-settings";
 export function elevenLabsKey() { return process.env.ELEVENLABS_API_KEY || process.env.XI_API_KEY || ""; }
 
 export async function cloningCapability() {
@@ -25,12 +26,12 @@ export async function voiceFailure(response: Response) {
 }
 
 export class VoiceServiceError extends Error {}
-export async function synthesizePersonalVoice(voiceId: string, text: string) {
+export async function synthesizePersonalVoice(voiceId: string, text: string, delivery: VoiceDelivery = "natural") {
   const key = elevenLabsKey();
   if (!key) throw new VoiceServiceError("El servicio de voz no está configurado.");
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
     method: "POST", headers: { "xi-api-key": key, "Content-Type": "application/json", Accept: "audio/mpeg" },
-    body: JSON.stringify({ text, model_id: "eleven_flash_v2_5" }), signal: AbortSignal.timeout(45000),
+    body: JSON.stringify({ text, model_id: PERSONAL_VOICE_MODEL, voice_settings: personalVoiceSettings(delivery) }), signal: AbortSignal.timeout(45000),
   });
   if (!response.ok) throw new VoiceServiceError(await voiceFailure(response));
   return new Response(await response.arrayBuffer(), { headers: { "Content-Type": "audio/mpeg", "Cache-Control": "private, no-store" } });

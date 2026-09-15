@@ -12,5 +12,5 @@ export function cloneErrorResponse(error: unknown) {
   if (error instanceof SyntaxError) return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
   // Database/provider errors may contain personal content or connection strings.
   console.error("[clone] request failed", { type: error instanceof Error ? error.name : "unknown" });
-  return NextResponse.json({ error: "La memoria del clon no está disponible. Intenta de nuevo en unos momentos." }, { status: 503, headers: PRIVATE_HEADERS });
+  return NextResponse.json({ error: "No pude completar la acción con tu clon. Intenta de nuevo en unos momentos." }, { status: 503, headers: PRIVATE_HEADERS });
 }

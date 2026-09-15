@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { Button, Card } from "@/components/ui";
-import { VoiceClone } from "@/components/app/VoiceClone";
-import { IdentityCapture } from "@/components/app/IdentityCapture";
 import { AvatarStudio } from "./AvatarStudio";
 import { CloneDictation } from "./CloneDictation";
 import { CLONE_TOPICS, type CloneSnapshot, type CloneTopic } from "@/lib/clone/profile";
@@ -25,13 +22,12 @@ async function request<T>(url: string, method = "GET", body?: unknown): Promise<
 }
 
 export function CloneStudio() {
-  const [voiceVersion, setVoiceVersion] = useState(0);
   const [snapshot, setSnapshot] = useState<CloneSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState<"dialogo" | "memoria" | "presencia">("dialogo");
+  const [tab, setTab] = useState<"dialogo" | "memoria" | "presencia">("presencia");
   const [topic, setTopic] = useState<CloneTopic>("historia");
   const [draft, setDraft] = useState("");
   const [revision, setRevision] = useState(0);
@@ -94,7 +90,7 @@ export function CloneStudio() {
       setSnapshot(data);
       const fact = data.facts.find(f => f.topic === "historia");
       setDraft(fact?.content ?? ""); setRevision(fact?.revision ?? 0);
-    }).catch(e => { if (active) { setCode(e.code || ""); setError(e.message); } })
+    }).catch(e => { if (active) { setCode(e.code || ""); if (!["CLONE_NOT_INITIALIZED", "TENANT_UNAVAILABLE"].includes(e.code)) setError(e.message); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
@@ -162,33 +158,20 @@ export function CloneStudio() {
 
   const currentTopic = CLONE_TOPICS.find(t => t.id === topic)!;
   return <div className={styles.studio}>
-    <div className={styles.intro}>
-      <p className="eon-screen-kicker">Mi clon · en formación</p>
-      <h1 className="eon-screen-title">Una presencia que construyes contigo.</h1>
-      <p className="eon-screen-sub">Conversa, enséñale cómo eres y corrige lo que todavía no te representa.</p>
-      <div className={styles.actions}><Link href="/app">Volver a Eon →</Link><span className={styles.badge}>{online ? "Conectado" : "Sin conexión"}</span></div>
-    </div>
+    <header className={styles.intro}><h1>Mi clon</h1><p>Tu foto y tu voz. Escribe algo y pruébalo.</p></header>
     <nav className={styles.tabs} aria-label="Espacios de mi clon">
-      {([ ["dialogo", "Hablar conmigo"], ["memoria", "Mi memoria"], ["presencia", "Mi voz y mi imagen"] ] as const).map(([id, label]) =>
-        <button key={id} type="button" aria-current={tab === id ? "page" : undefined} onClick={() => { stopAudio(); setSpeechUrl(null); setSpeaking(null); setTab(id); }}>{label}</button>)}
+      {([ ["presencia", "Foto y voz"], ["dialogo", "Conversar"], ["memoria", "Memoria"] ] as const).map(([id, label]) =>
+        <button key={id} type="button" aria-current={tab === id ? "page" : undefined} onClick={() => { stopAudio(); setSpeechUrl(null); setSpeaking(null); setTab(id); if (id !== "presencia" && !snapshot) { void request<CloneSnapshot>("/api/clone").then(data => { setSnapshot(data); setCode(""); }).catch(() => undefined); } }}>{label}</button>)}
     </nav>
     {!online && <p role="status" className={styles.notice}>Sin conexión. Tu borrador sigue aquí; espera a reconectarte para enviarlo.</p>}
-    {error && <p role="alert" className={styles.error}>{error}</p>}
-    {notice && <p role="status" className={styles.notice}>{notice}</p>}
-    {tab === "presencia" ? <>
-      <VoiceClone onChange={() => setVoiceVersion(previous => previous + 1)} />
-      {snapshot ? <AvatarStudio voiceVersion={voiceVersion} messages={snapshot.messages} onChat={() => { setTab("dialogo"); setMessage("Respóndeme en menos de 350 caracteres: ¿cómo me presentaría yo?"); }} /> : <Card><h2>Prepara tu memoria primero</h2><p>Inicia la memoria de tu clon para guardar tu foto y generar videos.</p><Button onClick={() => setTab("memoria")}>Ir a Mi memoria</Button></Card>}
-      <details className={styles.versions}><summary>Mi archivo visual de seis ángulos</summary><p className={styles.hint}>Este archivo anterior utiliza enlaces de almacenamiento accesibles a quien los tenga. Para el avatar usa la foto cifrada del panel de arriba.</p><IdentityCapture /></details>
-    </> : loading ? <div className={styles.skeleton} role="status" aria-label="Abriendo la memoria de tu clon"><span/><span/><span/><p>Abriendo la memoria de tu clon…</p></div> : !snapshot ? <Card>
+    {error && tab !== "presencia" && <p role="alert" className={styles.error}>{error}</p>}
+    {notice && tab !== "presencia" && <p role="status" className={styles.notice}>{notice}</p>}
+    {tab === "presencia" ? <AvatarStudio /> : loading ? <div className={styles.skeleton} role="status" aria-label="Abriendo la memoria de tu clon"><span/><span/><span/><p>Abriendo la memoria de tu clon…</p></div> : !snapshot ? <Card>
       <h2>{(code === "CLONE_NOT_INITIALIZED" || code === "TENANT_UNAVAILABLE") ? "Empieza con tu propia memoria" : "Necesitamos recuperar tu espacio personal"}</h2>
       <p>Tu clon tendrá una memoria independiente. Sus conversaciones y lo que confirmes sobre ti se guardarán aquí.</p>
       {(code === "CLONE_NOT_INITIALIZED" || code === "TENANT_UNAVAILABLE") ? <Button onClick={initialize} loading={busy}>Iniciar la memoria de mi clon</Button> : <Button variant="ghost" onClick={() => window.location.reload()}>Reintentar</Button>}
     </Card> : <>
       <div className={styles.actions}><Button variant="ghost" disabled={busy || !online} onClick={refresh}>Actualizar mi espacio</Button><Button variant="ghost" onClick={exportSnapshot}>Descargar mi memoria y conversación reciente</Button></div>
-      <div className={styles.metrics}>
-        <Card><p>Cobertura inicial</p><strong>{snapshot.progress.coveragePercent}%</strong><progress aria-label="Cobertura de temas" max={100} value={snapshot.progress.coveragePercent} /><p>{snapshot.progress.covered} de {snapshot.progress.totalTopics} temas con información confirmada.</p><small>Mide este primer cuestionario, no cuánto eres tú.</small></Card>
-        <Card><p>Me reconozco en sus respuestas</p><strong>{snapshot.progress.recognitionPercent === null ? "Por evaluar" : `${snapshot.progress.recognitionPercent}%`}</strong><p>{snapshot.progress.reviewCount} respuestas evaluadas con tu versión actual de memoria.</p><small>Tu valoración personal; no es una certificación de identidad.</small></Card>
-      </div>
       {tab === "memoria" ? <Card>
         <h2>Lo que confirmo sobre mí</h2>
         <p>Esto nutre al clon. Las conversaciones se conservan como historial; sus respuestas no se convierten solas en recuerdos tuyos.</p>

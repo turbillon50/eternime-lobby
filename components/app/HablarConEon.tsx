@@ -151,7 +151,7 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
   async function start(options: { reconnect?: boolean } = {}) {
     const reconnecting = options.reconnect === true;
     if (!consent) {
-      setError("Autoriza la beta de voz para comenzar.");
+      setError("Autoriza el uso de tu voz para comenzar.");
       setCompactOpen(true);
       return;
     }
@@ -177,7 +177,7 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
         body: JSON.stringify({ freeTierConsent: true }),
       });
       const payload = await response.json() as SessionPayload;
-      if (!response.ok) throw new Error(payload.error || "No se pudo iniciar Gemini Live.");
+      if (!response.ok) throw new Error(payload.error || "No se pudo iniciar la voz de Eon.");
       reportDiagnostic("session_ready");
       const { GoogleGenAI } = await import("@google/genai");
       const ai = new GoogleGenAI({ apiKey: payload.token, httpOptions: { apiVersion: "v1beta" } });
@@ -244,7 +244,8 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
           <header><span><i /> EON</span><button type="button" onClick={() => setCompactOpen(false)} aria-label="Cerrar">×</button></header>
           <b>{status === "speaking" ? "Estoy contigo" : status === "acting" ? "Lo estoy haciendo" : status === "listening" ? "Te escucho" : status === "connecting" ? "Volviendo contigo…" : "Sigo aquí"}</b>
           <p>{caption || action || error || (consent ? "Habla conmigo sin salir de lo que estás haciendo." : "Autoriza la voz una vez en este dispositivo.")}</p>
-          {!consent ? <label><input type="checkbox" checked={consent} onChange={(event) => setVoiceConsent(event.target.checked)} /><span>Autorizar voz con Gemini Live</span></label> : null}
+          {!consent ? <label><input type="checkbox" checked={consent} onChange={(event) => setVoiceConsent(event.target.checked)} /><span>Autorizar mi voz</span></label> : null}
+          {!consent && <details><summary>Cómo se usa mi audio</summary><p>El audio se procesa con Google Gemini Free Tier y puede ayudar a Google a mejorar sus productos. No se guarda como memoria sin tu indicación.</p></details>}
           <footer>
             <button type="button" className={active ? "is-stop" : "is-start"} onClick={active ? stop : () => void start()}>{active ? "Terminar" : "Hablar ahora"}</button>
             <Link href="/app/hablar">Abrir completo</Link>
@@ -267,18 +268,18 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
       {active ? <PresenceHalo /> : null}
       <LightSweep />
       <div className="gemini-live-hero">
-        <span className="gemini-live-beta">Gemini Live · beta</span>
+
         <EonSignal state={status === "error" ? "error" : status === "acting" || status === "speaking" ? "acting" : status === "listening" ? "listening" : status === "connecting" ? "thinking" : "idle"} className="gemini-live-signal" />
-        <p className="eon-kicker">Eon · voz y acciones en tiempo real</p>
-        <h1>{status === "connecting" ? "Abriendo la conversación…" : status === "speaking" ? "Eon está contigo" : status === "acting" ? "Haciéndolo" : active ? "Te escucho" : "Habla. Recuerda. Haz."}</h1>
-        <p className="gemini-live-lede">Interrúmpelo como a una persona. Busca en tu memoria, guarda lo importante y mueve tus pendientes sin abandonar la conversación.</p>
+
+        <h1>{status === "connecting" ? "Abriendo la conversación…" : status === "speaking" ? "Eon está contigo" : status === "acting" ? "Haciéndolo" : active ? "Te escucho" : "Hablar con Eon"}</h1>
+        <p className="gemini-live-lede">Toca el micrófono y habla. Puedes interrumpirme cuando quieras.</p>
       </div>
       <motion.button type="button" onClick={active ? stop : () => void start()} className={`gemini-live-control is-${status}`} whileTap={{ scale: 0.96 }} aria-label={active ? "Terminar conversación" : "Comenzar conversación"}>
         {status === "connecting" ? <span className="loader" /> : active ? <span className="stop-square" /> : <span className="voice-bars"><i /><i /><i /></span>}
       </motion.button>
       <p className="gemini-live-status">
         {status === "idle" && "Toca para hablar con Eon"}
-        {status === "connecting" && "Creando un canal privado temporal"}
+        {status === "connecting" && "Conectando…"}
         {status === "listening" && "Escuchando · puedes pedirme que recuerde o haga algo"}
         {status === "speaking" && "Hablando · interrúmpeme cuando quieras"}
         {status === "acting" && (action || "Realizando la acción")}
@@ -290,13 +291,11 @@ export function HablarConEon({ compact = false }: { compact?: boolean }) {
           {turns.slice(-4).map((turn, index) => <p key={`${turn.role}-${index}`} className={turn.role}><b>{turn.role === "user" ? "Tú" : "Eon"}</b><span>{turn.content}</span></p>)}
         </div>
       ) : null}
-      {!active ? (
-        <label className="gemini-live-consent">
-          <input type="checkbox" checked={consent} onChange={(event) => setVoiceConsent(event.target.checked)} />
-          <span><b>Autorizar voz en este dispositivo</b>El audio se procesa con Gemini Free Tier y puede ayudar a Google a mejorar sus productos. Eternime no lo guarda como memoria salvo que digas “guarda esto”.</span>
-        </label>
-      ) : null}
-      <p className="gemini-live-safety">No puede borrar nada. Correo y acciones externas requieren confirmación.</p>
+      {!active ? <div className="eon-voice-permission">
+        <label className="gemini-live-consent"><input type="checkbox" checked={consent} onChange={(event) => setVoiceConsent(event.target.checked)} /><span><b>Permitir conversación de voz</b></span></label>
+        <details><summary>Cómo se usa mi audio</summary><p>El audio se procesa con Google Gemini Free Tier y puede ayudar a Google a mejorar sus productos. Eternime no lo guarda como memoria salvo que digas “guarda esto”. Las acciones externas requieren confirmación.</p></details>
+      </div> : null}
+
     </section>
   );
 }

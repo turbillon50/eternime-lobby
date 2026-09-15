@@ -1,3 +1,5 @@
+import { sameOrigin } from "@/lib/clone/guard";
+import { CloneError } from "@/lib/clone/errors";
 import { NextResponse } from "next/server";
 import { requireUser, AuthError } from "@/lib/auth";
 import { findUserById } from "@/lib/data/users";
@@ -5,7 +7,7 @@ import { cloningCapability, elevenLabsKey, voiceFailure } from "@/lib/voice/elev
 import { personalVoiceId, validateVoiceSamples, MAX_VOICE_BYTES } from "@/lib/voice/samples";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 90;
 
 const xiKey = elevenLabsKey;
 
@@ -17,6 +19,7 @@ export async function GET() {
     const capability = await cloningCapability();
     return NextResponse.json({ voiceId, cloningAvailable: capability.available, reason: capability.reason }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (e) {
+    if (e instanceof CloneError) return NextResponse.json({ error: e.message }, { status: e.status });
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
@@ -25,6 +28,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await requireUser();
+    sameOrigin(request);
     const key = xiKey();
     if (!key) return NextResponse.json({ error: "Voz no configurada" }, { status: 503 });
     if (Number(request.headers.get("content-length")) > MAX_VOICE_BYTES + 100_000) return NextResponse.json({ error: "Los audios superan 3.8 MB." }, { status: 413 });
@@ -38,7 +42,9 @@ export async function POST(request: Request) {
     if (!capability.available) return NextResponse.json({ error: capability.reason }, { status: 503 });
     const user = await findUserById(session.sub);
     if (!user) return NextResponse.json({ error: "No pude encontrar tu perfil." }, { status: 404 });
-    if (personalVoiceId(user.prefs)) return NextResponse.json({ error: "Ya tienes una voz personal. Escúchala antes de eliminarla y crear otra." }, { status: 409 });
+    const previousId = personalVoiceId(user.prefs);
+    const replacement = form.get("replaceVoiceId");
+    if ((previousId && replacement !== previousId) || (!previousId && replacement)) return NextResponse.json({ error: "Tu voz cambió. Actualiza la página antes de volver a grabarla." }, { status: 409 });
     const xiForm = new FormData();
     xiForm.append("name", `Voz de ${user?.name || "Eternime"}`);
     xiForm.append("description", "Voz personal autorizada por su titular para su clon digital en Eternime.");
@@ -49,24 +55,29 @@ export async function POST(request: Request) {
     }
     const data = await res.json() as { voice_id?: string };
     if (!data.voice_id) return NextResponse.json({ error: "No se obtuvo voice_id" }, { status: 502 });
-    const { attachPersonalVoice } = await import("@/lib/data/personal-voice");
-    const attached = await attachPersonalVoice(session.sub, data.voice_id);
+    const { attachPersonalVoice, replacePersonalVoice } = await import("@/lib/data/personal-voice");
+    const attached = previousId ? await replacePersonalVoice(session.sub, previousId, data.voice_id) : await attachPersonalVoice(session.sub, data.voice_id);
     if (!attached) {
         // Clean up only the new, unattached voice created by this request.
         await fetch(`https://api.elevenlabs.io/v1/voices/${encodeURIComponent(data.voice_id)}`, { method: "DELETE", headers: { "xi-api-key": key }, signal: AbortSignal.timeout(8000) }).catch(() => null);
     }
     if (!attached) return NextResponse.json({ error: "Tu voz cambió en otra sesión. Recarga antes de continuar." }, { status: 409 });
+    if (previousId) {
+      // The new voice is safely attached before retiring the old provider record.
+      await fetch(`https://api.elevenlabs.io/v1/voices/${encodeURIComponent(previousId)}`, { method: "DELETE", headers: { "xi-api-key": key }, signal: AbortSignal.timeout(8000) }).catch(() => null);
+    }
     return NextResponse.json({ voiceId: data.voice_id, name: `Voz de ${user?.name || "Eternime"}` });
   } catch (e) {
+    if (e instanceof CloneError) return NextResponse.json({ error: e.message }, { status: e.status });
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
     console.error("[voice/clone] request failed", { type: e instanceof Error ? e.name : "unknown" });
     return NextResponse.json({ error: "No se pudo clonar la voz" }, { status: 500 });
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   try {
-    const session = await requireUser();
+    const session = await requireUser(); sameOrigin(request);
     const user = await findUserById(session.sub);
     const prefs = { ...((user?.prefs as Record<string, unknown>) || {}) };
     if (!user) return NextResponse.json({ error: "No pude encontrar tu perfil." }, { status: 404 });
@@ -80,6 +91,7 @@ export async function DELETE() {
     }
     return NextResponse.json({ ok: true });
   } catch (e) {
+    if (e instanceof CloneError) return NextResponse.json({ error: e.message }, { status: e.status });
     if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
     return NextResponse.json({ error: "No se pudo eliminar la voz" }, { status: 500 });
   }

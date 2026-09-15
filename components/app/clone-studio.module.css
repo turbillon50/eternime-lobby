@@ -68,3 +68,18 @@
 .cloneMessage { background: rgb(139 92 255 / 7%); border-color: rgb(196 175 255 / 22%); }
 .userMessage { background: rgb(196 175 255 / 12%); }
 .error { background: rgb(155 58 70 / 16%); border: 1px solid rgb(229 127 141 / 30%); color: #f0c1ca; }
+/* Keep the personal clone controls compact and reachable on a phone. */
+.intro h1 { font-size: 1.75rem; font-weight: 600; letter-spacing: -.04em; }
+.intro p { color: var(--et-text-muted); font-size: .95rem; margin-top: .3rem; }
+.portraitRow { grid-template-columns: 112px minmax(0,1fr); gap: 1rem; }
+.portrait, .portraitEmpty { width: 112px; height: 140px; border-radius: 16px; }
+.portraitRow h2 { margin: 0; }.portraitRow .hint { margin: .25rem 0; }
+.portraitRow .check { margin: .7rem 0; font-size: .8rem; }
+.voiceSettings { margin: 1rem 0; padding-block: .75rem; border-block: 1px solid rgb(196 175 255 / 15%); }
+.voiceSettings summary { cursor: pointer; font-size: .85rem; min-height: 28px; }
+.field textarea, .field select { background: #181422; color: #faf8ff; }
+.delivery { display: flex; align-items: center; gap: .5rem; font-size: .8rem; margin-bottom: 1rem; }
+.delivery select { padding: .6rem; border-radius: 10px; border: 1px solid #6255bd; background: #181422; color: #faf8ff; }
+.audioResult { margin: 1rem 0; }.audioResult audio { width: 100%; }
+.videoAction { margin-top: 1.25rem; padding-top: .25rem; border-top: 1px solid rgb(196 175 255 / 15%); }
+@media (max-width: 380px) { .portraitRow { grid-template-columns: 80px minmax(0,1fr); }.portrait,.portraitEmpty { width: 80px; height: 112px; }.portraitEmpty svg { width: 60px; }.studio .tabs button { font-size: .8rem; } }
