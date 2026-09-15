@@ -2,23 +2,143 @@
 import { useEffect, useRef, useState } from "react";
 import { FadeInOnScroll } from "@/components/motion";
 import { Button, Card, CardDescription, CardTitle } from "@/components/ui";
+import { MAX_VOICE_SAMPLES, recordingExtension, validateVoiceSamples } from "@/lib/voice/samples";
 
-const PROMPTS=[
-  "Di tu nombre y cuéntame cómo fue tu día, como si hablaras con alguien cercano.",
-  "Cuenta un recuerdo que te haga sonreír. No leas: háblalo naturalmente.",
-  "Explica algo que conoces muy bien, con tu ritmo normal y haciendo pausas."
-];
-export function VoiceClone(){
-  const [voiceId,setVoiceId]=useState<string|null>(null),[available,setAvailable]=useState(true),[loading,setLoading]=useState(true),[working,setWorking]=useState(false),[recording,setRecording]=useState(false),[msg,setMsg]=useState(""),[err,setErr]=useState(""),[previewing,setPreviewing]=useState(false);
-  const [samples,setSamples]=useState<File[]>([]); const rec=useRef<MediaRecorder|null>(null), chunks=useRef<Blob[]>([]), input=useRef<HTMLInputElement>(null), startedAt=useRef(0);
-  useEffect(()=>{fetch('/api/voice/clone').then(r=>r.json()).then(d=>{setVoiceId(d.voiceId??null);setAvailable(d.cloningAvailable??true)}).catch(()=>{}).finally(()=>setLoading(false))},[]);
-  async function toggleRecord(){
-    if(recording){rec.current?.stop();setRecording(false);return;}
-    try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});const r=new MediaRecorder(stream);chunks.current=[];r.ondataavailable=e=>{if(e.data.size)chunks.current.push(e.data)};r.onstop=()=>{const seconds=(Date.now()-startedAt.current)/1000;stream.getTracks().forEach(t=>t.stop());if(seconds<8){setErr('La muestra fue muy corta. Habla al menos 8 segundos.');return}const blob=new Blob(chunks.current,{type:r.mimeType||'audio/webm'});setSamples(v=>[...v,new File([blob],`muestra-${v.length+1}.webm`,{type:blob.type})])};startedAt.current=Date.now();r.start();rec.current=r;setRecording(true);setErr("");}catch{setErr("Necesito permiso al micrófono para grabar tu voz.")}
+export function VoiceClone() {
+  const [voiceId, setVoiceId] = useState<string | null>(null);
+  const [available, setAvailable] = useState(false);
+  const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [working, setWorking] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [samples, setSamples] = useState<File[]>([]);
+  const [consent, setConsent] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [err, setErr] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const recorder = useRef<MediaRecorder | null>(null);
+  const openingMic = useRef(false);
+  const stream = useRef<MediaStream | null>(null);
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const alive = useRef(true);
+  const objectUrl = useRef<string | null>(null);
+
+  function load() {
+    return fetch("/api/voice/clone", { cache: "no-store" }).then(async response => {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "No pude consultar tu voz.");
+      if (!alive.current) return;
+      setVoiceId(data.voiceId ?? null); setAvailable(data.cloningAvailable === true); setReason(data.reason || "");
+    }).catch(error => { if (alive.current) { setAvailable(false); setErr(error instanceof Error ? error.message : "Error de conexión."); } })
+      .finally(() => { if (alive.current) setLoading(false); });
   }
-  async function create(){if(!samples.length)return;setWorking(true);setErr("");setMsg("");try{const fd=new FormData();samples.forEach(f=>fd.append('files',f));fd.append('consent','true');const r=await fetch('/api/voice/clone',{method:'POST',body:fd});const d=await r.json();if(!r.ok)throw new Error(d.error||'No se pudo clonar');setVoiceId(d.voiceId);setMsg('Tu voz quedó activa en Eon.')}catch(e){setErr(e instanceof Error?e.message:'Error de conexión')}finally{setWorking(false)}}
-  async function preview(){setPreviewing(true);setErr("");try{const r=await fetch("/api/voice/preview",{method:"POST"});if(!r.ok)throw new Error("No pude generar la prueba");const url=URL.createObjectURL(await r.blob());const a=new Audio(url);a.onended=()=>{URL.revokeObjectURL(url);setPreviewing(false)};await a.play()}catch(e){setPreviewing(false);setErr(e instanceof Error?e.message:"No pude reproducirla")}}
-  async function remove(){setWorking(true);try{await fetch('/api/voice/clone',{method:'DELETE'});setVoiceId(null);setSamples([]);setMsg('Tu clon fue eliminado.')}catch{setErr('No pude eliminar el clon.')}finally{setWorking(false)}}
-  const idx=Math.min(samples.length,2);
-  return <FadeInOnScroll delay={.14}><input ref={input} hidden type="file" accept="audio/*" multiple onChange={e=>setSamples(Array.from(e.target.files??[]))}/><Card><p className="eon-page-kicker">Identidad de voz</p><CardTitle>Haz que Eon pueda hablar con tu voz.</CardTitle><CardDescription className="mt-1">Tres muestras naturales suelen capturar mejor tu ritmo, pausas y pronunciación que un audio leído de corrido.</CardDescription>{loading?<p className="mt-4 text-sm">Cargando…</p>:voiceId?<div className="voice-studio-active"><span>✓</span><div><b>Tu voz está activa</b><small>Puedes reemplazarla o eliminarla cuando quieras.</small></div><div className="flex gap-2"><Button variant="ghost" onClick={preview} loading={previewing}>Escuchar mi clon</Button><Button variant="ghost" onClick={remove} loading={working}>Eliminar clon</Button></div></div>:<div className="voice-studio"><div className={`voice-recorder ${recording?'recording':''}`}><div className="voice-wave">{[1,2,3,4,5,6,7].map(x=><i key={x}/>)}</div><small>Muestra {Math.min(samples.length+1,3)} de 3</small><h3>{PROMPTS[idx]}</h3><Button onClick={toggleRecord}>{recording?'Terminar muestra':'Grabar muestra'}</Button></div><div className="voice-samples">{[0,1,2].map(i=><span key={i} className={samples[i]?'done':''}>{samples[i]?'✓':'○'} Muestra {i+1}</span>)}</div><div className="flex flex-wrap gap-2"><Button onClick={create} loading={working} disabled={!samples.length||!available}>Crear mi voz</Button><Button variant="ghost" onClick={()=>input.current?.click()}>Subir audios</Button></div></div>}{msg&&<p className="mt-3 text-sm text-[var(--et-success)]">{msg}</p>}{err&&<p className="mt-3 text-sm text-[var(--et-danger)]">{err}</p>}<p className="mt-3 text-[10px] leading-relaxed text-[var(--et-text-faint)]">Al crear el clon confirmas que las muestras son de tu propia voz y autorizas su procesamiento para esta función. Puedes eliminarlo desde aquí.</p></Card></FadeInOnScroll>;
+  useEffect(() => {
+    alive.current = true;
+    void load();
+    return () => {
+      alive.current = false;
+      if (recorder.current?.state === "recording") recorder.current.stop();
+      stream.current?.getTracks().forEach(track => track.stop());
+      if (timer.current) clearInterval(timer.current);
+      if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+    };
+  }, []);
+
+  async function toggleRecord() {
+    if (recording) { recorder.current?.stop(); return; }
+    if (openingMic.current) return;
+    setErr(""); setMsg("");
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") { setErr("Este navegador no permite grabar aquí. Puedes subir un audio desde tu dispositivo."); return; }
+    let mic: MediaStream | null = null;
+    openingMic.current = true;
+    try {
+      mic = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!alive.current) { mic.getTracks().forEach(track => track.stop()); return; }
+      stream.current = mic;
+      const mimeType = ["audio/webm;codecs=opus", "audio/mp4", "audio/ogg;codecs=opus"].find(type => MediaRecorder.isTypeSupported(type));
+      const rec = new MediaRecorder(mic, { ...(mimeType ? { mimeType } : {}), audioBitsPerSecond: 128000 });
+      const chunks: Blob[] = [];
+      const startedAt = Date.now();
+      rec.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+      rec.onstop = () => {
+        mic?.getTracks().forEach(track => track.stop());
+        if (timer.current) clearInterval(timer.current);
+        if (!alive.current) return;
+        setRecording(false);
+        if ((Date.now() - startedAt) / 1000 < 8) { setErr("La muestra fue muy corta. Intenta hablar entre 20 y 60 segundos."); return; }
+        const blob = new Blob(chunks, { type: rec.mimeType || mimeType || "audio/webm" });
+        const file = new File([blob], `muestra-${Date.now()}.${recordingExtension(blob.type)}`, { type: blob.type });
+        const invalid = validateVoiceSamples([file]);
+        if (invalid) { setErr(invalid); return; }
+        setSamples(previous => [...previous, file]);
+      };
+      rec.onerror = () => { mic?.getTracks().forEach(track => track.stop()); if (timer.current) clearInterval(timer.current); setRecording(false); setErr("La grabación se interrumpió. Intenta de nuevo."); };
+      recorder.current = rec; setSeconds(0); setRecording(true); rec.start();
+      timer.current = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000); setSeconds(elapsed);
+        if (elapsed >= 60 && rec.state === "recording") rec.stop();
+      }, 500);
+    } catch { mic?.getTracks().forEach(track => track.stop()); setErr("No pude abrir el micrófono. Revisa el permiso o sube un audio."); }
+    finally { openingMic.current = false; }
+  }
+  async function create() {
+    const invalid = validateVoiceSamples(samples);
+    if (invalid) { setErr(invalid); return; }
+    setWorking(true); setErr(""); setMsg("");
+    try {
+      const form = new FormData(); samples.forEach(file => form.append("files", file)); form.append("consent", String(consent));
+      const response = await fetch("/api/voice/clone", { method: "POST", body: form });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "No pude crear tu voz. Revisa el tamaño de los audios y vuelve a consultar su estado.");
+      setVoiceId(data.voiceId); setSamples([]); setMsg("Tu voz personal está guardada para tu clon. Eon conserva su propia voz.");
+    } catch (error) { setErr(error instanceof Error ? error.message : "Error de conexión."); }
+    finally { setWorking(false); }
+  }
+  async function preview() {
+    setWorking(true); setErr("");
+    try {
+      const response = await fetch("/api/voice/preview", { method: "POST" });
+      if (!response.ok) { const data = await response.json(); throw new Error(data.error || "No pude generar la prueba."); }
+      if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+      objectUrl.current = URL.createObjectURL(await response.blob()); setPreviewUrl(objectUrl.current);
+      setMsg("Pulsa reproducir para escuchar tu voz.");
+    } catch (error) { setErr(error instanceof Error ? error.message : "Error de conexión."); }
+    finally { setWorking(false); }
+  }
+  async function remove() {
+    setWorking(true); setErr("");
+    try {
+      const response = await fetch("/api/voice/clone", { method: "DELETE" }); const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "No pude confirmar la eliminación.");
+      if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+      objectUrl.current = null; setPreviewUrl(null); setVoiceId(null); setConfirmDelete(false); setMsg("Tu voz personal fue eliminada.");
+    } catch (error) { setErr(error instanceof Error ? error.message : "Error de conexión."); }
+    finally { setWorking(false); }
+  }
+  const invalid = samples.length ? validateVoiceSamples(samples) : null;
+  return <FadeInOnScroll delay={.14}><Card>
+    <p className="eon-page-kicker">Mi voz personal · ElevenLabs</p>
+    <CardTitle>Una voz para mi clon.</CardTitle>
+    <CardDescription className="mt-1">Habla de manera natural, con poco ruido y sin música. Reúne entre uno y dos minutos en total. Esta voz pertenece a tu clon; Eon conserva la suya.</CardDescription>
+    {loading ? <p role="status" className="mt-4">Consultando tu voz…</p> : voiceId ? <div className="mt-4 grid gap-3">
+      <b>Tu voz personal está guardada</b>
+      <div className="flex flex-wrap gap-2"><Button variant="ghost" onClick={preview} loading={working}>Preparar prueba de voz</Button><Button variant="ghost" disabled={working} onClick={() => setConfirmDelete(true)}>Eliminar mi voz</Button></div>
+      {previewUrl && <audio key={previewUrl} controls src={previewUrl} className="w-full" aria-label="Prueba de mi voz personal" />}
+      {confirmDelete && <div className="grid gap-2"><p>¿Eliminar tu voz personal? Para recuperarla tendrás que crear otra.</p><div className="flex gap-2"><Button onClick={remove} loading={working}>Sí, eliminar</Button><Button variant="ghost" disabled={working} onClick={() => setConfirmDelete(false)}>Conservar</Button></div></div>}
+    </div> : <div className="mt-4 grid gap-3">
+      {reason && <p role="status" className="text-sm">{reason}</p>}
+      <input ref={input} hidden type="file" accept="audio/*" multiple onChange={event => { const files = Array.from(event.target.files ?? []); const problem = validateVoiceSamples(files); if (problem) setErr(problem); else { setSamples(files); setErr(""); } event.target.value = ""; }} />
+      <p className="text-sm">Cuéntame un recuerdo, explica algo que conoces o describe tu día con tu ritmo habitual.</p>
+      <div className="flex flex-wrap items-center gap-2"><Button disabled={working || (!recording && samples.length >= MAX_VOICE_SAMPLES)} onClick={toggleRecord}>{recording ? `Terminar muestra · ${seconds}s` : "Grabar una muestra"}</Button><Button variant="ghost" disabled={working || recording} onClick={() => input.current?.click()}>Subir audios</Button></div>
+      <ul className="grid gap-1">{samples.map((file, i) => <li key={`${file.name}-${i}`} className="flex flex-wrap items-center gap-2 text-sm"><span className="break-all">Muestra {i + 1} · {(file.size / 1_000_000).toFixed(2)} MB</span><button className="min-h-11 px-3 underline" disabled={working || recording} onClick={() => setSamples(previous => previous.filter((_, index) => index !== i))}>Quitar</button></li>)}</ul>
+      {invalid && <p role="alert" className="text-sm">{invalid}</p>}
+      <label className="flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1" checked={consent} disabled={working} onChange={event => setConsent(event.target.checked)} /><span>Confirmo que es mi propia voz y autorizo a ElevenLabs a procesar estas muestras para crear mi clon de voz.</span></label>
+      <div className="flex flex-wrap gap-2"><Button onClick={create} loading={working} disabled={!samples.length || !!invalid || !available || !consent || recording}>Crear mi voz</Button><Button variant="ghost" disabled={working || recording} onClick={() => { setLoading(true); setErr(""); void load(); }}>Actualizar estado</Button></div>
+    </div>}
+    {msg && <p role="status" className="mt-3 text-sm text-[var(--et-success)]">{msg}</p>}
+    {err && <p role="alert" className="mt-3 text-sm text-[var(--et-danger)]">{err}</p>}
+  </Card></FadeInOnScroll>;
 }

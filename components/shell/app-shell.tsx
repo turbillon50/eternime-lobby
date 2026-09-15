@@ -20,6 +20,7 @@ function Icon({ d }: { d: string }) {
 
 export const APP_NAV: NavItem[] = [
   { href: "/app", label: "Chat", icon: <Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z" /> },
+  { href: "/app/clon", label: "Mi clon", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0" /> },
   { href: "/app/recuerdos", label: "Memoria", icon: <Icon d="M12 3v18M7 5a4 4 0 0 0 0 8 4 4 0 0 0 0 6M17 5a4 4 0 0 1 0 8 4 4 0 0 1 0 6M7 9h5M12 15h5" /> },
   { href: "/app/hablar", label: "Hablar con Eon", icon: <Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3" /> },
   { href: "/app/proyectos", label: "Proyectos", icon: <Icon d="M4 7h6l2 2h8v10H4z" /> },
@@ -140,7 +141,8 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
     <AnimatePresence>{open && <><motion.button aria-label="Cerrar menú" className="eon-drawer-backdrop fixed inset-0 z-40" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside ref={drawerRef} onKeyDown={trapDrawerFocus} className="eon-drawer" role="dialog" aria-modal="true" aria-label="Menú de Eternime" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
 
     <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}>
-      {!brand.includes("ADMIN") && <HablarConEon compact={pathname !== "/app/hablar"} />}
+      {!brand.includes("ADMIN") && !pathname.startsWith("/app/clon") && <HablarConEon compact={pathname !== "/app/hablar"} />}
+      {!brand.includes("ADMIN") && (isChat || pathname.startsWith("/app/clon")) && <nav aria-label="Con quién conversar" className="mb-4 flex flex-wrap gap-3 text-sm"><Link href="/app" aria-current={pathname === "/app" ? "page" : undefined} className="rounded-xl border border-violet-200 px-4 py-3">Eon</Link><Link href="/app/clon" aria-current={pathname.startsWith("/app/clon") ? "page" : undefined} className="rounded-xl border border-violet-200 px-4 py-3">Mi clon</Link></nav>}
       <PageTransition stable>{children}</PageTransition>
       {!brand.includes("ADMIN") && !isChat && <footer className={contactStyles.appFooter}><ContactLinks /></footer>}
     </main>

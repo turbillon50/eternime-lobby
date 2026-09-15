@@ -1,5 +1,20 @@
 import { NextResponse } from "next/server";
-import { requireUser, AuthError } from "@/lib/auth";
+import { AuthError, requireUser } from "@/lib/auth";
 import { findUserById } from "@/lib/data/users";
-export const runtime="nodejs"; export const maxDuration=30;
-export async function POST(){try{const s=await requireUser();const u=await findUserById(s.sub);const voiceId=(u?.prefs as Record<string,unknown>|null)?.eon_voice_id;if(typeof voiceId!=="string"||!voiceId)return NextResponse.json({error:"Aún no tienes un clon activo"},{status:404});const key=process.env.ELEVENLABS_API_KEY||process.env.XI_API_KEY||"";if(!key)return NextResponse.json({error:"Voz no configurada"},{status:503});const text=`Hola ${u?.name?.split(" ")[0]||""}. Esta es una prueba de tu voz dentro de Eternime.`.trim();const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`,{method:"POST",headers:{"xi-api-key":key,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_flash_v2_5"})});if(!r.ok)return NextResponse.json({error:"No pude generar la prueba"},{status:502});return new NextResponse(await r.arrayBuffer(),{headers:{"Content-Type":"audio/mpeg","Cache-Control":"no-store"}})}catch(e){if(e instanceof AuthError)return NextResponse.json({error:e.message},{status:e.status});return NextResponse.json({error:"No pude generar la prueba"},{status:500})}}
+import { personalVoiceId } from "@/lib/voice/samples";
+import { synthesizePersonalVoice, VoiceServiceError } from "@/lib/voice/elevenlabs";
+export const runtime = "nodejs";
+export const maxDuration = 60;
+export async function POST() {
+  try {
+    const session = await requireUser();
+    const user = await findUserById(session.sub);
+    const voiceId = personalVoiceId(user?.prefs);
+    if (!voiceId) return NextResponse.json({ error: "Todavía no tienes una voz personal creada." }, { status: 404 });
+    try { return await synthesizePersonalVoice(voiceId, "Esta es una prueba de mi voz personal en Eternime. Poco a poco voy construyendo mi presencia digital."); }
+    catch (error) { return NextResponse.json({ error: error instanceof VoiceServiceError ? error.message : "No pude generar la prueba de voz." }, { status: 502 }); }
+  } catch (error) {
+    if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.status });
+    return NextResponse.json({ error: "No pude consultar tu voz." }, { status: 503 });
+  }
+}

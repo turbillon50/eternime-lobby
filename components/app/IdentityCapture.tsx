@@ -3,16 +3,77 @@ import { useEffect, useRef, useState } from "react";
 import { FadeInOnScroll } from "@/components/motion";
 import { Button, Card, CardDescription, CardTitle } from "@/components/ui";
 import { uploadFile } from "@/lib/upload-client";
+import { IDENTITY_POSES as POSES, completedIdentityPoses } from "@/lib/identity";
 
-type Pose={id:string;label:string};
-const POSES:Pose[]=[{id:"front",label:"Frente · expresión neutra"},{id:"three_left",label:"Tres cuartos izquierdo"},{id:"left",label:"Perfil izquierdo"},{id:"three_right",label:"Tres cuartos derecho"},{id:"right",label:"Perfil derecho"},{id:"smile",label:"Sonrisa natural"}];
-type Asset={id:string;pose:string;blobUrl:string};
-export function IdentityCapture(){
- const input=useRef<HTMLInputElement>(null),videoInput=useRef<HTMLInputElement>(null);const [assets,setAssets]=useState<Asset[]>([]),[working,setWorking]=useState(false),[err,setErr]=useState("");
- useEffect(()=>{fetch('/api/identity').then(r=>r.json()).then(d=>setAssets(d.assets||[])).catch(()=>{})},[]);
- const done=new Set(assets.map(a=>a.pose));const next=POSES.find(p=>!done.has(p.id));
- async function onFile(e:React.ChangeEvent<HTMLInputElement>){const f=e.target.files?.[0];if(!f||!next)return;setWorking(true);setErr("");try{try{const bmp=await createImageBitmap(f);if(Math.min(bmp.width,bmp.height)<720){bmp.close();throw new Error('La foto necesita más resolución. Acércate y vuelve a tomarla.')}bmp.close()}catch(q){if(q instanceof Error&&q.message.includes('resolución'))throw q}const u=await uploadFile(f,'file',`Identidad visual · ${next.label}`);const r=await fetch('/api/identity',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u.url,pose:next.id,mime:f.type,consent:true})});const d=await r.json();if(!r.ok)throw new Error(d.error||'No pude guardar');setAssets(v=>[...v,d.asset]);}catch(x){setErr(x instanceof Error?x.message:'No pude guardar esta captura.')}finally{setWorking(false);if(input.current)input.current.value=''}}
- async function onVideo(e:React.ChangeEvent<HTMLInputElement>){const f=e.target.files?.[0];if(!f)return;setWorking(true);setErr('');try{const u=await uploadFile(f,'file','Identidad visual · video de presencia');const r=await fetch('/api/identity',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u.url,pose:'motion',mime:f.type,consent:true})});const d=await r.json();if(!r.ok)throw new Error(d.error||'No pude guardar el video');setAssets(v=>[...v.filter(x=>x.pose!=='motion'),d.asset])}catch(x){setErr(x instanceof Error?x.message:'No pude guardar el video.')}finally{setWorking(false);if(videoInput.current)videoInput.current.value=''}}
- async function reset(){for(const a of assets)await fetch('/api/identity?id='+encodeURIComponent(a.id),{method:'DELETE'});setAssets([])}
- return <FadeInOnScroll delay={.16}><Card><input ref={input} hidden type="file" accept="image/*" capture="user" onChange={onFile}/><input ref={videoInput} hidden type="file" accept="video/*" capture="user" onChange={onVideo}/><div className="identity-capture va-crystal va-spatial"><div><p className="eon-page-kicker">Identidad visual</p><CardTitle>Guarda cómo eres hoy.</CardTitle><CardDescription className="mt-1">Seis ángulos privados preparan tu archivo visual para futuras funciones de presencia digital. Eternime no crea un avatar ni usa estas fotos fuera de tu cuenta sin una autorización posterior.</CardDescription></div><div className="identity-progress"><span style={{width:`${Math.round(done.size/POSES.length*100)}%`}}/></div>{next?<div className="identity-shot"><div className="identity-face-guide"><span/><i/></div><div><small>Captura {done.size+1} de {POSES.length}</small><h3>{next.label}</h3><p>Luz frontal, sin filtros, rostro completo y fondo sencillo.</p><Button onClick={()=>input.current?.click()} loading={working}>Abrir cámara</Button></div></div>:<div className="identity-done"><span>✓</span><div><b>Base visual completa</b><small>{assets.length} ángulos guardados en tu tenant privado.</small></div><div className="flex flex-wrap gap-2"><Button variant="ghost" onClick={()=>videoInput.current?.click()} loading={working}>{assets.some(x=>x.pose==='motion')?'Regrabar video':'Grabar video de presencia'}</Button><Button variant="ghost" onClick={reset}>Rehacer</Button></div></div>}{!next&&<p className="identity-video-note">Video opcional: 10–20 segundos mirando a cámara, girando ligeramente el rostro y diciendo una frase natural. Ayuda a conservar movimiento y expresión para futuras funciones.</p>}{err&&<p className="text-sm text-[var(--et-danger)]">{err}</p>}<div className="identity-checks">{POSES.map((p,i)=><span key={p.id} className={done.has(p.id)?'done':next?.id===p.id?'active':''}>{done.has(p.id)?'✓':i+1} · {p.label}</span>)}</div></div></Card></FadeInOnScroll>;
+type Asset = { id: string; pose: string; blobUrl: string };
+async function inspectPhoto(file: File) {
+  const url = URL.createObjectURL(file);
+  try {
+    const image = new Image(); image.src = url;
+    await image.decode().catch(() => { throw new Error("No pude leer la foto. Usa una imagen JPEG, PNG o WebP."); });
+    if (Math.min(image.naturalWidth, image.naturalHeight) < 720) throw new Error("La foto necesita al menos 720 píxeles en su lado más corto. Usa una foto de mayor resolución.");
+  } finally { URL.revokeObjectURL(url); }
+}
+export function IdentityCapture() {
+  const input = useRef<HTMLInputElement>(null), videoInput = useRef<HTMLInputElement>(null);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState(true), [loaded, setLoaded] = useState(false);
+  const [working, setWorking] = useState(false), [err, setErr] = useState("");
+  const [consent, setConsent] = useState(false), [confirmReset, setConfirmReset] = useState(false);
+  function load(prepare = false) {
+    return fetch("/api/identity", prepare ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "prepare" }) } : { cache: "no-store" }).then(async response => {
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.assets)) throw new Error(data.error || "No pude abrir tus capturas.");
+      setAssets(data.assets); setLoaded(true);
+    }).catch(error => { setLoaded(false); setErr(error instanceof Error ? error.message : "Error de conexión."); })
+      .finally(() => setLoading(false));
+  }
+  useEffect(() => { void load(); }, []);
+  const done = completedIdentityPoses(assets);
+  const next = POSES.find(pose => !done.has(pose.id));
+  async function save(file: File, pose: string, label: string) {
+    if (!loaded || !consent || working) return;
+    setWorking(true); setErr("");
+    try {
+      if (file.size > 100 * 1024 * 1024) throw new Error("El archivo supera 100 MB. Usa una captura más corta.");
+      if (pose !== "motion") await inspectPhoto(file);
+      else if (!file.type.startsWith("video/")) throw new Error("Elige un archivo de video.");
+      const uploaded = await uploadFile(file, "file", `Identidad visual · ${label}`);
+      const response = await fetch("/api/identity", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: uploaded.url, pose, consent: true }) });
+      const data = await response.json();
+      if (!response.ok || !data.asset) throw new Error(data.error || "La subida terminó, pero no pude asociar la captura. El archivo permanece en tu bóveda.");
+      setAssets(previous => [...previous, data.asset]);
+    } catch (error) { setErr(error instanceof Error ? error.message : "No pude guardar la captura."); }
+    finally { setWorking(false); if (input.current) input.current.value = ""; if (videoInput.current) videoInput.current.value = ""; }
+  }
+  async function reset() {
+    setWorking(true); setErr("");
+    try {
+      // Track each confirmed deletion so a partial failure never hides remaining captures.
+      for (const asset of assets) {
+        const response = await fetch(`/api/identity?id=${encodeURIComponent(asset.id)}`, { method: "DELETE" });
+        if (!response.ok && response.status !== 404) { const data = await response.json(); throw new Error(data.error || "No pude quitar todas las capturas."); }
+        setAssets(previous => previous.filter(item => item.id !== asset.id));
+      }
+      setConfirmReset(false);
+    } catch (error) { setErr(error instanceof Error ? error.message : "No pude quitar las capturas."); }
+    finally { setWorking(false); }
+  }
+  return <FadeInOnScroll delay={.16}><Card>
+    <input ref={input} hidden type="file" accept="image/jpeg,image/png,image/webp" capture="user" onChange={event => { const file = event.target.files?.[0]; if (file && next) void save(file, next.id, next.label); }} />
+    <input ref={videoInput} hidden type="file" accept="video/*" capture="user" onChange={event => { const file = event.target.files?.[0]; if (file) void save(file, "motion", "Video de presencia"); }} />
+    <div className="identity-capture va-crystal va-spatial">
+      <div><p className="eon-page-kicker">Mi identidad visual</p><CardTitle>Guarda cómo eres hoy.</CardTitle><CardDescription className="mt-1">Seis ángulos para construir tu archivo visual. La generación del avatar es un paso posterior y requiere tu autorización.</CardDescription></div>
+      {loading ? <p role="status">Consultando tus capturas…</p> : loaded ? <>
+        <label className="flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1" checked={consent} onChange={event => setConsent(event.target.checked)} /><span>Autorizo guardar estas capturas de mi persona en Eternime. Por ahora no se enviarán a HeyGen.</span></label>
+        <div className="identity-progress" role="progressbar" aria-label="Ángulos capturados" aria-valuenow={done.size} aria-valuemin={0} aria-valuemax={POSES.length}><span style={{ width: `${Math.round(done.size / POSES.length * 100)}%` }} /></div>
+        {next ? <div className="identity-shot"><div className="identity-face-guide"><span /><i /></div><div><small>Captura {done.size + 1} de {POSES.length}</small><h3>{next.label}</h3><p>Luz frontal, sin filtros, rostro completo y fondo sencillo.</p><Button disabled={!consent} onClick={() => input.current?.click()} loading={working}>Tomar o elegir foto</Button></div></div> : <div className="identity-done"><span>✓</span><div><b>Seis ángulos guardados</b><small>Tu archivo visual está preparado. Todavía no hay un avatar generado.</small></div><Button variant="ghost" disabled={!consent || assets.some(asset => asset.pose === "motion")} onClick={() => videoInput.current?.click()} loading={working}>{assets.some(asset => asset.pose === "motion") ? "Video guardado" : "Añadir video de presencia"}</Button></div>}
+        {!next && <p className="identity-video-note">Video opcional: 10–20 segundos mirando a cámara y girando ligeramente el rostro.</p>}
+        <div className="identity-checks">{POSES.map((pose, i) => <span key={pose.id} className={done.has(pose.id) ? "done" : next?.id === pose.id ? "active" : ""}>{done.has(pose.id) ? "✓" : i + 1} · {pose.label}</span>)}</div>
+        {!!assets.length && <Button variant="ghost" disabled={working} onClick={() => setConfirmReset(true)}>Rehacer capturas</Button>}
+        {confirmReset && <div className="grid gap-2"><p>Quitar estas capturas del perfil visual para empezar de nuevo. Los archivos originales seguirán en tu bóveda.</p><div className="flex flex-wrap gap-2"><Button loading={working} onClick={reset}>Quitar capturas del perfil</Button><Button variant="ghost" disabled={working} onClick={() => setConfirmReset(false)}>Conservar</Button></div></div>}
+      </> : <Button variant="ghost" onClick={() => { setLoading(true); setErr(""); void load(true); }}>Preparar mi archivo visual</Button>}
+      {err && <p role="alert" className="text-sm text-[var(--et-danger)]">{err}</p>}
+    </div>
+  </Card></FadeInOnScroll>;
 }

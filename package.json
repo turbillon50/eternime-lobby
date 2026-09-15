@@ -10,7 +10,8 @@
     "db:generate:control": "drizzle-kit generate --config=drizzle.config.control.ts",
     "db:generate:tenant": "drizzle-kit generate --config=drizzle.config.tenant.ts",
     "db:build-tenant-init": "node scripts/build-tenant-init.mjs",
-    "db:migrate:control": "drizzle-kit migrate --config=drizzle.config.control.ts"
+    "db:migrate:control": "drizzle-kit migrate --config=drizzle.config.control.ts",
+    "test:clone": "node --test tests/clone.test.cjs"
   },
   "dependencies": {
     "@clerk/localizations": "^4.15.8",

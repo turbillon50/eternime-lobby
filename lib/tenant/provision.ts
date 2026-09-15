@@ -19,7 +19,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { neon } from "@neondatabase/serverless";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 
 import { buildBaseSystemPrompt } from "@/lib/ai/prompts";
 import { encryptTenantUrl } from "@/lib/crypto/tenant-url";
@@ -94,7 +94,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
       email: input.email,
       name: input.name,
       locale: input.locale ?? "es-MX",
-      status: "provisioning",
+      status: "pending",
     })
     .onConflictDoUpdate({
       target: users.clerkId,
@@ -106,6 +106,13 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
   if (existing?.tenantBranchId && existing.status === "ready") {
     return { status: "ready", alreadyProvisioned: true, branchId: existing.tenantBranchId };
   }
+
+  // Only one request may provision a person, including concurrent webhooks.
+  // Never provision suspended accounts or replace an existing branch.
+  const claimed = await control.update(users).set({ status: "provisioning", updatedAt: new Date() })
+    .where(and(eq(users.clerkId, input.clerkId), inArray(users.status, ["pending", "error"]), isNull(users.tenantBranchId)))
+    .returning({ id: users.id });
+  if (!claimed.length) return { status: "error", error: "El espacio ya se está preparando o requiere revisión." };
 
   let branchId: string | undefined;
   try {

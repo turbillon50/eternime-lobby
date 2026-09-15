@@ -96,14 +96,38 @@ export async function createTenantBranch(clerkId: string): Promise<ProvisionedBr
   const data = (await response.json()) as CreateBranchResponse;
   const branchId = data.branch?.id;
   const conn = data.connection_uris?.[0];
-  if (!branchId || !conn?.connection_uri) {
-    throw new Error("Neon response missing branch id or connection URI.");
+  if (!branchId) throw new Error("Neon response missing branch id.");
+
+  // Neon can create a branch without returning connection_uris (observed in
+  // production). Resolve its URI explicitly instead of leaving an orphaned
+  // branch and marking an otherwise successful creation as an error.
+  let unpooledUrl = conn?.connection_uri;
+  if (!unpooledUrl) {
+    try {
+      const source = new URL(requireEnv("DATABASE_URL"));
+      const params = new URLSearchParams({
+        branch_id: branchId,
+        database_name: decodeURIComponent(source.pathname.slice(1)),
+        role_name: decodeURIComponent(source.username),
+        pooled: "false",
+      });
+      const uriResponse = await fetch(`${NEON_API_BASE}/projects/${projectId}/connection_uri?${params}`, {
+        headers: { Authorization: `Bearer ${apiKey}` }, signal: AbortSignal.timeout(15000),
+      });
+      if (!uriResponse.ok) throw new Error(`Neon connection lookup failed (${uriResponse.status}).`);
+      const uri = await uriResponse.json() as { uri?: string };
+      if (!uri.uri) throw new Error("Neon connection lookup returned no URI.");
+      unpooledUrl = uri.uri;
+    } catch (error) {
+      await deleteTenantBranch(branchId).catch(() => {});
+      throw error;
+    }
   }
 
   return {
     branchId,
-    unpooledUrl: conn.connection_uri,
-    pooledUrl: toPooledUrl(conn.connection_uri, conn.connection_parameters?.pooler_host),
+    unpooledUrl,
+    pooledUrl: toPooledUrl(unpooledUrl, conn?.connection_parameters?.pooler_host),
   };
 }
 
