@@ -7,7 +7,7 @@ const { PGlite } = require('@electric-sql/pglite');
 function load(file, stubs = {}) {
   const code = ts.transpileModule(fs.readFileSync(path.join(__dirname, '..', file), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
   const module = { exports: {} };
-  new Function('require', 'module', 'exports', code)(name => name === 'server-only' ? {} : Object.hasOwn(stubs, name) ? stubs[name] : require(name), module, module.exports);
+  new Function('require', 'module', 'exports', code)(name => name === 'server-only' ? {} : Object.hasOwn(stubs, name) ? stubs[name] : name === '@/lib/voice/personal-settings' ? load('lib/voice/personal-settings.ts') : require(name), module, module.exports);
   return module.exports;
 }
 const errors = load('lib/clone/errors.ts');
@@ -124,7 +124,7 @@ test('avatar flow enforces ownership and consent, deduplicates, and persists one
     }, downloadVideo: async () => Buffer.from('synthetic-mp4'),
   };
   const auth = { requireUser: async () => { if (!owner) throw new errors.CloneError('AUTH', 'No autenticado', 401); return { clerkId: owner, sub: owner }; } };
-  const common = { 'next/server': { NextResponse: { json: Response.json } }, '@/lib/auth': auth, '@/lib/clone/http': http, '@/lib/clone/errors': errors, '@/lib/clone/guard': guard, '@/lib/clone/media-store': store, '@/lib/clone/heygen': fakeProvider, '@/lib/db/clone': { getCloneSql } };
+  const common = { '@/lib/clone/setup': { ensureCloneReady: async () => {}, cloneNeedsSetup: () => false }, 'next/server': { NextResponse: { json: Response.json } }, '@/lib/auth': auth, '@/lib/clone/http': http, '@/lib/clone/errors': errors, '@/lib/clone/guard': guard, '@/lib/clone/media-store': store, '@/lib/clone/heygen': fakeProvider, '@/lib/db/clone': { getCloneSql } };
   const create = load('app/api/clone/avatar/route.ts', { ...common,
     '@/lib/data/users': { findUserById: async () => ({ prefs: { personal_voice_id: 'voice-a' } }) },
     '@/lib/data/clone': { getCloneExchange: async (person, id) => person === 'a' && id === exchangeId ? { id, clone_text: 'Una respuesta corta' } : undefined },
@@ -142,7 +142,10 @@ test('avatar flow enforces ownership and consent, deduplicates, and persists one
   owner = 'a'; const status = await poll.POST(request(), context); assert.equal(status.status, 200);
   const completed = (await status.json()).job; assert.equal(completed.status, 'completed'); assert.ok(completed.mediaUrl.startsWith('/api/clone/media/'));
   assert.equal((await store.readMedia('a', completed.mediaUrl.split('/').at(-1))).bytes.toString(), 'synthetic-mp4');
-  owner = null; assert.equal((await create.POST(request())).status, 401); assert.equal(videoCalls, 1);
+  const direct = () => new Request('https://eternime.org/api/clone/avatar', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({portraitId,text:'Mi frase sin memoria ni conversación',consent:true})});
+  assert.equal((await create.POST(direct())).status, 202); assert.equal(videoCalls, 2);
+  assert.equal((await create.POST(direct())).status, 200); assert.equal(videoCalls, 2);
+  owner = null; assert.equal((await create.POST(request())).status, 401); assert.equal(videoCalls, 2);
   delete process.env.HEYGEN_API_KEY;
 });
 
@@ -164,4 +167,57 @@ test('lost HeyGen submission is reconciled only with its original key inside 23 
   const old = await store.reserveJob('a', 'avatar', 'too-old-submission'); await store.updateJob('a', old.job.id, { status: 'uncertain', payload });
   const sql = await getCloneSql('a'); await sql`UPDATE clone_media_jobs SET created_at=now()-interval '25 hours' WHERE id=${old.job.id}::uuid`;
   assert.equal((await route.POST(request(), { params: Promise.resolve({ id: old.job.id }) })).status, 409); assert.equal(calls, 1);
+});
+
+test('first-use setup prepares only the signed-in owner and never bypasses suspended tenants', async () => {
+  let ready = false; let tenantStatus = 'ready'; const initialized = []; const ensured = [];
+  const setup = load('lib/clone/setup.ts', { './errors': errors,
+    '@/lib/db/clone': { getCloneSql: async () => { if (!ready) throw new errors.CloneError('CLONE_NOT_INITIALIZED', 'pending', 409); }, initializeClone: async owner => { initialized.push(owner); ready = true; } },
+    '@/lib/tenant/ensure': { ensureTenantForUser: async session => { ensured.push(session.clerkId); return { status: tenantStatus }; } },
+  });
+  await setup.ensureCloneReady({ clerkId: 'a' }); await setup.ensureCloneReady({ clerkId: 'a' });
+  assert.deepEqual(initialized, ['a']); assert.deepEqual(ensured, ['a']);
+  ready = false; tenantStatus = 'suspended';
+  await assert.rejects(setup.ensureCloneReady({ clerkId: 'b' }), { code: 'SETUP_UNAVAILABLE' }); assert.deepEqual(initialized, ['a']);
+});
+
+test('direct speech validates auth and text before setup and uses only the saved personal voice', async () => {
+  let signedIn = true; let voice = 'owned-voice'; const calls = [];
+  const http = { PRIVATE_HEADERS: { 'Cache-Control': 'private, no-store' }, cloneErrorResponse: e => Response.json({ error: e.message }, { status: e.status || 503 }) };
+  const route = load('app/api/clone/speech/route.ts', {
+    'next/server': { NextResponse: { json: Response.json } }, '@/lib/clone/http': http, '@/lib/clone/errors': errors, '@/lib/clone/guard': guard,
+    '@/lib/auth': { requireUser: async () => { if (!signedIn) throw new errors.CloneError('AUTH', 'Sign in', 401); return { clerkId: 'a', sub: 'a' }; } },
+    '@/lib/data/users': { findUserById: async () => ({ prefs: { personal_voice_id: voice } }) },
+    '@/lib/voice/samples': { personalVoiceId: prefs => prefs.personal_voice_id },
+    '@/lib/voice/elevenlabs': { VoiceServiceError: class VoiceServiceError extends Error {} },
+    '@/lib/clone/setup': { ensureCloneReady: async session => calls.push(['setup', session.clerkId]) },
+    '@/lib/clone/audio': { savedSpeech: async (...args) => { calls.push(args); return { id: 'saved-audio' }; } },
+  });
+  const request = text => new Request('https://eternime.org/api/clone/speech', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,voiceId:'foreign-voice',clerkId:'b',delivery:'steady'})});
+  assert.equal((await route.POST(request(' '))).status,400); assert.equal((await route.POST(request('a'.repeat(351)))).status,400); assert.equal(calls.length,0);
+  voice = null; assert.equal((await route.POST(request('Hola'))).status,409); assert.equal(calls.length,0); voice='owned-voice';
+  const result = await route.POST(request('Hola')); assert.equal(result.status,200); assert.match(result.headers.get('Cache-Control'),/no-store/);
+  assert.deepEqual(calls,[['setup','a'],['a','owned-voice','Hola','steady']]);
+  signedIn = false; assert.equal((await route.POST(request('Hola'))).status,401); assert.equal(calls.length,2);
+});
+
+test('changing voice delivery creates a new audio result while repeats reuse it', async () => {
+  let calls = 0;
+  const audio = load('lib/clone/audio.ts', { './errors': errors, './media-store': store, '@/lib/voice/elevenlabs': { synthesizePersonalVoice: async () => { calls++; return new Response('speech'); } } });
+  const natural = await audio.savedSpeech('a','voice-delivery','Mi prueba','natural');
+  const steady = await audio.savedSpeech('a','voice-delivery','Mi prueba','steady');
+  const repeated = await audio.savedSpeech('a','voice-delivery','Mi prueba','steady');
+  assert.notEqual(natural.id,steady.id); assert.equal(steady.id,repeated.id); assert.equal(calls,2);
+});
+
+test('voice replacement atomically keeps the current voice when a stale session tries to replace it', async () => {
+  const sql = await getCloneSql('b');
+  await sql`CREATE TABLE eternime_users (id text PRIMARY KEY,prefs jsonb)`;
+  await sql`INSERT INTO eternime_users VALUES ('a','{"personal_voice_id":"original"}'),('b','{"personal_voice_id":"other"}')`;
+  const voices = load('lib/data/personal-voice.ts', { '@/lib/db': { getSql: () => sql } });
+  assert.equal(await voices.replacePersonalVoice('a','wrong','new'),false);
+  assert.equal((await sql`SELECT prefs FROM eternime_users WHERE id='a'`)[0].prefs.personal_voice_id,'original');
+  const results = await Promise.all([voices.replacePersonalVoice('a','original','new-one'),voices.replacePersonalVoice('a','original','new-two')]);
+  assert.equal(results.filter(Boolean).length,1);
+  assert.equal((await sql`SELECT prefs FROM eternime_users WHERE id='b'`)[0].prefs.personal_voice_id,'other');
 });

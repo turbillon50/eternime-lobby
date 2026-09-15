@@ -9,6 +9,7 @@ function load(file, stubs = {}) {
   new Function('require', 'module', 'exports', code)(name => {
     if (name === 'server-only') return {};
     if (Object.hasOwn(stubs, name)) return stubs[name];
+    if (name === './personal-settings') return load('lib/voice/personal-settings.ts');
     return require(name);
   }, module, module.exports);
   return module.exports;
@@ -115,4 +116,17 @@ test('clone chat uses authenticated ownership and rejects unauthenticated reques
   signedIn = false;
   assert.equal((await route.POST(request())).status, 401);
   assert.equal(owners.length, 3);
+});
+
+test('personal speech uses multilingual quality model and explicit voice settings', async () => {
+  const original = global.fetch; const key = process.env.ELEVENLABS_API_KEY;
+  process.env.ELEVENLABS_API_KEY = 'test-only';
+  global.fetch = async (url, init) => {
+    assert.match(url,/\/owned-voice$/);
+    const body = JSON.parse(init.body); assert.equal(body.model_id,'eleven_multilingual_v2'); assert.equal(body.text,'Hola');
+    assert.equal(body.voice_settings.style,0); assert.equal(body.voice_settings.stability,.7); assert.equal(body.voice_settings.use_speaker_boost,true);
+    return new Response('synthetic-audio');
+  };
+  try { assert.equal(await (await load('lib/voice/elevenlabs.ts').synthesizePersonalVoice('owned-voice','Hola','steady')).text(),'synthetic-audio'); }
+  finally { global.fetch=original; if(key===undefined) delete process.env.ELEVENLABS_API_KEY;else process.env.ELEVENLABS_API_KEY=key; }
 });

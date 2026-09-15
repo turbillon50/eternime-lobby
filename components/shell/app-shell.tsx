@@ -9,8 +9,6 @@ import { PageTransition } from "@/components/motion";
 import { EonChatHistory } from "@/components/shell/EonChatHistory";
 import { EonMemoryDock } from "@/components/shell/EonMemoryDock";
 import { HablarConEon } from "@/components/app/HablarConEon";
-import { ContactLinks } from "@/components/public/contact-links";
-import contactStyles from "@/components/public/contact-links.module.css";
 
 export type NavItem = { href: string; label: string; icon: ReactNode };
 
@@ -19,7 +17,7 @@ function Icon({ d }: { d: string }) {
 }
 
 export const APP_NAV: NavItem[] = [
-  { href: "/app", label: "Chat", icon: <Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z" /> },
+  { href: "/app", label: "Eon", icon: <Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z" /> },
   { href: "/app/clon", label: "Mi clon", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0" /> },
   { href: "/app/recuerdos", label: "Memoria", icon: <Icon d="M12 3v18M7 5a4 4 0 0 0 0 8 4 4 0 0 0 0 6M17 5a4 4 0 0 1 0 8 4 4 0 0 1 0 6M7 9h5M12 15h5" /> },
   { href: "/app/hablar", label: "Hablar con Eon", icon: <Icon d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3" /> },
@@ -39,26 +37,27 @@ export const APP_NAV: NavItem[] = [
   { href: "/contacto", label: "Contacto", icon: <Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z" /> },
 ];
 
-const FUTURE = ["Documentos"];
 type ShellUser = { name?: string; email?: string; avatar_url?: string | null };
 
 function Menu({ user, close, nav, brand }: { user: ShellUser | null; close: () => void; nav: NavItem[]; brand: string }) {
   const pathname = usePathname();
   const { signOut } = useClerk();
+  const primary = new Set(["/app", "/app/clon", "/app/recuerdos", "/app/pendientes", "/app/cuenta"]);
+  const mainNav = brand.includes("ADMIN") ? nav : nav.filter(item => primary.has(item.href));
+  const moreNav = brand.includes("ADMIN") ? [] : nav.filter(item => !primary.has(item.href));
+  const renderItem = (item: NavItem) => { const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href); return <Link key={item.href} href={item.href} onClick={close} className={`eon-menu-item ${active ? "is-active" : ""}`}>{item.icon}<span>{item.label}</span></Link>; };
   return <div className="flex h-full flex-col p-5 sm:p-6">
     <div className="mb-7 flex items-center justify-between">
       <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} onClick={close} className="eon-sidebar-brand"><span className="eon-mark" /><span><b>{brand}</b><small>Memoria viva</small></span></Link>
       <button onClick={close} className="crystal-icon eon-menu-close" aria-label="Cerrar menú">×</button>
     </div>
     <div className="eon-menu-scroll">
-      {!brand.includes("ADMIN")&&<EonChatHistory close={close}/>}
       <p className="eon-menu-section-label">Eternime</p>
       <nav className="space-y-1">
-        {nav.map((item) => { const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href); return <Link key={item.href} href={item.href} onClick={close} className={`eon-menu-item ${active ? "is-active" : ""}`}>{item.icon}<span>{item.label}</span></Link>; })}
+        {mainNav.map(renderItem)}
       </nav>
-      <div className="my-5 h-px bg-slate-900/8" />
-      <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.18em] text-slate-400">Tu universo</p>
-      <div className="space-y-1">{FUTURE.map(x => <div key={x} className="eon-menu-item opacity-60"><span className="h-5 w-5 rounded-md border border-current/30"/><span>{x}</span><span className="ml-auto text-[9px] uppercase tracking-wider">pronto</span></div>)}</div>
+      {!!moreNav.length && <details className="mt-3"><summary className="eon-menu-item cursor-pointer">Más herramientas</summary><nav className="space-y-1">{moreNav.map(renderItem)}</nav></details>}
+      {!brand.includes("ADMIN") && <details className="mt-3"><summary className="eon-menu-item cursor-pointer">Conversaciones anteriores</summary><EonChatHistory close={close}/></details>}
     </div>
     <div className="eon-menu-account">
       <Link href="/app/perfil" onClick={close} className="mb-2 flex items-center gap-3 rounded-2xl p-3 hover:bg-white/50"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">{user?.name?.[0] || "·"}</span><span className="min-w-0"><b className="block truncate text-sm text-slate-800">{user?.name || "Tu perfil"}</b><span className="block truncate text-xs text-slate-500">{user?.email || "Eternime"}</span></span></Link>
@@ -126,7 +125,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
         {!brand.includes("ADMIN") && <nav className="eon-desktop-nav" aria-label="Navegación de Eternime">
           <Link href="/app" className={pathname==="/app"?"active":""}>Eon</Link>
           <Link href="/app/recuerdos" className={pathname.startsWith("/app/recuerdos")?"active":""}>Memoria</Link>
-          <Link href="/app/red" className={pathname.startsWith("/app/red")?"active":""}>Mi Red</Link>
+          <Link href="/app/clon" className={pathname.startsWith("/app/clon")?"active":""}>Mi clon</Link>
           <Link href="/app/proyectos" className={pathname.startsWith("/app/proyectos")?"active":""}>Proyectos</Link>
           <Link href="/app/ias" className={pathname.startsWith("/app/ias")?"active":""}>Mis IAs</Link>
         </nav>}
@@ -140,22 +139,13 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
 
     <AnimatePresence>{open && <><motion.button aria-label="Cerrar menú" className="eon-drawer-backdrop fixed inset-0 z-40" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside ref={drawerRef} onKeyDown={trapDrawerFocus} className="eon-drawer" role="dialog" aria-modal="true" aria-label="Menú de Eternime" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
 
-    <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-32 pt-5 sm:px-6 lg:px-8`}>
-      {!brand.includes("ADMIN") && !pathname.startsWith("/app/clon") && <HablarConEon compact={pathname !== "/app/hablar"} />}
+    <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-12 pt-5 sm:px-6 lg:px-8`}>
       {!brand.includes("ADMIN") && (isChat || pathname.startsWith("/app/clon")) && <nav aria-label="Con quién conversar" className="mb-4 flex flex-wrap gap-3 text-sm"><Link href="/app" aria-current={pathname === "/app" ? "page" : undefined} className="rounded-xl border border-violet-200 px-4 py-3">Eon</Link><Link href="/app/clon" aria-current={pathname.startsWith("/app/clon") ? "page" : undefined} className="rounded-xl border border-violet-200 px-4 py-3">Mi clon</Link></nav>}
+      {!brand.includes("ADMIN") && isChat && <HablarConEon compact={pathname !== "/app/hablar"} />}
       <PageTransition stable>{children}</PageTransition>
-      {!brand.includes("ADMIN") && !isChat && <footer className={contactStyles.appFooter}><ContactLinks /></footer>}
     </main>
 
-    {!brand.includes("ADMIN") && <footer className="eon-app-footer">
-      <div className="eon-app-footer-inner">
-        <div className="eon-app-footer-brand"><span className="eon-mark"/><div><b>Eternime</b><small>Tu memoria permanece contigo, aunque cambie la IA.</small></div></div>
-        <nav><Link href="/privacidad">Privacidad</Link><Link href="/terminos">Términos</Link><Link href="/app/cuenta">Cuenta</Link><Link href="/app/ias">MCP / Mis IAs</Link></nav>
-        <small>© {new Date().getFullYear()} Eternime · All Global Holding LLC</small>
-      </div>
-    </footer>}
-
-    {!brand.includes("ADMIN")&&!isChat&&<EonMemoryDock/>}
+    {!brand.includes("ADMIN")&&["/app/recuerdos", "/app/boveda"].includes(pathname)&&<EonMemoryDock/>}
 
   </div>;
 }

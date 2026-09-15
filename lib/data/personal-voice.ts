@@ -18,3 +18,12 @@ export async function detachPersonalVoice(userId: string, voiceId: string) {
     RETURNING id`;
   return rows.length === 1;
 }
+export async function replacePersonalVoice(userId: string, previousId: string, voiceId: string) {
+  const sql = getSql();
+  if (!sql) throw new Error("Database unavailable");
+  const rows = await sql`UPDATE eternime_users
+    SET prefs=COALESCE(prefs,'{}'::jsonb) || jsonb_build_object('personal_voice_id', ${voiceId}::text, 'personal_voice_consented_at', now())
+    WHERE id=${userId} AND COALESCE(prefs->>'personal_voice_id',prefs->>'eon_voice_id')=${previousId}
+    RETURNING id`;
+  return rows.length === 1;
+}

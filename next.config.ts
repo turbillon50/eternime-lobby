@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  outputFileTracingIncludes: { "/api/clone": ["./drizzle/clone/**/*"] },
+  outputFileTracingIncludes: { "/api/clone": ["./drizzle/clone/**/*"], "/api/clone/speech": ["./drizzle/clone/**/*"], "/api/clone/portrait": ["./drizzle/clone/**/*"], "/api/clone/avatar": ["./drizzle/clone/**/*"] },
   images: {
     remotePatterns: [
       {
