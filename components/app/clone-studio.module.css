@@ -32,3 +32,39 @@
 .error { background: #fff0ee; color: #943e34; }
 .textButton { margin-top: .75rem; }
 @media (max-width: 600px) { .metrics { grid-template-columns: 1fr; } .tabs button { flex: 1 1 130px; } .userMessage { margin-left: 3%; } .cloneMessage { margin-right: 0; } }
+/* Personal clone workbench: preserve Eternime's typography and violet glass. */
+.tabs { padding: .35rem; border: 1px solid rgb(116 105 255 / 16%); border-radius: 20px; background: rgb(116 105 255 / 4%); }
+.tabs button { flex: 1; border-color: transparent; transition: background .18s ease, color .18s ease; }
+.chatTitle { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+.chatTitle time { font-size: .75rem; color: var(--et-text-muted); font-variant-numeric: tabular-nums; }
+.badge { display: inline-flex; border: 1px solid rgb(116 105 255 / 20%); border-radius: 999px; padding: .35rem .7rem; font-size: .75rem; background: rgb(116 105 255 / 6%); }
+.metrics strong { font-size: 1.7rem; }
+.metrics progress { width: 100%; height: 5px; accent-color: #7469ff; border: 0; border-radius: 20px; }
+.notice { background: rgb(116 105 255 / 9%); color: var(--et-text); border: 1px solid rgb(116 105 255 / 20%); }
+.hint { display: block; margin-top: .75rem; font-size: .8rem; line-height: 1.6; color: var(--et-text-muted); }
+.check { display: flex; gap: .7rem; align-items: flex-start; margin: 1rem 0; font-size: .85rem; line-height: 1.6; cursor: pointer; }
+.check input { flex-shrink: 0; margin-top: .3rem; width: 18px; height: 18px; accent-color: #7469ff; }
+.checklist { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.25rem 0; list-style: none; padding: 0; }
+.checklist li { border-radius: 12px; background: rgb(116 105 255 / 6%); padding: .65rem .85rem; font-size: .8rem; }
+.portraitRow { display: grid; grid-template-columns: 144px 1fr; gap: 1.5rem; align-items: start; }
+.portrait, .portraitEmpty { width: 144px; height: 180px; border-radius: 20px; object-fit: cover; border: 1px solid rgb(116 105 255 / 25%); background: rgb(116 105 255 / 5%); }
+.portraitEmpty { display: grid; place-items: center; color: #938abb; }
+.portraitEmpty svg { width: 80px; height: 100px; }
+.script { white-space: pre-wrap; overflow-wrap: anywhere; padding: 1rem 1.25rem; margin: 1rem 0; border-left: 3px solid #938abb; background: rgb(116 105 255 / 5%); border-radius: 0 16px 16px 0; }
+.script footer { font-size: .75rem; margin-top: .75rem; color: var(--et-text-muted); }
+.videoHistory { display: grid; gap: 1rem; margin-top: 2rem; }
+.videoHistory h3 { font-size: 1.1rem; font-weight: 600; }
+.videoHistory article { border-top: 1px solid rgb(116 105 255 / 18%); padding-top: 1rem; }
+.videoHistory video { margin-top: 1rem; width: 100%; max-height: 480px; background: #15121e; border-radius: 18px; }
+.skeleton { display: grid; gap: .75rem; padding: 2rem; border-radius: 24px; background: rgb(116 105 255 / 4%); }
+.skeleton span { display: block; height: 1rem; border-radius: 12px; background: rgb(116 105 255 / 10%); animation: clonePulse 1.5s ease-in-out infinite alternate; }
+.skeleton span:nth-child(2) { width: 75%; }.skeleton span:nth-child(3) { width: 45%; }
+.thinking { color: var(--et-text-muted); font-size: .85rem; padding: .5rem; }
+.messages { overscroll-behavior: contain; scrollbar-width: thin; scroll-padding-bottom: 1rem; }
+.composer { display: grid; gap: .65rem; }
+@keyframes clonePulse { to { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .skeleton span { animation: none; } .tabs button { transition: none; } }
+@media (max-width: 600px) { .portraitRow { grid-template-columns: 1fr; }.portrait, .portraitEmpty { margin-inline: auto; }.tabs button { flex: 1 1 90px; padding: .55rem; }.messages .actions button { flex: 1 1 120px; }.checklist { display: grid; gap: .4rem; }.studio { gap: 1rem; } }
+.cloneMessage { background: rgb(139 92 255 / 7%); border-color: rgb(196 175 255 / 22%); }
+.userMessage { background: rgb(196 175 255 / 12%); }
+.error { background: rgb(155 58 70 / 16%); border: 1px solid rgb(229 127 141 / 30%); color: #f0c1ca; }
