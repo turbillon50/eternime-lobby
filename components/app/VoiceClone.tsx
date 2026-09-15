@@ -4,7 +4,12 @@ import { FadeInOnScroll } from "@/components/motion";
 import { Button, Card, CardDescription, CardTitle } from "@/components/ui";
 import { MAX_VOICE_SAMPLES, recordingExtension, validateVoiceSamples } from "@/lib/voice/samples";
 
-export function VoiceClone() {
+function SamplePlayer({ file, number }: { file: File; number: number }) {
+  const player = useRef<HTMLAudioElement>(null);
+  useEffect(() => { const url = URL.createObjectURL(file); if (player.current) player.current.src = url; return () => URL.revokeObjectURL(url); }, [file]);
+  return <audio ref={player} controls preload="metadata" aria-label={`Escuchar muestra ${number}`} className="w-full" />;
+}
+export function VoiceClone({ onChange }: { onChange?: () => void } = {}) {
   const [voiceId, setVoiceId] = useState<string | null>(null);
   const [available, setAvailable] = useState(false);
   const [reason, setReason] = useState("");
@@ -25,6 +30,7 @@ export function VoiceClone() {
   const input = useRef<HTMLInputElement>(null);
   const alive = useRef(true);
   const objectUrl = useRef<string | null>(null);
+  const actionLock = useRef(false);
 
   function load() {
     return fetch("/api/voice/clone", { cache: "no-store" }).then(async response => {
@@ -85,19 +91,22 @@ export function VoiceClone() {
     finally { openingMic.current = false; }
   }
   async function create() {
+    if (actionLock.current || !consent || recording) return;
     const invalid = validateVoiceSamples(samples);
     if (invalid) { setErr(invalid); return; }
+    if (actionLock.current) return; actionLock.current = true;
     setWorking(true); setErr(""); setMsg("");
     try {
       const form = new FormData(); samples.forEach(file => form.append("files", file)); form.append("consent", String(consent));
       const response = await fetch("/api/voice/clone", { method: "POST", body: form });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "No pude crear tu voz. Revisa el tamaño de los audios y vuelve a consultar su estado.");
-      setVoiceId(data.voiceId); setSamples([]); setMsg("Tu voz personal está guardada para tu clon. Eon conserva su propia voz.");
+      setVoiceId(data.voiceId); setSamples([]); onChange?.(); setMsg("Tu voz personal está guardada para tu clon. Eon conserva su propia voz.");
     } catch (error) { setErr(error instanceof Error ? error.message : "Error de conexión."); }
-    finally { setWorking(false); }
+    finally { actionLock.current = false; setWorking(false); }
   }
   async function preview() {
+    if (actionLock.current) return; actionLock.current = true;
     setWorking(true); setErr("");
     try {
       const response = await fetch("/api/voice/preview", { method: "POST" });
@@ -106,17 +115,18 @@ export function VoiceClone() {
       objectUrl.current = URL.createObjectURL(await response.blob()); setPreviewUrl(objectUrl.current);
       setMsg("Pulsa reproducir para escuchar tu voz.");
     } catch (error) { setErr(error instanceof Error ? error.message : "Error de conexión."); }
-    finally { setWorking(false); }
+    finally { actionLock.current = false; setWorking(false); }
   }
   async function remove() {
+    if (actionLock.current) return; actionLock.current = true;
     setWorking(true); setErr("");
     try {
       const response = await fetch("/api/voice/clone", { method: "DELETE" }); const data = await response.json();
       if (!response.ok) throw new Error(data.error || "No pude confirmar la eliminación.");
       if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
-      objectUrl.current = null; setPreviewUrl(null); setVoiceId(null); setConfirmDelete(false); setMsg("Tu voz personal fue eliminada.");
+      objectUrl.current = null; setPreviewUrl(null); setVoiceId(null); onChange?.(); setConfirmDelete(false); setMsg("Tu voz personal fue eliminada.");
     } catch (error) { setErr(error instanceof Error ? error.message : "Error de conexión."); }
-    finally { setWorking(false); }
+    finally { actionLock.current = false; setWorking(false); }
   }
   const invalid = samples.length ? validateVoiceSamples(samples) : null;
   return <FadeInOnScroll delay={.14}><Card>
@@ -127,18 +137,19 @@ export function VoiceClone() {
       <b>Tu voz personal está guardada</b>
       <div className="flex flex-wrap gap-2"><Button variant="ghost" onClick={preview} loading={working}>Preparar prueba de voz</Button><Button variant="ghost" disabled={working} onClick={() => setConfirmDelete(true)}>Eliminar mi voz</Button></div>
       {previewUrl && <audio key={previewUrl} controls src={previewUrl} className="w-full" aria-label="Prueba de mi voz personal" />}
-      {confirmDelete && <div className="grid gap-2"><p>¿Eliminar tu voz personal? Para recuperarla tendrás que crear otra.</p><div className="flex gap-2"><Button onClick={remove} loading={working}>Sí, eliminar</Button><Button variant="ghost" disabled={working} onClick={() => setConfirmDelete(false)}>Conservar</Button></div></div>}
+      {confirmDelete && <div className="grid gap-2"><p>¿Eliminar tu voz personal? Para recuperarla tendrás que crear otra. Los audios y videos ya generados se conservan.</p><div className="flex gap-2"><Button onClick={remove} loading={working}>Sí, eliminar</Button><Button variant="ghost" disabled={working} onClick={() => setConfirmDelete(false)}>Conservar</Button></div></div>}
     </div> : <div className="mt-4 grid gap-3">
       {reason && <p role="status" className="text-sm">{reason}</p>}
-      <input ref={input} hidden type="file" accept="audio/*" multiple onChange={event => { const files = Array.from(event.target.files ?? []); const problem = validateVoiceSamples(files); if (problem) setErr(problem); else { setSamples(files); setErr(""); } event.target.value = ""; }} />
+      <input ref={input} hidden type="file" accept="audio/*" multiple onChange={event => { const files = Array.from(event.target.files ?? []); const combined = [...samples, ...files]; const problem = validateVoiceSamples(combined); if (problem) setErr(problem); else { setSamples(combined); setErr(""); } event.target.value = ""; }} />
       <p className="text-sm">Cuéntame un recuerdo, explica algo que conoces o describe tu día con tu ritmo habitual.</p>
       <div className="flex flex-wrap items-center gap-2"><Button disabled={working || (!recording && samples.length >= MAX_VOICE_SAMPLES)} onClick={toggleRecord}>{recording ? `Terminar muestra · ${seconds}s` : "Grabar una muestra"}</Button><Button variant="ghost" disabled={working || recording} onClick={() => input.current?.click()}>Subir audios</Button></div>
-      <ul className="grid gap-1">{samples.map((file, i) => <li key={`${file.name}-${i}`} className="flex flex-wrap items-center gap-2 text-sm"><span className="break-all">Muestra {i + 1} · {(file.size / 1_000_000).toFixed(2)} MB</span><button className="min-h-11 px-3 underline" disabled={working || recording} onClick={() => setSamples(previous => previous.filter((_, index) => index !== i))}>Quitar</button></li>)}</ul>
+      <ul className="grid gap-1">{samples.map((file, i) => <li key={`${file.name}-${i}`} className="flex flex-wrap items-center gap-2 text-sm"><SamplePlayer file={file} number={i + 1} /><span className="break-all">Muestra {i + 1} · {(file.size / 1_000_000).toFixed(2)} MB</span><button className="min-h-11 px-3 underline" disabled={working || recording} onClick={() => setSamples(previous => previous.filter((_, index) => index !== i))} aria-label={`Quitar muestra ${i + 1}`}>Quitar</button></li>)}</ul>
       {invalid && <p role="alert" className="text-sm">{invalid}</p>}
       <label className="flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1" checked={consent} disabled={working} onChange={event => setConsent(event.target.checked)} /><span>Confirmo que es mi propia voz y autorizo a ElevenLabs a procesar estas muestras para crear mi clon de voz.</span></label>
       <div className="flex flex-wrap gap-2"><Button onClick={create} loading={working} disabled={!samples.length || !!invalid || !available || !consent || recording}>Crear mi voz</Button><Button variant="ghost" disabled={working || recording} onClick={() => { setLoading(true); setErr(""); void load(); }}>Actualizar estado</Button></div>
     </div>}
-    {msg && <p role="status" className="mt-3 text-sm text-[var(--et-success)]">{msg}</p>}
+    {recording && <progress aria-label="Tiempo de grabación de la muestra" max={60} value={seconds} className="w-full mt-3" />}
+    {msg && <p role="status" className="mt-3 text-sm text-[var(--et-primary)]">{msg}</p>}
     {err && <p role="alert" className="mt-3 text-sm text-[var(--et-danger)]">{err}</p>}
   </Card></FadeInOnScroll>;
 }

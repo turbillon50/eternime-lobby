@@ -104,6 +104,8 @@ test('clone chat uses authenticated ownership and rejects unauthenticated reques
       saveCloneExchange: async (owner, exchange) => { owners.push(owner); return exchange; },
     },
     '@/lib/clone/profile': profile,
+    '@/lib/clone/guard': load('lib/clone/guard.ts', { './errors': errors }),
+    '@/lib/clone/media-store': { reserveJob: async () => ({ fresh: true, job: { id: 'job' } }), digest: () => 'hash', consumeAllowance: async () => {}, updateJob: async () => {} },
     '@/lib/clone/errors': errors,
     '@/lib/clone/http': { UUID: /^[0-9a-f-]{36}$/, PRIVATE_HEADERS: {}, cloneErrorResponse: e => Response.json({ error: e.message }, { status: e.status || 503 }) },
   });
