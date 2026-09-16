@@ -1,0 +1,16 @@
+.page{width:100%;max-width:760px;margin:0 auto;color:var(--et-text)}
+.page header h1{font-size:clamp(1.6rem,3vw,2rem);font-weight:600;letter-spacing:-.04em}
+.page header p{color:var(--et-text-muted);margin-top:6px;font-size:.95rem}
+.call{display:flex;flex-direction:column;align-items:center;gap:18px;padding:32px 20px;margin-top:24px;border:1px solid #ffffff15;border-radius:22px;background:#ffffff03;text-align:center}
+.signal{width:100px!important;height:100px!important}
+.status{color:#d9d3e5;font-size:1rem;min-height:24px}
+.start,.stop{min-height:52px;width:min(100%,320px);padding:12px 24px;border-radius:16px;font-size:1rem;font-weight:600}
+.start{background:#8060e4;color:white}.stop{background:#ffffff10;border:1px solid #ffffff25;color:#f1ebff}
+.start:focus-visible,.stop:focus-visible,.write:focus-visible{outline:2px solid #c5aaff;outline-offset:4px}
+.write{color:#c5b2f0;font-size:.9rem;padding:8px}
+.error{color:#ffc2cb;background:#b6405818;padding:12px;border-radius:12px;max-width:520px;line-height:1.6}
+.consent{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;text-align:left;line-height:1.5}.consent input{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#a083f0}
+.caption{margin:20px 0;font-size:1.1rem;line-height:1.6;overflow-wrap:anywhere}
+.privacy,.transcript{padding:16px 0;border-bottom:1px solid #ffffff10;font-size:.85rem;color:#aaa2ba;line-height:1.6}
+.privacy summary,.transcript summary{cursor:pointer;min-height:32px;display:list-item}.privacy p,.transcript p{margin:12px 0}.transcript b{color:#e8dfff}
+@media(max-width:600px){.call{padding:24px 14px;margin-top:16px;gap:16px}.page header p{font-size:.9rem}.signal{width:80px!important;height:80px!important}}
