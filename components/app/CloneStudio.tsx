@@ -27,6 +27,7 @@ export function CloneStudio() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [advanced, setAdvanced] = useState(false);
   const [tab, setTab] = useState<"dialogo" | "memoria" | "presencia">("presencia");
   const [topic, setTopic] = useState<CloneTopic>("historia");
   const [draft, setDraft] = useState("");
@@ -158,11 +159,12 @@ export function CloneStudio() {
 
   const currentTopic = CLONE_TOPICS.find(t => t.id === topic)!;
   return <div className={styles.studio}>
-    <header className={styles.intro}><h1>Mi clon</h1><p>Tu foto y tu voz. Escribe algo y pruébalo.</p></header>
-    <nav className={styles.tabs} aria-label="Espacios de mi clon">
+    <header className={styles.intro}><h1>Mi clon</h1><p>Prepara tu foto y tu voz. Después, prueba una frase.</p></header>
+    <div className={styles.secondaryNav}><button type="button" onClick={() => { setAdvanced(value => !value); setTab("presencia"); }}> {advanced ? "Cerrar opciones" : "Conversación y memoria del clon"}</button></div>
+    {advanced && <nav className={styles.tabs} aria-label="Espacios de mi clon">
       {([ ["presencia", "Foto y voz"], ["dialogo", "Conversar"], ["memoria", "Memoria"] ] as const).map(([id, label]) =>
         <button key={id} type="button" aria-current={tab === id ? "page" : undefined} onClick={() => { stopAudio(); setSpeechUrl(null); setSpeaking(null); setTab(id); if (id !== "presencia" && !snapshot) { void request<CloneSnapshot>("/api/clone").then(data => { setSnapshot(data); setCode(""); }).catch(() => undefined); } }}>{label}</button>)}
-    </nav>
+    </nav>}
     {!online && <p role="status" className={styles.notice}>Sin conexión. Tu borrador sigue aquí; espera a reconectarte para enviarlo.</p>}
     {error && tab !== "presencia" && <p role="alert" className={styles.error}>{error}</p>}
     {notice && tab !== "presencia" && <p role="status" className={styles.notice}>{notice}</p>}

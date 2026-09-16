@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Button, Card } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { VoiceClone } from "./VoiceClone";
 import type { VoiceDelivery } from "@/lib/voice/personal-settings";
 import styles from "./clone-studio.module.css";
@@ -33,6 +33,7 @@ async function preparePhoto(file: File): Promise<File> {
 export function AvatarStudio() {
   const [portrait, setPortrait] = useState<Portrait | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [allVideos, setAllVideos] = useState(false);
   const [configured, setConfigured] = useState(false);
   const [voiceReady, setVoiceReady] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -107,16 +108,22 @@ export function AvatarStudio() {
       setNotice(result.job.status === "completed" ? "Tu video ya está listo abajo." : "Tu video está en proceso. Aparecerá aquí cuando esté listo.");
     });
   }
-  return <Card>
+  return <div className={styles.presence}>
+    <div className={styles.presenceGrid}>
+    <section className={styles.setupPanel} aria-label="Mi foto y mi voz">
+    <h2>1. Mi foto y mi voz</h2>
     <div className={styles.portraitRow}>
       {portrait ? <Image unoptimized src={portrait.url} alt="Mi foto para el clon" width={112} height={140} className={styles.portrait} /> : <div className={styles.portraitEmpty} aria-hidden="true"><svg viewBox="0 0 80 100" fill="none"><circle cx="40" cy="32" r="17" stroke="currentColor" strokeWidth="1.5"/><path d="M12 89c0-35 56-35 56 0" stroke="currentColor" strokeWidth="1.5"/></svg></div>}
-      <div><h2>Mi foto</h2><p className={styles.hint}>De frente y con buena luz.</p>
+      <div><p className={styles.hint}>Una foto de frente, con buena luz.</p>
         <label className={styles.check}><input type="checkbox" checked={photoConsent} disabled={!!busy} onChange={e => setPhotoConsent(e.target.checked)} />La foto es mía y autorizo guardarla.</label>
         <input ref={input} hidden type="file" accept="image/*" onChange={e => { const file = e.target.files?.[0]; if (file) void upload(file); }} />
         <Button loading={busy === "photo"} disabled={!photoConsent || !!busy} onClick={() => input.current?.click()}>{portrait ? "Cambiar foto" : "Subir mi foto"}</Button>
       </div>
     </div>
     {!loaded ? <p role="status" className={styles.hint}>Buscando tu voz guardada…</p> : <details className={styles.voiceSettings} open={voiceReady ? undefined : true}><summary>{voiceReady ? "✓ Mi voz guardada · cambiar o volver a grabar" : "Grabar o subir mi voz"}</summary><VoiceClone onChange={() => { setSpeech(null); void load().catch(e => setError(e.message)); }} /></details>}
+    </section>
+    <section className={styles.tryPanel} aria-label="Probar mi clon">
+    <h2>2. Probar mi clon</h2>
     <label className={styles.field}>¿Qué quieres que diga?<textarea rows={3} maxLength={350} value={text} disabled={!!busy} onChange={e => { setText(e.target.value); setConsent(false); }} /></label>
     <div className={styles.chatTitle}><span className={styles.hint}>{text.length}/350</span><label className={styles.delivery}>Cómo suena <select value={delivery} disabled={!!busy} onChange={e => { setDelivery(e.target.value as VoiceDelivery); setConsent(false); }}><option value="natural">Natural</option><option value="steady">Más estable</option></select></label></div>
     <div className={styles.actions}><Button onClick={listen} loading={busy === "audio"} disabled={!!busy || !voiceReady || !text.trim()}>Escuchar mi voz</Button></div>
@@ -126,18 +133,21 @@ export function AvatarStudio() {
       <Button loading={busy === "video"} disabled={!!busy || !configured || !voiceReady || !portrait || !text.trim() || !consent} onClick={generate}>Verme hablando</Button>
       <p className={styles.hint}>{!portrait ? "Sube tu foto para crear el video." : !voiceReady ? "Guarda tu voz para crear el video." : !configured && loaded ? "El servicio de video todavía no está conectado." : "El video puede tardar unos minutos. Podrás reproducirlo aquí."}</p>
     </div>
+    </section>
+    </div>
     {busy === "audio" && <p role="status" className={styles.hint}>Preparando tu voz. La primera vez puede tardar un poco más…</p>}
     {notice && <p role="status" className={styles.notice}>{notice}</p>}
     {error && <p role="alert" className={styles.error}>{error}</p>}
     {(error || !!activeIds) && <Button variant="ghost" disabled={!!busy} onClick={() => void run("refresh", async () => { await refreshJobs(); await load(); })}>Actualizar estado</Button>}
-    {!!jobs.length && <section className={styles.videoHistory} aria-label="Mis videos"><h3>Mis videos</h3>{jobs.map(job => <article key={job.id} id={`video-${job.id}`}><div className={styles.chatTitle}><strong role="status">{labels[job.status] || "Consultando…"}</strong><time dateTime={job.createdAt}>{new Date(job.createdAt).toLocaleString("es-MX")}</time></div>
+    {!!jobs.length && <section className={styles.videoHistory} aria-label="Mis videos"><h3>Mis videos</h3>{jobs.slice(0, allVideos ? jobs.length : 3).map(job => <article key={job.id} id={`video-${job.id}`}><div className={styles.chatTitle}><strong role="status">{labels[job.status] || "Consultando…"}</strong><time dateTime={job.createdAt}>{new Date(job.createdAt).toLocaleString("es-MX")}</time></div>
       {job.mediaUrl && <><video controls playsInline preload="metadata" src={job.mediaUrl} aria-label="Mi clon hablando" /><p className={styles.hint}>Video generado con IA.</p></>}
       {job.error && <p className={styles.error}>{job.error}</p>}
       {!["completed", "failed"].includes(job.status) && <p className={styles.hint}>Puedes salir y volver; tu solicitud queda guardada.</p>}
     </article>)}</section>}
+    {jobs.length > 3 && <Button variant="ghost" onClick={() => setAllVideos(value => !value)}>{allVideos ? "Ver sólo los recientes" : "Ver videos anteriores"}</Button>}
     <details className={styles.versions}><summary>Mi foto y consumo</summary><p className={styles.hint}>Tu foto se guarda cifrada. Las pruebas de voz y los videos consumen saldo; repetir la misma frase y configuración recupera el resultado guardado. Hasta 3 solicitudes de video al día.</p>
       {portrait && <Button variant="ghost" disabled={!!busy} onClick={() => setRemove(true)}>Eliminar foto</Button>}
       {remove && <div className={styles.notice}><p>¿Eliminar esta foto? Los videos ya creados y las copias enviadas al servicio de video se conservan.</p><div className={styles.actions}><Button disabled={!!busy} onClick={() => void run("photo", async () => { await json("/api/clone/portrait", { method: "DELETE" }); setPortrait(null); setRemove(false); setConsent(false); })}>Sí, eliminar foto</Button><Button variant="ghost" onClick={() => setRemove(false)}>Conservar</Button></div></div>}
     </details>
-  </Card>;
+  </div>;
 }

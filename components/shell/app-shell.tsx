@@ -8,7 +8,6 @@ import { useClerk } from "@clerk/nextjs";
 import { PageTransition } from "@/components/motion";
 import { EonChatHistory } from "@/components/shell/EonChatHistory";
 import { EonMemoryDock } from "@/components/shell/EonMemoryDock";
-import { HablarConEon } from "@/components/app/HablarConEon";
 
 export type NavItem = { href: string; label: string; icon: ReactNode };
 
@@ -42,7 +41,7 @@ type ShellUser = { name?: string; email?: string; avatar_url?: string | null };
 function Menu({ user, close, nav, brand }: { user: ShellUser | null; close: () => void; nav: NavItem[]; brand: string }) {
   const pathname = usePathname();
   const { signOut } = useClerk();
-  const primary = new Set(["/app", "/app/clon", "/app/recuerdos", "/app/pendientes", "/app/cuenta"]);
+  const primary = new Set(["/app", "/app/hablar", "/app/clon", "/app/recuerdos", "/app/cuenta"]);
   const mainNav = brand.includes("ADMIN") ? nav : nav.filter(item => primary.has(item.href));
   const moreNav = brand.includes("ADMIN") ? [] : nav.filter(item => !primary.has(item.href));
   const renderItem = (item: NavItem) => { const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href); return <Link key={item.href} href={item.href} onClick={close} className={`eon-menu-item ${active ? "is-active" : ""}`}>{item.icon}<span>{item.label}</span></Link>; };
@@ -110,7 +109,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
   }
   const isChat = pathname === "/app" || pathname === "/app/hablar";
   const activeLabel = nav.find(item => item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href))?.label ?? "Eon";
-  return <div className="eon-app min-h-svh">
+  return <div className="eon-app eon-simple-app min-h-svh">
     <div className="eon-mesh" aria-hidden />
     {!brand.includes("ADMIN") && <aside className="eon-desktop-sidebar" aria-label="Navegación de Eternime"><Menu user={user} close={()=>{}} nav={nav} brand={brand}/></aside>}
     <header className="eon-topbar">
@@ -140,8 +139,11 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
     <AnimatePresence>{open && <><motion.button aria-label="Cerrar menú" className="eon-drawer-backdrop fixed inset-0 z-40" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside ref={drawerRef} onKeyDown={trapDrawerFocus} className="eon-drawer" role="dialog" aria-modal="true" aria-label="Menú de Eternime" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
 
     <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-12 pt-5 sm:px-6 lg:px-8`}>
-      {!brand.includes("ADMIN") && (isChat || pathname.startsWith("/app/clon")) && <nav aria-label="Con quién conversar" className="mb-4 flex flex-wrap gap-3 text-sm"><Link href="/app" aria-current={pathname === "/app" ? "page" : undefined} className="rounded-xl border border-violet-200 px-4 py-3">Eon</Link><Link href="/app/clon" aria-current={pathname.startsWith("/app/clon") ? "page" : undefined} className="rounded-xl border border-violet-200 px-4 py-3">Mi clon</Link></nav>}
-      {!brand.includes("ADMIN") && isChat && <HablarConEon compact={pathname !== "/app/hablar"} />}
+      {!brand.includes("ADMIN") && <nav aria-label="Navegación principal" className="eon-section-nav">
+        <Link href="/app" aria-current={pathname === "/app" ? "page" : undefined}>Escribir</Link>
+        <Link href="/app/hablar" aria-current={pathname === "/app/hablar" ? "page" : undefined}>Hablar con Eon</Link>
+        <Link href="/app/clon" aria-current={pathname.startsWith("/app/clon") ? "page" : undefined}>Mi clon</Link>
+      </nav>}
       <PageTransition stable>{children}</PageTransition>
     </main>
 

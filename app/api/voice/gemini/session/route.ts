@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 
 import { AuthError, requireUser } from "@/lib/auth";
 import { listGuideMessages } from "@/lib/data/guide";
+import { sameOrigin } from "@/lib/clone/guard";
+import { CloneError } from "@/lib/clone/errors";
 import { EON_LIVE_TOOLS } from "@/lib/voice/tools";
 
 export const runtime = "nodejs";
@@ -14,16 +16,21 @@ const MODEL = process.env.GEMINI_LIVE_MODEL || "gemini-3.1-flash-live-preview";
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
+    sameOrigin(request);
     const body = await request.json().catch(() => ({})) as { freeTierConsent?: boolean };
     if (body.freeTierConsent !== true) {
-      return NextResponse.json({ error: "Necesitamos tu autorización para iniciar la beta de voz." }, { status: 400 });
+      return NextResponse.json({ error: "Necesitamos tu autorización para iniciar la conversación." }, { status: 400 });
     }
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-    if (!apiKey) return NextResponse.json({ error: "Gemini Live no está configurado." }, { status: 503 });
+    if (!apiKey) return NextResponse.json({ error: "La voz de Eon no está disponible en este momento." }, { status: 503 });
 
     // Contexto reciente, sin Bóveda ni secretos. Una sola lectura rápida sustituye
     // el backfill de embeddings que antes retrasaba la apertura del audio.
-    const recentTurns = await listGuideMessages(user.sub, 12).catch(() => []);
+    let contextTimer: ReturnType<typeof setTimeout>;
+    const recentTurns = await Promise.race([
+      listGuideMessages(user.sub, 12).catch(() => []),
+      new Promise<Awaited<ReturnType<typeof listGuideMessages>>>(resolve => { contextTimer = setTimeout(() => resolve([]), 2000); }),
+    ]).finally(() => clearTimeout(contextTimer!));
     const continuity = recentTurns
       .slice(-12)
       .map((turn) => `${turn.role === "user" ? "Persona" : "Eon"}: ${String(turn.content || "").slice(0, 500)}`)
@@ -58,7 +65,7 @@ REGLAS DE MEMORIA Y ACCIÓN:
     };
     const now = Date.now();
     // Los tokens efímeros de Gemini Live sólo son compatibles con v1beta.
-    const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: "v1beta" } });
+    const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: "v1beta", timeout: 15000 } });
     const token = await ai.authTokens.create({
       config: {
         uses: 1,
@@ -73,8 +80,9 @@ REGLAS DE MEMORIA Y ACCIÓN:
       { headers: { "Cache-Control": "private, no-store, max-age=0" } },
     );
   } catch (error) {
+    if (error instanceof CloneError) return NextResponse.json({ error: error.message }, { status: error.status });
     if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.status });
-    console.error("[voice/gemini/session]", error);
+    console.error("[voice/gemini/session]", { type: error instanceof Error ? error.name : "unknown", status: (error as { status?: number })?.status });
     return NextResponse.json({ error: "No se pudo abrir la voz de Eon." }, { status: 502 });
   }
 }

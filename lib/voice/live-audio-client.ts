@@ -47,6 +47,8 @@ function floatToPcm16(input: Float32Array): Uint8Array {
 
 /** Micrófono PCM 16 kHz hacia Gemini y salida PCM 24 kHz hacia bocina. */
 export class LiveAudioBridge {
+  private closed = false;
+  private playbackVersion = 0;
   private inputContext: AudioContext | null = null;
   private outputContext: AudioContext | null = null;
   private stream: MediaStream | null = null;
@@ -60,7 +62,7 @@ export class LiveAudioBridge {
   private playbackStarted = false;
   private firstAudioReported = false;
 
-  constructor(private readonly onDiagnostic?: (event: LiveAudioDiagnostic) => void) {}
+  constructor(private readonly onDiagnostic?: (event: LiveAudioDiagnostic) => void, private readonly onPlaybackEnded?: () => void) {}
 
   private report(event: LiveAudioDiagnostic) {
     try { this.onDiagnostic?.(event); } catch { /* diagnostics never break audio */ }
@@ -68,6 +70,10 @@ export class LiveAudioBridge {
 
   /** Must run directly from the user's click so desktop browsers allow sound. */
   async preparePlaybackFromUserGesture() {
+    if (this.closed) return;
+    if (typeof AudioContext === "undefined") throw new Error("Este navegador no admite la conversación de voz. Abre Eternime en Safari o Chrome.");
+    if (!this.inputContext) this.inputContext = new AudioContext({ latencyHint: "interactive" });
+    const inputReady = this.inputContext.resume();
     if (!this.outputContext) {
       this.outputContext = new AudioContext({ latencyHint: "interactive", sampleRate: 24_000 });
     }
@@ -79,7 +85,8 @@ export class LiveAudioBridge {
     source.buffer = silent;
     source.connect(this.outputContext.destination);
     source.start();
-    await this.outputContext.resume();
+    await Promise.all([inputReady, this.outputContext.resume()]);
+    if (this.closed) return;
     if (this.outputContext.state !== "running") {
       this.report("playback_blocked");
       throw new Error("El navegador bloqueó el audio. Toca otra vez para permitir la voz de Eon.");
@@ -88,9 +95,15 @@ export class LiveAudioBridge {
   }
 
   async start(onChunk: AudioChunkHandler) {
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
-    this.inputContext = new AudioContext({ latencyHint: "interactive" });
+    if (this.closed) return;
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error("Este navegador no permite usar el micrófono. Abre Eternime en Safari o Chrome.");
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+    if (this.closed) { stream.getTracks().forEach(track => track.stop()); return; }
+    this.stream = stream;
+    this.inputContext ??= new AudioContext({ latencyHint: "interactive" });
     await this.inputContext.resume();
+    if (this.closed) return;
+    if (this.inputContext.state !== "running") throw new Error("El micrófono está pausado. Toca Volver a conectar para activarlo.");
     this.inputSource = this.inputContext.createMediaStreamSource(this.stream);
     this.processor = this.inputContext.createScriptProcessor(2048, 1, 1);
     this.silentGain = this.inputContext.createGain();
@@ -106,15 +119,17 @@ export class LiveAudioBridge {
   }
 
   async play(base64Pcm16: string) {
-    if (!base64Pcm16) return;
+    if (!base64Pcm16 || this.closed) return;
+    const version = this.playbackVersion;
     if (!this.outputContext) {
       this.report("playback_blocked");
       throw new Error("El audio no fue autorizado por el navegador.");
     }
     await this.outputContext.resume();
+    if (this.closed || version !== this.playbackVersion) return;
     if (this.outputContext.state !== "running") {
       this.report("playback_blocked");
-      return;
+      throw new Error("El navegador pausó el sonido. Vuelve a conectar para escucharlo.");
     }
     const bytes = base64ToBytes(base64Pcm16);
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -151,11 +166,14 @@ export class LiveAudioBridge {
       source.start(this.playbackAt);
       this.playbackAt += audio.duration;
       this.playing.add(source);
-      source.onended = () => this.playing.delete(source);
+      source.onended = () => { this.playing.delete(source); if (!this.closed && !this.playing.size && !this.pendingPlayback.length) this.onPlaybackEnded?.(); };
     }
   }
 
+  finishPlayback() { this.schedulePendingPlayback(); }
+
   stopPlayback() {
+    this.playbackVersion++;
     for (const source of this.playing) try { source.stop(); } catch { /* already stopped */ }
     this.playing.clear();
     this.pendingPlayback = [];
@@ -166,6 +184,7 @@ export class LiveAudioBridge {
   }
 
   async close() {
+    this.closed = true;
     this.stopPlayback();
     this.processor?.disconnect();
     this.inputSource?.disconnect();
