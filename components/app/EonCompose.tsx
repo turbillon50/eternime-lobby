@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { GuideMessage } from "@/lib/data/types";
 import { EonSignal, LivingMesh, LightSweep } from "@/components/visual/VisualArtifacts";
+import { EonWave } from "@/components/visual/EonWave";
 
 type Citation = { id: string; title: string };
 type ApiResponse = { messages?: GuideMessage[]; reply?: string; error?: string; cited?: Citation[]; assistantMessage?: GuideMessage | null; conversationId?:string|null };
@@ -46,12 +47,6 @@ export function EonCompose({ firstName = "" }: { firstName?: string }) {
   }, [messages, loading]);
   useEffect(() => () => abortRef.current?.abort(), []);
   useEffect(() => { const el=areaRef.current; if(!el) return; el.style.height="auto"; el.style.height=String(Math.min(el.scrollHeight,180))+"px"; }, [text]);
-  useEffect(()=>{
-    const viewport=window.visualViewport;
-    const setHeight=()=>document.documentElement.style.setProperty("--eon-visual-height",`${viewport?.height??window.innerHeight}px`);
-    setHeight();viewport?.addEventListener("resize",setHeight);viewport?.addEventListener("scroll",setHeight);
-    return()=>{viewport?.removeEventListener("resize",setHeight);viewport?.removeEventListener("scroll",setHeight);document.documentElement.style.removeProperty("--eon-visual-height");};
-  },[]);
 
   async function send(e: FormEvent) {
     e.preventDefault();
@@ -90,9 +85,15 @@ export function EonCompose({ firstName = "" }: { firstName?: string }) {
   const hasChat = loaded && messages.length > 0;
   return <div className={`eon-chat va-crystal ${hasChat ? "has-chat" : ""}`} data-eon-state={loading ? "thinking" : error ? "error" : "idle"}><LivingMesh/><LightSweep/>
     {!hasChat && <section className="eon-welcome">
+      <p className="eon-mobile-greeting">Hola{firstName ? `, ${firstName}` : ""}.</p>
       <EonSignal state={loading ? "thinking" : error ? "error" : "idle"} />
-      <h1>¿En qué puedo ayudarte{firstName ? `, ${firstName}` : ""}?</h1>
+      <h1><span className="eon-desktop-title">¿En qué puedo ayudarte{firstName ? `, ${firstName}` : ""}?</span><span className="eon-mobile-title">¿Qué hacemos hoy?</span></h1>
+      <EonWave state={loading ? "thinking" : "idle"}/>
       <p className="eon-sub">Escríbeme o abre Hablar con Eon.</p>
+      <div className="eon-mobile-prompts">
+        <button onClick={() => { setText("Quiero guardar un recuerdo: "); areaRef.current?.focus(); }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4V3Z"/></svg>Guardar un recuerdo<span aria-hidden="true">›</span></button>
+        <button onClick={() => { setText("Ayúdame a organizar mi día con mis pendientes."); areaRef.current?.focus(); }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 6h16v15H4V6ZM8 3v6M16 3v6M4 11h16"/></svg>Organizar mi día<span aria-hidden="true">›</span></button>
+      </div>
     </section>}
 
     {hasChat && <section className="eon-thread" aria-live="polite" onScroll={event => { const node = event.currentTarget; followRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 96; }}>
@@ -103,7 +104,7 @@ export function EonCompose({ firstName = "" }: { firstName?: string }) {
     </section>}
 
     <form className="eon-compose-card eon-compose-real" onSubmit={send} aria-label="Escribir a Eon">
-      <textarea ref={areaRef} value={text} onChange={e=>setText(e.target.value)} rows={1} placeholder="Pregúntale lo que quieras a Eon…" onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();e.currentTarget.form?.requestSubmit();}}}/>
+      <textarea ref={areaRef} value={text} onChange={e=>setText(e.target.value)} rows={1} aria-label="Mensaje para Eon" placeholder="Escríbele a Eon…" onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();e.currentTarget.form?.requestSubmit();}}}/>
       <div className="eon-compose-toolbar">
         <div className="eon-compose-tools"><Link href="/app/boveda" className="compose-action" aria-label="Abrir la bóveda para adjuntar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="m20.5 11.5-8.8 8.8a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 1 1-2.8-2.8l8.5-8.5"/></svg></Link><span className="hidden sm:inline-flex eon-pill"><i/> Memoria activa</span></div>
         <div className="eon-compose-tools"><Link href="/app/hablar" className="compose-action eon-voice-link" aria-label="Hablar con Eon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Hablar</span></Link>{loading ? <button type="button" onClick={stop} className="eon-send-btn is-stop" aria-label="Detener respuesta"><span/></button> : <button type="submit" disabled={!text.trim()} className="eon-send-btn" aria-label="Enviar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>}</div>

@@ -48,6 +48,7 @@ function floatToPcm16(input: Float32Array): Uint8Array {
 /** Micrófono PCM 16 kHz hacia Gemini y salida PCM 24 kHz hacia bocina. */
 export class LiveAudioBridge {
   private closed = false;
+  private muted = false;
   private playbackVersion = 0;
   private inputContext: AudioContext | null = null;
   private outputContext: AudioContext | null = null;
@@ -100,6 +101,7 @@ export class LiveAudioBridge {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
     if (this.closed) { stream.getTracks().forEach(track => track.stop()); return; }
     this.stream = stream;
+    for (const track of stream.getTracks()) track.enabled = !this.muted;
     this.inputContext ??= new AudioContext({ latencyHint: "interactive" });
     await this.inputContext.resume();
     if (this.closed) return;
@@ -110,12 +112,19 @@ export class LiveAudioBridge {
     this.silentGain.gain.value = 0;
     this.processor.onaudioprocess = (event) => {
       const mono = event.inputBuffer.getChannelData(0);
-      onChunk(bytesToBase64(floatToPcm16(downsample(mono, event.inputBuffer.sampleRate, 16_000))));
+      // Send silence while muted so VAD can finish the current turn, but never
+      // send microphone samples captured during the switch.
+      onChunk(bytesToBase64(floatToPcm16(downsample(this.muted ? new Float32Array(mono.length) : mono, event.inputBuffer.sampleRate, 16_000))));
     };
     this.inputSource.connect(this.processor);
     this.processor.connect(this.silentGain);
     this.silentGain.connect(this.inputContext.destination);
     this.report("mic_ready");
+  }
+
+  setMuted(value: boolean) {
+    this.muted = value;
+    for (const track of this.stream?.getTracks() ?? []) track.enabled = !value;
   }
 
   async play(base64Pcm16: string) {

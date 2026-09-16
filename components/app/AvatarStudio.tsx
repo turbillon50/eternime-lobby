@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui";
 import { VoiceClone } from "./VoiceClone";
@@ -7,6 +7,9 @@ import type { VoiceDelivery } from "@/lib/voice/personal-settings";
 import styles from "./clone-studio.module.css";
 type Job = { id: string; status: string; error: string | null; createdAt: string; mediaUrl: string | null };
 type Portrait = { id: string; url: string };
+function subscribeMobile(callback: () => void) { const media = window.matchMedia("(max-width: 1023px)"); media.addEventListener("change", callback); return () => media.removeEventListener("change", callback); }
+const mobileSnapshot = () => window.matchMedia("(max-width: 1023px)").matches;
+const serverSnapshot = () => false;
 const labels: Record<string, string> = { preparing: "Preparando tu video…", submitting: "Enviando tu video…", processing: "Generando tu video…", completed: "Tu clon hablando", failed: "El video no se completó", uncertain: "Verificando tu video…" };
 async function json<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, { ...init, cache: "no-store" }); const data = await response.json().catch(() => ({}));
@@ -31,6 +34,7 @@ async function preparePhoto(file: File): Promise<File> {
   } finally { URL.revokeObjectURL(url); }
 }
 export function AvatarStudio() {
+  const mobile = useSyncExternalStore(subscribeMobile, mobileSnapshot, serverSnapshot);
   const [portrait, setPortrait] = useState<Portrait | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [allVideos, setAllVideos] = useState(false);
@@ -44,6 +48,7 @@ export function AvatarStudio() {
   const [delivery, setDelivery] = useState<VoiceDelivery>("natural");
   const [speech, setSpeech] = useState<{ url: string; text: string } | null>(null);
   const [remove, setRemove] = useState(false);
+  const latestVideo = jobs.find(job => job.status === "completed" && job.mediaUrl);
   const lock = useRef(false); const input = useRef<HTMLInputElement>(null); const alive = useRef(true); const player = useRef<HTMLAudioElement>(null);
   const load = useCallback(async () => {
     const results = await Promise.allSettled([
@@ -113,25 +118,30 @@ export function AvatarStudio() {
     <section className={styles.setupPanel} aria-label="Mi foto y mi voz">
     <h2>1. Mi foto y mi voz</h2>
     <div className={styles.portraitRow}>
-      {portrait ? <Image unoptimized src={portrait.url} alt="Mi foto para el clon" width={112} height={140} className={styles.portrait} /> : <div className={styles.portraitEmpty} aria-hidden="true"><svg viewBox="0 0 80 100" fill="none"><circle cx="40" cy="32" r="17" stroke="currentColor" strokeWidth="1.5"/><path d="M12 89c0-35 56-35 56 0" stroke="currentColor" strokeWidth="1.5"/></svg></div>}
-      <div><p className={styles.hint}>Una foto de frente, con buena luz.</p>
+      <figure className={styles.portraitStage}>
+        {latestVideo && <video className={styles.previewVideo} controls playsInline preload="none" poster={portrait?.url} src={latestVideo.mediaUrl!} aria-label="Último video de mi clon" />}
+        {portrait ? <Image unoptimized src={portrait.url} alt="Mi foto para el clon" width={112} height={140} className={styles.portrait} /> : <div className={styles.portraitEmpty} aria-hidden="true"><svg viewBox="0 0 80 100" fill="none"><circle cx="40" cy="32" r="17" stroke="currentColor" strokeWidth="1.5"/><path d="M12 89c0-35 56-35 56 0" stroke="currentColor" strokeWidth="1.5"/></svg><span>Tu foto aparece aquí</span></div>}
+        <figcaption className={styles.previewCaption}>{latestVideo ? "Video generado con IA" : portrait ? "Tu foto para el clon" : "Una foto tuya, de frente y con buena luz"}</figcaption>
+      </figure>
+      <details className={styles.photoOptions} open={mobile ? undefined : true}><summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v13H3V7Z"/><circle cx="12" cy="13" r="4"/></svg>{portrait ? "Cambiar foto" : "Subir mi foto"}</summary><div><p className={styles.hint}>Una foto de frente, con buena luz.</p>
         <label className={styles.check}><input type="checkbox" checked={photoConsent} disabled={!!busy} onChange={e => setPhotoConsent(e.target.checked)} />La foto es mía y autorizo guardarla.</label>
         <input ref={input} hidden type="file" accept="image/*" onChange={e => { const file = e.target.files?.[0]; if (file) void upload(file); }} />
         <Button loading={busy === "photo"} disabled={!photoConsent || !!busy} onClick={() => input.current?.click()}>{portrait ? "Cambiar foto" : "Subir mi foto"}</Button>
-      </div>
+      </div></details>
     </div>
-    {!loaded ? <p role="status" className={styles.hint}>Buscando tu voz guardada…</p> : <details className={styles.voiceSettings} open={voiceReady ? undefined : true}><summary>{voiceReady ? "✓ Mi voz guardada · cambiar o volver a grabar" : "Grabar o subir mi voz"}</summary><VoiceClone onChange={() => { setSpeech(null); void load().catch(e => setError(e.message)); }} /></details>}
+    {!loaded ? <p role="status" className={styles.hint}>Buscando tu voz guardada…</p> : <details className={styles.voiceSettings} open={!mobile && !voiceReady ? true : undefined}><summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span className={styles.desktopVoiceLabel}>{voiceReady ? "✓ Mi voz guardada · cambiar o volver a grabar" : "Grabar o subir mi voz"}</span><span className={styles.mobileVoiceLabel}>{voiceReady ? "Mi voz guardada" : "Grabar mi voz"}</span></summary><VoiceClone onChange={() => { setSpeech(null); void load().catch(e => setError(e.message)); }} /></details>}
     </section>
     <section className={styles.tryPanel} aria-label="Probar mi clon">
     <h2>2. Probar mi clon</h2>
     <label className={styles.field}>¿Qué quieres que diga?<textarea rows={3} maxLength={350} value={text} disabled={!!busy} onChange={e => { setText(e.target.value); setConsent(false); }} /></label>
     <div className={styles.chatTitle}><span className={styles.hint}>{text.length}/350</span><label className={styles.delivery}>Cómo suena <select value={delivery} disabled={!!busy} onChange={e => { setDelivery(e.target.value as VoiceDelivery); setConsent(false); }}><option value="natural">Natural</option><option value="steady">Más estable</option></select></label></div>
     <div className={styles.actions}><Button onClick={listen} loading={busy === "audio"} disabled={!!busy || !voiceReady || !text.trim()}>Escuchar mi voz</Button></div>
+    {!voiceReady && loaded && <p className={styles.hint}>Abre «Grabar mi voz» para preparar una nueva muestra.</p>}
     {speech && <div className={styles.audioResult}><audio key={speech.url} ref={player} controls playsInline preload="auto" src={speech.url} aria-label="Mi frase con mi voz" onError={() => setError("No pude reproducir el audio. Pulsa Escuchar mi voz para recuperarlo.")} /><p className={styles.hint}>{speech.text}</p></div>}
     <div className={styles.videoAction}>
       <label className={styles.check}><input type="checkbox" checked={consent} disabled={!!busy || !portrait || !voiceReady} onChange={e => setConsent(e.target.checked)} /><span>Autorizo enviar mi foto y voz a HeyGen para crear este video con mi saldo.</span></label>
-      <Button loading={busy === "video"} disabled={!!busy || !configured || !voiceReady || !portrait || !text.trim() || !consent} onClick={generate}>Verme hablando</Button>
-      <p className={styles.hint}>{!portrait ? "Sube tu foto para crear el video." : !voiceReady ? "Guarda tu voz para crear el video." : !configured && loaded ? "El servicio de video todavía no está conectado." : "El video puede tardar unos minutos. Podrás reproducirlo aquí."}</p>
+      <Button loading={busy === "video"} disabled={!!busy || !configured || !voiceReady || !portrait || !text.trim() || !consent} onClick={generate}><span className={styles.desktopVoiceLabel}>Verme hablando</span><span className={styles.mobileVoiceLabel}>Hacer hablar a mi clon</span></Button>
+      <p className={styles.hint}>{!portrait ? "Sube tu foto para crear el video." : !voiceReady ? "Guarda tu voz para crear el video." : !configured && loaded ? "El servicio de video todavía no está conectado." : !consent ? "Marca la autorización para crear tu video." : "El video puede tardar unos minutos. Podrás reproducirlo aquí."}</p>
     </div>
     </section>
     </div>

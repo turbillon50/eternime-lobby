@@ -1897,3 +1897,116 @@ html,body{font-family:var(--font-eternime),ui-sans-serif,system-ui,-apple-system
 @media(min-width:1024px){.eon-app.eon-simple-app{grid-template-rows:64px minmax(0,1fr)!important}.eon-app.eon-simple-app .eon-desktop-nav{display:none}.eon-app.eon-simple-app>.eon-app-main{padding-top:20px!important}.eon-app.eon-simple-app .eon-desktop-header{grid-template-columns:1fr auto}}
 @media(max-width:1023px){.eon-app.eon-simple-app>.eon-app-main[data-route="/app/clon"],.eon-app.eon-simple-app>.eon-app-main[data-route="/app/hablar"]{padding-bottom:calc(24px + env(safe-area-inset-bottom))!important}.eon-app.eon-simple-app>.eon-app-main{padding-top:12px!important}.eon-section-nav{margin-bottom:16px}.eon-section-nav a{padding:8px 4px;font-size:13px}}
 @media(max-height:600px){.eon-app.eon-simple-app .eon-home-dashboard .eon-welcome .eon-signal,.eon-app.eon-simple-app .eon-home-dashboard .eon-welcome .eon-sub{display:none}.eon-app.eon-simple-app .eon-home-dashboard .eon-welcome{padding:8px 0}.eon-app.eon-simple-app .eon-home-dashboard .eon-suggestions{display:none}}
+
+/* Approved mobile craft: three destinations; the full feature menu stays intact.
+   The tab bar is a separate grid row, not an overlay on scrollable content. */
+.eon-mobile-tabs,.eon-mobile-wave,.eon-mobile-title,.eon-mobile-greeting,.eon-mobile-prompts{display:none}
+@media(max-width:1023px){
+  .eon-app.eon-simple-app.eon-mobile-craft{
+    --et-text:#f1eef8;--et-text-muted:#b4aec2;
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:calc(64px + env(safe-area-inset-top)) minmax(0,1fr) auto!important;
+    height:var(--eon-visual-height,100dvh)!important;min-height:0!important;
+    overflow:hidden!important;background:radial-gradient(ellipse at 15% 0,#6a7eaf17,transparent 48%),radial-gradient(ellipse at 100% 70%,#8873bf0f,transparent 45%),#101019!important;
+  }
+  .eon-mobile-craft>.eon-mesh{opacity:.16!important;pointer-events:none}
+  .eon-app.eon-simple-app.eon-mobile-craft>.eon-topbar{
+    grid-column:1;grid-row:1;position:relative!important;inset:auto!important;
+    height:100%!important;padding-top:env(safe-area-inset-top)!important;
+    padding-inline:18px!important;background:transparent!important;border-bottom:0!important;box-shadow:none!important;
+  }
+  .eon-app.eon-simple-app.eon-mobile-craft .et-btn-primary{
+    border:1px solid #e1d2ff80!important;background:linear-gradient(125deg,#c5a4fa,#a284ed)!important;color:#211333!important;
+    box-shadow:inset 0 1px #ffffff70,0 4px 18px #9371de20!important;text-shadow:none;
+  }
+  .eon-app.eon-simple-app.eon-mobile-craft :is(.et-btn-secondary,.et-btn-ghost){background:#c4d0ff0a!important;border-color:#c9d2ff33!important;color:#e6dff4!important}
+  .eon-app.eon-simple-app.eon-mobile-craft button:disabled{opacity:.55!important;filter:saturate(.5)}
+  .eon-app.eon-simple-app.eon-mobile-craft .et-btn-primary:disabled{color:#211333!important}
+  .eon-mobile-craft .eon-topbar-mobile{display:grid!important;grid-template-columns:44px 1fr 44px;align-items:center;width:100%}
+  .eon-mobile-craft .eon-topbar-mobile>a:not(.crystal-avatar){justify-self:center;font-size:19px;font-weight:550;letter-spacing:-.025em}
+  .eon-app.eon-simple-app.eon-mobile-craft .crystal-icon,.eon-app.eon-simple-app.eon-mobile-craft .crystal-avatar{
+    width:44px;height:44px;min-width:44px;min-height:44px;border:1px solid #d0d9ff33!important;
+    background:linear-gradient(135deg,#cbd7ff18,#8571b00b)!important;box-shadow:inset 0 1px #ffffff15,0 3px 8px #0002!important;color:#e6dff7!important;
+  }
+  .eon-mobile-craft .eon-topbar-mobile .crystal-icon{border-radius:14px!important}.eon-mobile-craft .crystal-avatar{border-radius:50%!important}
+  .eon-app.eon-simple-app.eon-mobile-craft>.eon-app-main,
+  .eon-app.eon-simple-app.eon-mobile-craft>.eon-app-main[data-route]{
+    grid-column:1;grid-row:2;min-height:0!important;height:auto!important;width:100%!important;
+    margin:0!important;padding:14px 18px 20px!important;overflow:auto!important;overscroll-behavior:contain;scrollbar-width:thin;scroll-padding-block:16px;
+  }
+  .eon-mobile-craft .eon-section-nav{display:none!important}
+  .eon-app.eon-simple-app.eon-mobile-craft>.eon-app-main[data-route="/app"]{
+    display:flex;overflow:hidden!important;padding-top:0!important;padding-bottom:0!important;
+  }
+  .eon-mobile-craft>.eon-mobile-tabs{
+    position:relative;z-index:30;grid-column:1;grid-row:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    width:min(calc(100% - 24px),520px);justify-self:center;align-self:end;
+    margin:6px 12px max(10px,env(safe-area-inset-bottom));padding:6px;gap:4px;
+    border:1px solid #c7d4ff3b;border-radius:26px;background:linear-gradient(135deg,#c3d0ff0c,#a78ad805),#171822ed;
+    box-shadow:inset 0 1px #ffffff16,0 6px 26px #0003;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  }
+  .eon-mobile-tabs a{
+    display:flex;min-width:0;min-height:62px;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    padding:7px 5px;border:1px solid transparent;border-radius:20px;color:#bbb5cb;font-size:12px;line-height:1.2;
+    transition:background .2s,border-color .2s,color .2s,transform .15s;
+  }
+  .eon-mobile-tabs a svg{width:23px;height:23px}
+  .eon-mobile-tabs a[aria-current=page]{color:#f2eaff;background:linear-gradient(145deg,#b4a0fc42,#9b83ef13);border-color:#bba6f844;box-shadow:inset 0 1px #ffffff10}
+  .eon-mobile-tabs a[aria-current=page] svg{color:#c9b1ff;filter:drop-shadow(0 0 6px #b196f522)}
+  .eon-mobile-tabs a:active{transform:scale(.96)}.eon-mobile-tabs a:focus-visible{outline:2px solid #cfb8ff;outline-offset:1px}
+  .eon-app.eon-simple-app.eon-mobile-craft[data-keyboard-open]>.eon-mobile-tabs{display:none}
+  .eon-mobile-craft .eon-drawer{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);background:#171622f5!important;border-color:#b4a5d830!important}
+  .eon-mobile-craft .eon-drawer-backdrop{background:#0808119c!important;backdrop-filter:blur(7px)}
+  .eon-mobile-craft .eon-menu-item{min-height:46px;font-size:14px!important}.eon-mobile-craft .eon-menu-account a{min-height:60px}
+  .eon-mobile-craft .eon-menu-account>button{min-height:44px}.eon-mobile-craft .eon-menu-scroll{overscroll-behavior:contain}
+  .eon-mobile-craft .eon-mobile-wave{display:block;width:min(100%,360px);margin:18px auto;flex-shrink:0}
+  .eon-mobile-wave svg{display:block;width:100%;height:auto;overflow:visible}
+  .eon-mobile-wave__ribbon{transform-origin:center;animation:eonRibbonBreathe 5s ease-in-out infinite alternate}
+  .eon-mobile-wave__ribbon--1{animation-delay:-2.2s;animation-duration:6s}.eon-mobile-wave__ribbon--2{animation-delay:-3.7s}
+  .eon-mobile-wave[data-state=speaking] .eon-mobile-wave__ribbon,.eon-mobile-wave[data-state=listening] .eon-mobile-wave__ribbon{animation-duration:2.5s}
+  .eon-mobile-wave[data-state=muted]{opacity:.5}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-home-dashboard>.eon-chat{
+    grid-template-rows:minmax(0,1fr) auto!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;backdrop-filter:none!important;
+  }
+  .eon-mobile-craft .eon-chat>.va-mesh,.eon-mobile-craft .eon-chat>.va-sweep{display:none}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-home-dashboard .eon-welcome{
+    align-self:stretch;min-height:0;max-width:520px;width:100%;padding:28px 0 20px;margin:0 auto;text-align:left;overflow:auto;scrollbar-width:thin;
+  }
+  .eon-mobile-craft .eon-mobile-greeting{display:block;font-size:16px;color:#bab3ce;line-height:1.5;margin-bottom:6px}
+  .eon-mobile-craft .eon-mobile-title{display:inline}.eon-mobile-craft .eon-desktop-title{display:none}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-home-dashboard .eon-welcome h1{font-size:26px!important;line-height:1.25!important;margin-top:0!important;font-weight:580;letter-spacing:-.04em}
+  .eon-mobile-craft .eon-welcome>.eon-signal,.eon-mobile-craft .eon-welcome>.eon-sub,.eon-mobile-craft .eon-chat>.eon-suggestions{display:none!important}
+  .eon-mobile-craft .eon-mobile-prompts{display:grid;gap:10px;margin:12px 0}
+  .eon-mobile-prompts button{display:grid;grid-template-columns:23px 1fr 16px;gap:12px;align-items:center;text-align:left;min-height:56px;padding:12px 15px;border:1px solid #c4ceff30;border-radius:15px;background:linear-gradient(135deg,#c6d7ff0c,#ac8ee904);box-shadow:inset 0 1px #fff1;font-size:14px;color:#eee9f7}
+  .eon-mobile-prompts button svg{width:23px;height:23px;color:#c6b7e6}.eon-mobile-prompts button>span{font-size:22px;color:#b5adca}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-home-dashboard .eon-compose-card.eon-compose-real{
+    grid-template-columns:40px minmax(0,1fr) 44px;align-items:end;gap:4px;max-width:520px;
+    margin:6px auto 10px!important;padding:7px!important;border-radius:25px!important;
+    border-color:#c4d1ff3b!important;background:linear-gradient(130deg,#c6d0ff0b,#8870c208),#171721!important;
+    box-shadow:inset 0 1px #fff1,0 5px 24px #0002!important;
+  }
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-compose-card.eon-compose-real>textarea{grid-row:1;grid-column:2;min-height:44px!important;padding:11px 5px!important;font-size:16px!important}
+  .eon-mobile-craft .eon-compose-toolbar,.eon-mobile-craft .eon-compose-tools{display:contents}
+  .eon-mobile-craft .eon-compose-tools>.eon-pill,.eon-app.eon-simple-app.eon-mobile-craft .eon-compose-tools>.eon-voice-link{display:none!important}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-compose-real .compose-action{grid-row:1;grid-column:1;width:40px;height:44px;min-height:44px;border:0;background:none;box-shadow:none}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-compose-real .eon-send-btn{grid-row:1;grid-column:3;width:44px;height:44px;background:linear-gradient(135deg,#d0b4ff,#a386ea);color:#231337;box-shadow:inset 0 1px #fff6,0 2px 10px #a67ee422}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-home-dashboard .eon-thread{padding:18px 0 8px!important;font-size:15px}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-message>div{font-size:15px;line-height:1.6;border-radius:18px!important}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-message.assistant>div{background:linear-gradient(135deg,#c2cfff0c,#9080c305),#191924!important;border-color:#bbc4f11f!important;box-shadow:none!important;color:#eeeaf5!important}
+  .eon-app.eon-simple-app.eon-mobile-craft .eon-message.user>div{background:linear-gradient(135deg,#6356ac,#524687)!important;border-color:#c3aff34d!important;box-shadow:inset 0 1px #fff1!important}
+  /* Memory capture remains available in its page, separate from navigation. */
+  .eon-mobile-craft .eon-memory-dock-wrap{position:relative;inset:auto;z-index:1;margin:0 0 18px;pointer-events:auto}
+  .eon-mobile-craft .eon-memory-dock{width:100%;margin:0;min-height:64px;background:#1b1928;border-radius:18px;box-shadow:none}
+  .eon-mobile-craft .eon-memory-dock::before{display:none}.eon-mobile-craft .eon-memory-dock>a,.eon-mobile-craft .eon-memory-dock>button{min-height:48px;font-size:10px}
+  .eon-mobile-craft .eon-memory-dock>.eon-memory-dock__primary{min-height:48px;margin:0;border-radius:14px;background:#726098;box-shadow:none}
+  .eon-mobile-craft .eon-memory-dock>.eon-memory-dock__primary>small{font-size:10px}
+  .eon-mobile-craft .eon-memory-quick{width:100%;margin:0 0 12px;box-shadow:none}
+  .eon-mobile-craft .eon-memory-notice{max-width:100%;font-size:13px}
+  .eon-mobile-craft[data-keyboard-open] .eon-welcome .eon-mobile-wave{display:none}
+  .eon-mobile-craft[data-keyboard-open] .eon-mobile-prompts{display:none}
+  .eon-app.eon-simple-app.eon-mobile-craft[data-keyboard-open] .eon-home-dashboard .eon-welcome{padding-top:12px}
+}
+@media(max-width:360px){.eon-mobile-craft .eon-mobile-tabs a{font-size:11px;min-height:56px}.eon-app.eon-simple-app.eon-mobile-craft>.eon-app-main[data-route]{padding-inline:14px!important}}
+@media(max-width:1023px) and (max-height:600px){.eon-mobile-craft .eon-mobile-wave{max-width:240px;margin:4px auto}.eon-mobile-craft .eon-mobile-prompts{gap:6px}.eon-mobile-prompts button{min-height:48px}.eon-mobile-tabs a{min-height:48px}.eon-app.eon-simple-app.eon-mobile-craft .eon-home-dashboard .eon-welcome{padding-top:12px}}
+@keyframes eonRibbonBreathe{from{transform:translateY(-2px) scaleY(.88);opacity:.7}to{transform:translateY(2px) scaleY(1.1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.eon-mobile-wave__ribbon{animation:none!important}.eon-mobile-tabs a{transition:none!important}}
