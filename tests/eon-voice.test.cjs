@@ -42,18 +42,18 @@ test('stale close callbacks cannot stop a new conversation',async()=>{
  const second=h.controller.start();await tick();h.cb.onmessage({setupComplete:{}});await second;previous.onclose({code:1000});assert.equal(h.controller.active,true);assert.equal(h.states.at(-1).s,'listening');h.controller.stop();
 });
 function bridgeHarness(permission){
- const contexts=[];let stopped=0;const stream={getTracks:()=>[{stop:()=>stopped++}]};
+ const contexts=[];let stopped=0;const track={enabled:true,stop:()=>stopped++};const stream={getTracks:()=>[track]};
  class AudioContext{
   constructor(){this.state='suspended';this.currentTime=0;this.destination={};this.started=[];contexts.push(this)}
   async resume(){this.state='running'} async close(){this.state='closed'}
   createBuffer(ch,length,rate){return {duration:length/rate,getChannelData:()=>new Float32Array(length)}}
   createBufferSource(){const ctx=this;return {connect(){},start(){ctx.started.push(this)},stop(){}}}
   createMediaStreamSource(){return {connect(){},disconnect(){}}}
-  createScriptProcessor(){return {connect(){},disconnect(){}}}
+  createScriptProcessor(){this.processor={connect(){},disconnect(){}};return this.processor}
   createGain(){return {gain:{value:1},connect(){},disconnect(){}}}
  }
  const {LiveAudioBridge}=load('lib/voice/live-audio-client.ts',{AudioContext,navigator:{mediaDevices:{getUserMedia:async()=>{await permission?.promise;return stream}}}});
- return {bridge:new LiveAudioBridge(),contexts,get stopped(){return stopped}};
+ return {bridge:new LiveAudioBridge(),contexts,track,get stopped(){return stopped}};
 }
 test('both audio contexts are unlocked during the original click, before asking for mic permission',async()=>{
  const h=bridgeHarness();const promise=h.bridge.preparePlaybackFromUserGesture();assert.equal(h.contexts.length,2);assert.ok(h.contexts.every(c=>c.state==='running'));await promise;await h.bridge.start(()=>{});assert.equal(h.contexts.length,2);await h.bridge.close();assert.equal(h.stopped,1);
@@ -64,4 +64,11 @@ test('late browser permission cannot leave the microphone on after cancellation'
 test('short final PCM packets are flushed and closed bridges ignore late audio',async()=>{
  const h=bridgeHarness();await h.bridge.preparePlaybackFromUserGesture();const output=h.contexts[1];const silent=output.started.length;
  const pcm=Buffer.alloc(2400).toString('base64');await h.bridge.play(pcm);assert.equal(output.started.length,silent);h.bridge.finishPlayback();assert.equal(output.started.length,silent+1);await h.bridge.close();await h.bridge.play(pcm);assert.equal(output.started.length,silent+1);
+});
+test('mute disables the microphone track and never forwards its captured samples',async()=>{
+ const h=bridgeHarness();const sent=[];await h.bridge.preparePlaybackFromUserGesture();await h.bridge.start(chunk=>sent.push(Buffer.from(chunk,'base64')));
+ const event={inputBuffer:{sampleRate:16000,getChannelData:()=>new Float32Array([.5,-.5,.25])}};
+ h.contexts[0].processor.onaudioprocess(event);assert.ok(sent.at(-1).some(value=>value!==0));
+ h.bridge.setMuted(true);assert.equal(h.track.enabled,false);h.contexts[0].processor.onaudioprocess(event);assert.ok(sent.at(-1).every(value=>value===0));
+ h.bridge.setMuted(false);assert.equal(h.track.enabled,true);h.contexts[0].processor.onaudioprocess(event);assert.ok(sent.at(-1).some(value=>value!==0));await h.bridge.close();
 });

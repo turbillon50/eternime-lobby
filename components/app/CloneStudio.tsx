@@ -159,7 +159,7 @@ export function CloneStudio() {
 
   const currentTopic = CLONE_TOPICS.find(t => t.id === topic)!;
   return <div className={styles.studio}>
-    <header className={styles.intro}><h1>Mi clon</h1><p>Prepara tu foto y tu voz. Después, prueba una frase.</p></header>
+    <header className={styles.intro}><h1>Mi clon</h1><p><span className={styles.desktopVoiceLabel}>Prepara tu foto y tu voz. Después, prueba una frase.</span><span className={styles.mobileVoiceLabel}>Tu foto. Tu voz.</span></p></header>
     <div className={styles.secondaryNav}><button type="button" onClick={() => { setAdvanced(value => !value); setTab("presencia"); }}> {advanced ? "Cerrar opciones" : "Conversación y memoria del clon"}</button></div>
     {advanced && <nav className={styles.tabs} aria-label="Espacios de mi clon">
       {([ ["presencia", "Foto y voz"], ["dialogo", "Conversar"], ["memoria", "Memoria"] ] as const).map(([id, label]) =>

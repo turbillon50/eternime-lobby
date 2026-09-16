@@ -98,3 +98,39 @@
 .tryPanel .videoAction{margin-top:22px}.tryPanel .check{font-size:.8rem}
 .secondaryNav{margin-top:-6px}.secondaryNav button{font-size:.8rem;color:#b7a5d6;min-height:36px;text-decoration:underline;text-underline-offset:4px}
 @media(max-width:800px){.presenceGrid{grid-template-columns:1fr;gap:16px}.setupPanel,.tryPanel{padding:18px}.setupPanel .portraitRow{grid-template-columns:88px minmax(0,1fr)}.setupPanel .portrait,.setupPanel .portraitEmpty{width:88px;height:116px}.studio .setupPanel h2,.studio .tryPanel h2{margin-bottom:14px}.intro h1{font-size:1.5rem}.intro p{font-size:.9rem}}
+.mobileVoiceLabel,.previewVideo,.previewCaption,.photoOptions>summary,.voiceSettings summary svg,.portraitEmpty>span{display:none}
+.photoOptions{min-width:0}.portraitStage{margin:0}
+@media(max-width:1023px){
+  .studio{max-width:540px;gap:16px}.intro{text-align:center}.intro h1{font-size:23px;letter-spacing:-.035em}.intro p{font-size:15px;color:#b4acc7}
+  .secondaryNav{order:5;margin:4px 0 0;padding-top:10px;border-top:1px solid #c3b6e51a}.secondaryNav button{min-height:44px;font-size:13px}
+  .mobileVoiceLabel{display:inline}.desktopVoiceLabel{display:none}
+  .presenceGrid{grid-template-columns:minmax(0,1fr);gap:18px}
+  .setupPanel,.tryPanel{padding:0;border:0;background:none;box-shadow:none}
+  .studio .setupPanel h2,.studio .tryPanel h2{display:none}
+  .setupPanel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+  .setupPanel .portraitRow{display:contents}
+  .portraitStage{position:relative;grid-column:1/-1;overflow:hidden;border-radius:18px;border:1px solid #d3d4ec33;background:#191b25}
+  .setupPanel .portrait,.setupPanel .portraitEmpty{display:block;width:100%;height:clamp(190px,55vw,270px);margin:0;border:0;border-radius:0;object-fit:contain;background:radial-gradient(ellipse at 50% 35%,#35334a,#171823)}
+  .setupPanel .portraitEmpty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#afa1cc}
+  .portraitEmpty svg{height:72px;width:60px}.portraitEmpty>span{display:block;font-size:14px}
+  .previewCaption{display:block;padding:9px 12px;font-size:12px;text-align:center;background:#181823;color:#bab3ca}
+  .previewVideo{display:block;width:100%;max-height:300px;background:#15151f}
+  .portraitStage:has(.previewVideo) .portrait,.portraitStage:has(.previewVideo) .portraitEmpty{display:none}
+  .photoOptions,.setupPanel .voiceSettings{min-width:0;margin:0;padding:0;border:1px solid #c9d2ff33;border-radius:14px;background:linear-gradient(140deg,#c4d0ff0b,#c4a9ff05);box-shadow:inset 0 1px #fff1}
+  .photoOptions>summary,.voiceSettings>summary{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 8px;min-height:50px;cursor:pointer;list-style:none;font-size:13px;color:#f0eafa}
+  .photoOptions>summary::-webkit-details-marker,.voiceSettings>summary::-webkit-details-marker{display:none}
+  .photoOptions>summary svg,.voiceSettings>summary svg{display:block;flex-shrink:0;width:22px;height:22px;color:#d1c1f0}
+  .photoOptions[open],.setupPanel .voiceSettings[open]{grid-column:1/-1;background:#1c1b28}
+  .photoOptions[open]>summary,.voiceSettings[open]>summary{justify-content:flex-start;padding-inline:14px;border-bottom:1px solid #c4b6eb20}
+  .photoOptions[open]>summary::after,.voiceSettings[open]>summary::after{content:"−";margin-left:auto;font-size:18px;color:#c4b6e0}
+  .photoOptions>div,.voiceSettings>div{padding:0 14px 14px}.photoOptions button{width:100%}
+  .voiceSettings button{min-height:44px}.voiceSettings audio{width:100%;height:44px;color-scheme:dark}
+  .tryPanel .field{font-size:14px;gap:8px;margin-bottom:10px}.tryPanel .field textarea{min-height:84px;max-height:180px;font-size:16px;line-height:1.5;border-radius:15px;padding:13px}
+  .tryPanel .chatTitle{gap:8px}.tryPanel .chatTitle>.hint{margin:0;font-size:12px}.delivery{font-size:12px;margin-bottom:12px}.delivery select{min-height:44px;padding:8px;font-size:14px}
+  .tryPanel .actions>button{border:1px solid #c7b6e84d;min-height:48px;border-radius:15px;font-size:14px}
+  .tryPanel .videoAction{margin-top:18px;padding-top:6px}.tryPanel .check{font-size:12px;line-height:1.5;margin:10px 0 14px}.check input{width:20px;height:20px}
+  .tryPanel .videoAction>button{min-height:52px;border-radius:16px;font-size:15px}
+  .hint{font-size:13px}.audioResult audio{height:44px;color-scheme:dark}.audioResult .hint{font-size:12px}
+  .videoHistory{margin-top:12px}.videoHistory h3{font-size:17px}.versions{margin-top:4px;font-size:13px}.versions summary{min-height:44px}
+  .tabs{order:0}.studio>.secondaryNav:has(+.tabs){order:0}
+}

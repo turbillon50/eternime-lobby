@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { LiveConnectConfig, LiveServerMessage } from "@google/genai";
 import { EonSignal } from "@/components/visual/VisualArtifacts";
+import { EonWave } from "@/components/visual/EonWave";
 import { LiveAudioBridge, type LiveAudioDiagnostic } from "@/lib/voice/live-audio-client";
 import { LiveVoiceSession, type VoiceStatus } from "@/lib/voice/live-session";
 import styles from "./eon-voice.module.css";
@@ -21,6 +22,7 @@ export function HablarConEon() {
   const [error, setError] = useState("");
   const [caption, setCaption] = useState("");
   const [consent, setConsent] = useState(false);
+  const [muted, setMuted] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
   const controller = useRef<LiveVoiceSession | null>(null);
   const audio = useRef<LiveAudioBridge | null>(null);
@@ -88,7 +90,7 @@ export function HablarConEon() {
   function start() {
     if (!consent) { setError("Permite la conversación de voz para comenzar."); return; }
     if (!navigator.onLine) { setError("Necesitas conexión a internet para hablar con Eon."); return; }
-    setError(""); setCaption(""); setTurns([]);
+    setError(""); setCaption(""); setTurns([]); setMuted(false);
     controller.current ??= new LiveVoiceSession({
       createBridge: () => { const bridge = new LiveAudioBridge(diagnostic, () => { if (controller.current?.active) setStatus(previous => previous === "speaking" ? "listening" : previous); }); playbackGeneration.current++; audio.current = bridge; playback.current = Promise.resolve(); return bridge; },
       status: (value, reason) => { setStatus(value); setError(reason || ""); },
@@ -118,9 +120,14 @@ export function HablarConEon() {
     <header><h1>Hablar con Eon</h1><p>Una conversación por voz. Puedes interrumpirme.</p></header>
     <div className={styles.call}>
       <EonSignal state={status === "error" ? "error" : connecting ? "thinking" : status === "speaking" || status === "acting" ? "acting" : status === "listening" ? "listening" : "idle"} className={styles.signal} />
-      <p className={styles.status} role="status">{status === "microphone" ? "Permite el micrófono en tu navegador…" : status === "connecting" ? "Conectando con Eon…" : status === "speaking" ? "Eon está hablando" : status === "acting" ? "Realizando lo que pediste…" : status === "listening" ? "Te escucho" : "Cuando quieras, empezamos."}</p>
+      <EonWave state={active && muted ? "muted" : status}/>
+      <p className={styles.status} role="status">{status === "microphone" ? "Permite el micrófono en tu navegador…" : status === "connecting" ? "Conectando con Eon…" : status === "speaking" ? "Eon está hablando" : status === "acting" ? "Realizando lo que pediste…" : active && muted ? "Micrófono silenciado" : status === "listening" ? "Te escucho" : "Cuando quieras, empezamos."}</p>
       {!active && !consent && <label className={styles.consent}><input type="checkbox" checked={consent} onChange={e => allowVoice(e.target.checked)} />Permitir conversación de voz</label>}
-      <button type="button" className={active ? styles.stop : styles.start} onClick={active ? () => controller.current?.stop() : start}>{connecting ? "Cancelar" : active ? "Terminar conversación" : status === "error" ? "Volver a conectar" : "Hablar con Eon"}</button>
+      {caption && active && <p className={styles.mobileCaption} aria-live="polite">{caption}</p>}
+      <div className={styles.callActions}>
+        {active && !connecting && <button type="button" className={styles.mute} aria-pressed={muted} onClick={() => { const next = !muted; audio.current?.setMuted(next); setMuted(next); }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3ZM5 11a7 7 0 0 0 14 0M12 18v3"/>{muted && <path d="M3 3l18 18"/>}</svg><span>{muted ? "Activar micrófono" : "Silenciar"}</span></button>}
+        <button type="button" className={active ? styles.stop : styles.start} onClick={active ? () => controller.current?.stop() : start}><span className={styles.controlIcon} aria-hidden="true">{active ? "■" : "▶"}</span><span>{connecting ? "Cancelar" : active ? "Terminar" : status === "error" ? "Volver a conectar" : "Hablar con Eon"}</span></button>
+      </div>
       {error && <p className={styles.error} role="alert">{error}</p>}
       <Link href="/app" className={styles.write}>Prefiero escribir</Link>
     </div>

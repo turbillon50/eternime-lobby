@@ -68,10 +68,29 @@ function Menu({ user, close, nav, brand }: { user: ShellUser | null; close: () =
 export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithChildren<{ nav?: NavItem[]; brand?: string }>) {
   const [user, setUser] = useState<ShellUser | null>(null);
   const [open, setOpen] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const pathname = usePathname();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
+  const isAdmin = brand.includes("ADMIN");
+  useEffect(() => {
+    if (isAdmin) return;
+    const viewport = window.visualViewport;
+    const update = () => {
+      const scale = viewport?.scale ?? 1;
+      // A pinch zoom should not rearrange the application around the user.
+      if (Math.abs(scale - 1) > .05) return;
+      document.documentElement.style.setProperty("--eon-visual-height", `${viewport?.height ?? window.innerHeight}px`);
+      const editing = document.activeElement?.matches("input,textarea,[contenteditable=true]") ?? false;
+      setKeyboardOpen(editing && window.innerHeight - (viewport?.height ?? window.innerHeight) > 120);
+    };
+    update();
+    viewport?.addEventListener("resize", update);
+    window.addEventListener("resize", update);
+    document.addEventListener("focusin", update); document.addEventListener("focusout", update);
+    return () => { viewport?.removeEventListener("resize", update); window.removeEventListener("resize", update); document.removeEventListener("focusin", update); document.removeEventListener("focusout", update); document.documentElement.style.removeProperty("--eon-visual-height"); };
+  }, [isAdmin]);
   useEffect(() => {
     document.documentElement.classList.add("eon-app-active");
     document.body.classList.add("eon-app-active");
@@ -100,7 +119,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
   }, [open]);
   function trapDrawerFocus(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Tab") return;
-    const focusable = [...(drawerRef.current?.querySelectorAll<HTMLElement>('a,button:not([disabled]),input,textarea,select,[tabindex]:not([tabindex="-1"])') ?? [])];
+    const focusable = [...(drawerRef.current?.querySelectorAll<HTMLElement>('a,button:not([disabled]),summary,input,textarea,select,[tabindex]:not([tabindex="-1"])') ?? [])].filter(node => node.getClientRects().length > 0);
     if (!focusable.length) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
@@ -109,12 +128,12 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
   }
   const isChat = pathname === "/app" || pathname === "/app/hablar";
   const activeLabel = nav.find(item => item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href))?.label ?? "Eon";
-  return <div className="eon-app eon-simple-app min-h-svh">
+  return <div className={`eon-app eon-simple-app ${isAdmin ? "" : "eon-mobile-craft"} min-h-svh`} data-keyboard-open={keyboardOpen || undefined}>
     <div className="eon-mesh" aria-hidden />
     {!brand.includes("ADMIN") && <aside className="eon-desktop-sidebar" aria-label="Navegación de Eternime"><Menu user={user} close={()=>{}} nav={nav} brand={brand}/></aside>}
     <header className="eon-topbar">
       <div className="eon-topbar-mobile">
-        <button ref={triggerRef} className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú"><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
+        <button ref={triggerRef} className="crystal-icon" onClick={() => setOpen(true)} aria-label="Abrir menú" aria-expanded={open} aria-controls={open ? "eon-menu-drawer" : undefined}><Icon d="M5 7h14M5 12h14M5 17h14" /></button>
         <Link href={brand.includes("ADMIN") ? "/admin" : "/app"} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-.02em] text-slate-800"><span className="eon-mark"/>{brand}</Link>
         <Link href="/app/perfil" className="crystal-avatar" aria-label="Perfil">{user?.name?.[0] || "·"}</Link>
       </div>
@@ -136,7 +155,7 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
       </div>
     </header>
 
-    <AnimatePresence>{open && <><motion.button aria-label="Cerrar menú" className="eon-drawer-backdrop fixed inset-0 z-40" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside ref={drawerRef} onKeyDown={trapDrawerFocus} className="eon-drawer" role="dialog" aria-modal="true" aria-label="Menú de Eternime" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
+    <AnimatePresence>{open && <><motion.button aria-label="Cerrar menú" className="eon-drawer-backdrop fixed inset-0 z-40" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setOpen(false)}/><motion.aside id="eon-menu-drawer" ref={drawerRef} onKeyDown={trapDrawerFocus} className="eon-drawer" role="dialog" aria-modal="true" aria-label="Menú de Eternime" initial={{x:"-105%"}} animate={{x:0}} exit={{x:"-105%"}} transition={{type:"spring", damping:30, stiffness:300}}><Menu user={user} close={()=>setOpen(false)} nav={nav} brand={brand}/></motion.aside></>}</AnimatePresence>
 
     <main ref={mainRef} data-route={pathname} className={`eon-app-main relative z-10 mx-auto w-full ${isChat ? "max-w-5xl" : "max-w-6xl"} px-4 pb-12 pt-5 sm:px-6 lg:px-8`}>
       {!brand.includes("ADMIN") && <nav aria-label="Navegación principal" className="eon-section-nav">
@@ -144,10 +163,15 @@ export function AppShell({ children, nav = APP_NAV, brand = "EON" }: PropsWithCh
         <Link href="/app/hablar" aria-current={pathname === "/app/hablar" ? "page" : undefined}>Hablar con Eon</Link>
         <Link href="/app/clon" aria-current={pathname.startsWith("/app/clon") ? "page" : undefined}>Mi clon</Link>
       </nav>}
+      {!isAdmin && ["/app/recuerdos", "/app/boveda"].includes(pathname) && <EonMemoryDock/>}
       <PageTransition stable>{children}</PageTransition>
     </main>
 
-    {!brand.includes("ADMIN")&&["/app/recuerdos", "/app/boveda"].includes(pathname)&&<EonMemoryDock/>}
+    {!isAdmin && <nav className="eon-mobile-tabs" aria-label="Navegación móvil" data-vulcano-bottomnav>
+      <Link href="/app" aria-current={pathname === "/app" ? "page" : undefined}><Icon d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4A9 9 0 1 1 21 12Z"/><span>Escribir</span></Link>
+      <Link href="/app/hablar" aria-current={pathname === "/app/hablar" ? "page" : undefined}><Icon d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/><span>Hablar</span></Link>
+      <Link href="/app/clon" aria-current={pathname.startsWith("/app/clon") ? "page" : undefined}><Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0"/><span>Mi clon</span></Link>
+    </nav>}
 
   </div>;
 }
